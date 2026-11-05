@@ -2,7 +2,7 @@
 
 A mobile-friendly, silhouette-noir 2D side-scroller that teaches **Bayesian inference**.
 
-You are the ghost of Alistair Finch, a clockmaker who has just been put to sleep for good by something in his evening tea. You float through your house, gather evidence, and weigh it properly to work out who did it. The case is designed so that **gut instinct points to the wrong person**. Vivid clues create false leaders, and only careful updating (prior × likelihood, normalized) finds the culprit.
+You flicker into existence in a dark study, with no memory and no idea what you are. Drifting closer to a figure on the rug, you realise it is you: Alistair Finch, clockmaker, put to sleep for good by something in your evening tea. Memories return of the four people in the house tonight. From there you float through your house, gather evidence, and weigh it properly to work out who did it. The case is designed so that **gut instinct points to the wrong person**. Vivid clues create false leaders, and only careful updating (prior × likelihood, normalized) finds the culprit.
 
 ## Play
 
@@ -24,8 +24,10 @@ Browsers can't run the TypeScript source, so Pages must serve a **built** copy. 
 After changing game code, run `npm run build:pages` and commit `docs/`. CI fails if `docs/` is out of date.
 
 The game is best played in landscape. Controls:
-- **Touch:** ◀ ▶ to float, **Inspect** to examine the glowing clue, **Board** to see your suspicion board.
-- **Keyboard:** ← → or A/D to float, Space or E to inspect, B or Tab for the board.
+- **Touch / mouse:** press and hold and the ghost drifts toward your finger. Tap the glowing clue to drift to it and examine it. **Suspects** opens the suspicion board.
+- **Keyboard:** ← → or A/D to drift, Space or E to examine, B or Tab for the board.
+
+There are no on-screen arrows. The ghost's own thoughts appear in a bubble beside it; notes and memories open as full overlays.
 
 ## Difficulty
 
@@ -59,8 +61,8 @@ All story content and probabilities live in `src/data/case1.ts`. The tests in `s
 src/bayes/engine.ts       pure Bayes functions (update, chain, likelihood ratio, scoring)
 src/data/case1.ts         suspects, priors, clues, likelihoods, lessons, dialogue
 src/state/GameState.ts    difficulty, beliefs, history, localStorage save
-src/scenes/               Boot (procedural textures), Title, Intro, World, Evidence, Board, Accuse
-src/ui/                   widgets (buttons, bars), procedural silhouette art, touch controls
+src/scenes/               Boot (procedural textures), Title, World (incl. the amnesia opening), Memory, Evidence, Board, Accuse
+src/ui/                   widgets (buttons, bars), procedural silhouette art, drift controls, thought bubble
 ```
 
 There are no image assets: everything (the ghost, fog, clocks, rooms) is drawn in code with Phaser 3.

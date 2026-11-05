@@ -76,7 +76,7 @@ export class EvidenceScene extends Phaser.Scene {
     this.cameras.main.fade(200, 0, 0, 0, true);
     this.cameras.main.once('camerafadeoutcomplete', () => {
       this.scene.stop();
-      this.scene.resume('World');
+      this.scene.resume('World', { from: 'evidence' });
     });
   }
 

@@ -1,4 +1,4 @@
-import { CLUES, SUSPECTS } from '../data/case1';
+import { AWAKEN_X, CLUES, SUSPECTS } from '../data/case1';
 import { chain, Dist, normalize, scoreGuess, update } from '../bayes/engine';
 
 export type Difficulty = 'easy' | 'medium' | 'hard';
@@ -17,7 +17,7 @@ export interface StepRecord {
 
 export interface SaveData {
   difficulty: Difficulty;
-  /** -1 = prior not yet set; otherwise number of clues collected (0..CLUES.length). */
+  /** -2 = just awoke (body not yet found), -1 = prior not yet set; otherwise clues collected (0..CLUES.length). */
   found: number;
   prior: Dist;
   belief: Dist;
@@ -41,7 +41,7 @@ class GameStateImpl {
 
   static fresh(difficulty: Difficulty): SaveData {
     const uniform = SUSPECTS.map(() => 1 / SUSPECTS.length);
-    return { difficulty, found: -1, prior: uniform, belief: uniform, history: [], ghostX: 360 };
+    return { difficulty, found: -2, prior: uniform, belief: uniform, history: [], ghostX: AWAKEN_X };
   }
 
   newGame(difficulty: Difficulty) {
@@ -61,11 +61,23 @@ class GameStateImpl {
     return this.data.found >= CLUES.length;
   }
 
-  /** The next thing to pick up: 'prior', a clue index, or 'accuse'. */
-  get nextTarget(): 'prior' | number | 'accuse' {
+  /** True until the ghost has found its body and remembered the suspects. */
+  get awakening() {
+    return this.data.found < -1;
+  }
+
+  /** The next thing to pick up: the body, 'prior', a clue index, or 'accuse'. */
+  get nextTarget(): 'body' | 'prior' | number | 'accuse' {
+    if (this.data.found < -1) return 'body';
     if (this.data.found < 0) return 'prior';
     if (this.data.found < CLUES.length) return this.data.found;
     return 'accuse';
+  }
+
+  /** The body has been found and the suspects remembered. */
+  rememberSuspects() {
+    if (this.data.found < -1) this.data.found = -1;
+    this.save();
   }
 
   setPrior(prior: Dist) {

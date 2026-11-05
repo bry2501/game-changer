@@ -61,6 +61,6 @@ export class TitleScene extends Phaser.Scene {
       }
     }
     this.cameras.main.fade(500, 0, 0, 0, true);
-    this.cameras.main.once('camerafadeoutcomplete', () => this.scene.start('Intro'));
+    this.cameras.main.once('camerafadeoutcomplete', () => this.scene.start('World'));
   }
 }

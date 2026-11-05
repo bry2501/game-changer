@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 import { BootScene } from './scenes/BootScene';
 import { TitleScene } from './scenes/TitleScene';
-import { IntroScene } from './scenes/IntroScene';
+import { MemoryScene } from './scenes/MemoryScene';
 import { WorldScene } from './scenes/WorldScene';
 import { EvidenceScene } from './scenes/EvidenceScene';
 import { BoardScene } from './scenes/BoardScene';
@@ -20,7 +20,7 @@ const game = new Phaser.Game({
   },
   input: { activePointers: 3 },
   render: { antialias: true },
-  scene: [BootScene, TitleScene, IntroScene, WorldScene, EvidenceScene, BoardScene, AccuseScene],
+  scene: [BootScene, TitleScene, WorldScene, MemoryScene, EvidenceScene, BoardScene, AccuseScene],
 });
 
 // handy for automated testing / debugging

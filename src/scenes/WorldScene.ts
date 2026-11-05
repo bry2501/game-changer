@@ -13,9 +13,21 @@ import {
   drawPortrait,
   drawWindow,
 } from '../ui/art';
-import { BODY_X, CLUES, PRIOR_SHEET, ROOMS, ROOM_WIDTH } from '../data/case1';
+import {
+  AFTER_MEMORY_THOUGHTS,
+  AWAKEN_LINES,
+  BODY_X,
+  CLUES,
+  DRIFT_HINT,
+  BODY_LINES,
+  PRIOR_SHEET,
+  ROOMS,
+  ROOM_THOUGHTS,
+  ROOM_WIDTH,
+} from '../data/case1';
 import { GameState } from '../state/GameState';
 import { TouchControls } from '../ui/TouchControls';
+import { ThoughtBubble } from '../ui/ThoughtBubble';
 
 const WORLD_W = ROOM_WIDTH * ROOMS.length;
 const GHOST_BASE_Y = 400;
@@ -33,15 +45,18 @@ export class WorldScene extends Phaser.Scene {
   private ghost!: Phaser.GameObjects.Image;
   private glow!: Phaser.GameObjects.Image;
   private controls!: TouchControls;
+  private bubble!: ThoughtBubble;
   private spots = new Map<string, Spot>();
   private marker!: Phaser.GameObjects.Container;
   private markerLabel!: Phaser.GameObjects.Text;
-  private arrow!: Phaser.GameObjects.Text;
-  private thought!: Phaser.GameObjects.Text;
   private roomLabel!: Phaser.GameObjects.Text;
   private counter!: Phaser.GameObjects.Text;
   private room = -1;
+  private seenRooms = new Set<number>();
+  /** A story moment is playing: movement is locked and taps advance the lines. */
+  private cutscene = false;
   private t = 0;
+  private vx = 0;
 
   constructor() {
     super('World');
@@ -49,6 +64,9 @@ export class WorldScene extends Phaser.Scene {
 
   create() {
     this.room = -1;
+    this.seenRooms = new Set([0]);
+    this.cutscene = false;
+    this.vx = 0;
     this.cameras.main.setBackgroundColor('#05060a');
     this.cameras.main.setBounds(0, 0, WORLD_W, H);
     this.buildRooms();
@@ -80,89 +98,185 @@ export class WorldScene extends Phaser.Scene {
     }).setDepth(60).setScrollFactor(0);
 
     this.buildForeground();
-
     this.add.image(W / 2, H / 2, 'vignette').setScrollFactor(0).setDepth(900);
-
     this.cameras.main.startFollow(this.ghost, true, 0.08, 0.08, 0, 60);
 
-    // HUD
+    // HUD (kept minimal; hidden while the ghost does not yet know where it is)
     this.roomLabel = txt(this, 30, 24, '', 26, '#dfe6ff', { fontStyle: 'italic' }).setScrollFactor(0).setDepth(1000);
     this.counter = txt(this, 30, 60, '', 20, '#8f9ab8').setScrollFactor(0).setDepth(1000);
-    this.thought = txt(this, W / 2, 130, '', 24, '#cfe6ff', {
-      fontStyle: 'italic',
-      align: 'center',
-      wordWrap: { width: 900 },
-      backgroundColor: '#05070dcc',
-      padding: { x: 18, y: 10 },
-    })
-      .setOrigin(0.5)
-      .setScrollFactor(0)
-      .setDepth(1000)
-      .setAlpha(0);
-    this.arrow = txt(this, 0, GHOST_BASE_Y, '', 44, '#ffe2a0').setOrigin(0.5).setScrollFactor(0).setDepth(1000);
-    this.tweens.add({ targets: this.arrow, alpha: 0.35, duration: 600, yoyo: true, repeat: -1 });
 
-    this.controls = new TouchControls(this, () => this.inspect(), () => this.openBoard());
+    this.bubble = new ThoughtBubble(this, this.ghost);
+    this.controls = new TouchControls(
+      this,
+      (x, y) => this.isOnActiveSpot(x, y),
+      () => this.inspect(),
+      () => this.openBoard(),
+    );
+    // During story moments a tap moves the inner monologue along.
+    this.input.on('pointerdown', () => {
+      if (this.cutscene) this.bubble.advance();
+    });
 
+    this.events.on('resume', (_s: unknown, data?: { from?: string }) => this.onResume(data?.from));
     this.refreshTarget();
-    this.events.on('resume', () => this.onResume());
-    this.cameras.main.fadeIn(700);
 
-    const firstThought =
-      GameState.data.found < 0
-        ? 'Graves keeps a household log... it should be on the side table.'
-        : this.currentThought();
-    this.time.delayedCall(800, () => this.think(firstThought));
+    if (GameState.awakening) this.awaken();
+    else {
+      this.cameras.main.fadeIn(700);
+      this.time.delayedCall(800, () => this.bubble.say([this.currentThought()]));
+    }
   }
 
   update(_time: number, delta: number) {
-    this.t += delta / 1000;
-    const dir = this.controls.dir;
-    if (dir !== 0) {
-      this.ghost.x = Phaser.Math.Clamp(this.ghost.x + dir * SPEED * (delta / 1000), 60, WORLD_W - 60);
-      this.ghost.setFlipX(dir < 0);
+    const dt = delta / 1000;
+    this.t += dt;
+    this.controls.update();
+
+    // movement: keyboard direction, or drift toward the touched / tapped point
+    let want = this.controls.keyDir;
+    const tx = this.controls.targetX;
+    if (want === 0 && tx !== null && !this.cutscene) {
+      const dx = tx - this.ghost.x;
+      if (Math.abs(dx) < 10) this.controls.targetX = null;
+      else want = Math.sign(dx) * Math.min(1, Math.abs(dx) / 80);
+    }
+    if (this.cutscene) want = 0;
+    this.vx = Phaser.Math.Linear(this.vx, want * SPEED, Math.min(1, dt * 8));
+    if (Math.abs(this.vx) > 1) {
+      this.ghost.x = Phaser.Math.Clamp(this.ghost.x + this.vx * dt, 60, WORLD_W - 60);
+      this.ghost.setFlipX(this.vx < 0);
     }
     this.ghost.y = GHOST_BASE_Y + Math.sin(this.t * 2.2) * 12;
-    this.ghost.setAngle(dir * 6 + Math.sin(this.t * 1.3) * 2);
+    this.ghost.setAngle((this.vx / SPEED) * 6 + Math.sin(this.t * 1.3) * 2);
     this.glow.setPosition(this.ghost.x, this.ghost.y + 8);
-    this.glow.setAlpha(0.75 + Math.sin(this.t * 3) * 0.15);
+    this.glow.setAlpha((0.75 + Math.sin(this.t * 3) * 0.15) * this.ghost.alpha);
+    this.bubble.update();
 
     const r = Math.floor(this.ghost.x / ROOM_WIDTH);
-    if (r !== this.room) {
-      this.room = r;
-      this.roomLabel.setText(ROOMS[r].name).setAlpha(0);
-      this.tweens.add({ targets: this.roomLabel, alpha: 1, duration: 600 });
-      GameState.data.ghostX = this.ghost.x;
-      GameState.save();
-    }
+    if (r !== this.room) this.enterRoom(r);
 
-    // target proximity + direction arrow
+    // proximity to the glowing spot
     const spot = this.currentSpot();
-    const near = Math.abs(spot.x - this.ghost.x) < REACH;
-    this.controls.setInspectActive(near);
-    this.markerLabel.setVisible(near);
+    const dist = Math.abs(spot.x - this.ghost.x);
+    this.markerLabel.setVisible(this.marker.visible && dist < REACH);
+    if (this.cutscene || !this.marker.visible) return;
+    if (this.currentKey() === 'body' && dist < REACH) {
+      this.discoverBody();
+    } else if (this.controls.pendingInspect && dist < REACH * 0.7) {
+      this.controls.reset();
+      this.inspect();
+    }
+  }
+
+  // ---------------------------------------------------------------- story
+
+  /** Thrown into ghostly existence: no memory, only the ticking of clocks. */
+  private awaken() {
+    this.cutscene = true;
+    this.controls.enabled = false;
+    this.controls.showBoard(false);
+    this.marker.setVisible(false);
+    this.roomLabel.setAlpha(0);
+    this.counter.setAlpha(0);
+    this.ghost.setAlpha(0).setScale(0.3);
+    this.cameras.main.fadeIn(2600);
+    this.tweens.add({ targets: this.ghost, alpha: 1, scale: 0.85, duration: 2600, ease: 'Sine.easeOut' });
+    this.tweens.add({ targets: this.ghost, alpha: 0.55, duration: 140, yoyo: true, repeat: 3, delay: 2700 });
+    this.time.delayedCall(2200, () =>
+      this.bubble.say(AWAKEN_LINES, () => {
+        this.cutscene = false;
+        this.controls.enabled = true;
+        this.marker.setVisible(true);
+        this.bubble.say([DRIFT_HINT]);
+      }),
+    );
+  }
+
+  /** The ghost drifts over the figure on the rug... and recognises it. */
+  private discoverBody() {
+    this.cutscene = true;
+    this.controls.enabled = false;
+    this.controls.reset();
+    this.marker.setVisible(false);
     const cam = this.cameras.main;
-    const sx = spot.x - cam.scrollX;
-    if (sx < 0) this.arrow.setText('◀').setX(40).setVisible(true);
-    else if (sx > W) this.arrow.setText('▶').setX(W - 40).setVisible(true);
-    else this.arrow.setVisible(false);
+    cam.stopFollow();
+    cam.pan(BODY_X + 120, H / 2 - 20, 1400, 'Sine.easeInOut');
+    cam.zoomTo(1.3, 1400, 'Sine.easeInOut');
+    this.tweens.add({ targets: this.ghost, x: BODY_X + 140, duration: 1400, ease: 'Sine.easeInOut' });
+    this.time.delayedCall(1200, () =>
+      this.bubble.say(BODY_LINES, () => {
+        cam.flash(900, 255, 225, 180);
+        this.time.delayedCall(500, () => {
+          cam.zoomTo(1, 10);
+          cam.startFollow(this.ghost, true, 0.08, 0.08, 0, 60);
+          this.scene.pause();
+          this.scene.launch('Memory');
+        });
+      }),
+    );
+  }
+
+  /** Called when an overlay closes. */
+  private onResume(from?: string) {
+    this.controls.reset();
+    if (from === 'memory') {
+      GameState.rememberSuspects();
+      this.cameras.main.fadeIn(800);
+      this.marker.setVisible(true);
+      this.controls.showBoard(false);
+      this.roomLabel.setText(ROOMS[Math.max(0, this.room)].name);
+      this.tweens.add({ targets: [this.roomLabel, this.counter], alpha: 1, duration: 800 });
+      this.refreshTarget();
+      this.cutscene = true;
+      this.bubble.say(AFTER_MEMORY_THOUGHTS, () => this.endCutscene());
+      return;
+    }
+    this.refreshTarget();
+    if (from === 'evidence') {
+      const f = GameState.data.found;
+      const src = f === 0 ? PRIOR_SHEET : CLUES[f - 1];
+      this.bubble.say([...src.reaction, src.nextThought]);
+    }
+  }
+
+  private endCutscene() {
+    this.cutscene = false;
+    this.controls.enabled = true;
+  }
+
+  private enterRoom(r: number) {
+    this.room = r;
+    GameState.data.ghostX = this.ghost.x;
+    GameState.save();
+    if (GameState.awakening) return;
+    this.roomLabel.setText(ROOMS[r].name).setAlpha(0);
+    this.tweens.add({ targets: this.roomLabel, alpha: 1, duration: 600 });
+    if (!this.seenRooms.has(r)) {
+      this.seenRooms.add(r);
+      if (!this.bubble.busy && !this.cutscene) this.bubble.say([ROOM_THOUGHTS[r]]);
+    }
   }
 
   // ---------------------------------------------------------------- targets
 
   private currentKey(): string {
     const t = GameState.nextTarget;
-    if (t === 'prior') return 'prior';
-    if (t === 'accuse') return 'accuse';
-    return CLUES[t].id;
+    if (typeof t === 'number') return CLUES[t].id;
+    return t;
   }
 
   private currentSpot(): Spot {
     return this.spots.get(this.currentKey())!;
   }
 
+  private isOnActiveSpot(x: number, y: number): boolean {
+    const s = this.currentSpot();
+    return this.marker.visible && Math.abs(x - s.x) < 90 && Math.abs(y - s.y) < 130;
+  }
+
   private currentThought(): string {
     const f = GameState.data.found;
+    if (f === -1) return AFTER_MEMORY_THOUGHTS[AFTER_MEMORY_THOUGHTS.length - 1];
     if (f < 0) return '';
     if (f === 0) return PRIOR_SHEET.nextThought;
     return CLUES[f - 1].nextThought;
@@ -172,19 +286,23 @@ export class WorldScene extends Phaser.Scene {
     const s = this.currentSpot();
     this.marker.setPosition(s.x, s.y);
     this.markerLabel.setText(s.label);
-    this.counter.setText(
-      GameState.priorSet ? `Evidence: ${GameState.data.found} / ${CLUES.length}` : 'Evidence: 0 / ' + CLUES.length,
-    );
+    this.counter.setText(`Evidence: ${Math.max(0, GameState.data.found)} / ${CLUES.length}`);
+    this.controls.showBoard(GameState.priorSet);
   }
 
   private inspect() {
+    if (this.cutscene || !this.marker.visible) return;
     const s = this.currentSpot();
     if (Math.abs(s.x - this.ghost.x) >= REACH) {
-      this.think('Nothing here... the glow is somewhere else.');
+      // too far: drift over and examine on arrival
+      this.controls.targetX = s.x;
+      this.controls.pendingInspect = true;
       return;
     }
-    this.controls.reset();
     const key = this.currentKey();
+    if (key === 'body') return this.discoverBody();
+    this.controls.reset();
+    this.bubble.clear();
     if (key === 'accuse') {
       this.cameras.main.fade(500, 0, 0, 0, true);
       this.cameras.main.once('camerafadeoutcomplete', () => this.scene.start('Accuse'));
@@ -195,26 +313,10 @@ export class WorldScene extends Phaser.Scene {
   }
 
   private openBoard() {
-    if (!GameState.priorSet) {
-      this.think('I have nothing to weigh yet. First I should find the household log.');
-      return;
-    }
+    if (!GameState.priorSet || this.cutscene) return;
     this.controls.reset();
     this.scene.pause();
     this.scene.launch('Board');
-  }
-
-  private onResume() {
-    this.controls.reset();
-    this.refreshTarget();
-    this.think(this.currentThought());
-  }
-
-  private think(s: string) {
-    if (!s) return;
-    this.tweens.killTweensOf(this.thought);
-    this.thought.setText(s).setAlpha(0);
-    this.tweens.add({ targets: this.thought, alpha: 1, duration: 500, hold: 3800, yoyo: true });
   }
 
   // ---------------------------------------------------------------- world building
@@ -222,6 +324,7 @@ export class WorldScene extends Phaser.Scene {
   private buildSpots() {
     const deskY = FLOOR_Y - 140;
     const positions: Record<string, { y: number; label: string }> = {
+      body: { y: FLOOR_Y - 40, label: 'A figure on the rug' },
       prior: { y: FLOOR_Y - 110, label: 'Household log' },
       teacup: { y: deskY, label: 'Teacup' },
       letter: { y: FLOOR_Y - 20, label: 'Crumpled letter' },
@@ -232,6 +335,7 @@ export class WorldScene extends Phaser.Scene {
       cufflink: { y: FLOOR_Y - 14, label: 'Something shiny' },
       accuse: { y: FLOOR_Y - 60, label: 'Name the culprit' },
     };
+    this.spots.set('body', { key: 'body', x: BODY_X, ...positions.body });
     this.spots.set('prior', { key: 'prior', x: PRIOR_SHEET.x, ...positions.prior });
     CLUES.forEach((c) => this.spots.set(c.id, { key: c.id, x: c.x, ...positions[c.id] }));
     this.spots.set('accuse', { key: 'accuse', x: BODY_X, ...positions.accuse });

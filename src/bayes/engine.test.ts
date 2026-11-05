@@ -62,3 +62,22 @@ describe('case 1 design', () => {
     }
   });
 });
+
+describe('story progression', () => {
+  it('wakes with amnesia, then remembers, then reads the log, then gathers clues', async () => {
+    const { GameState } = await import('../state/GameState');
+    GameState.newGame('easy');
+    expect(GameState.awakening).toBe(true);
+    expect(GameState.nextTarget).toBe('body');
+    GameState.rememberSuspects();
+    expect(GameState.awakening).toBe(false);
+    expect(GameState.nextTarget).toBe('prior');
+    GameState.setPrior(truePrior());
+    expect(GameState.nextTarget).toBe(0);
+  });
+
+  it('every clue has an inner-voice reaction', () => {
+    for (const c of CLUES) expect(c.reaction.length).toBeGreaterThan(0);
+    for (const s of SUSPECTS) expect(s.memory.length).toBeGreaterThan(20);
+  });
+});

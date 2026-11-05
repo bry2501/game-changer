@@ -11,6 +11,8 @@ export interface Suspect {
   color: number;
   /** Hours spent inside the house between 6 pm and 10 pm: the basis of the prior. */
   hoursInside: number;
+  /** What the ghost remembers about them when memory returns. */
+  memory: string;
 }
 
 export interface Clue {
@@ -28,6 +30,8 @@ export interface Clue {
   trap: string;
   /** Explanation shown after the update. */
   lesson: string;
+  /** The ghost's inner voice right after the clue: first the gut, then the reflective voice. */
+  reaction: string[];
   /** The ghost's thought pointing toward the next clue. */
   nextThought: string;
 }
@@ -44,10 +48,14 @@ export const ROOM_WIDTH = 1280;
 export const CASE_TITLE = "The Clockmaker's Last Hour";
 
 export const SUSPECTS: Suspect[] = [
-  { id: 'butler', name: 'Graves', role: 'the butler', color: 0x8fb3ff, hoursInside: 3.5 },
-  { id: 'niece', name: 'Clara', role: 'the niece', color: 0xff9fc6, hoursInside: 3 },
-  { id: 'partner', name: 'Mr. Voss', role: 'the business partner', color: 0xffd27a, hoursInside: 2 },
-  { id: 'gardener', name: 'Pip', role: 'the gardener', color: 0x9ff0b0, hoursInside: 1.5 },
+  { id: 'butler', name: 'Graves', role: 'the butler', color: 0x8fb3ff, hoursInside: 3.5,
+    memory: 'My butler for thirty years. He brings my tea at nine every night, as he has since my wife passed. He says little, and notices everything.' },
+  { id: 'niece', name: 'Clara', role: 'the niece', color: 0xff9fc6, hoursInside: 3,
+    memory: 'My niece, bright and stubborn, staying with us this week. We argued about my will. I said things I regret.' },
+  { id: 'partner', name: 'Mr. Voss', role: 'the business partner', color: 0xffd27a, hoursInside: 2,
+    memory: 'My partner at Finch & Voss Clockworks for twenty years. He came this afternoon with papers to sign, and smiled a little too much.' },
+  { id: 'gardener', name: 'Pip', role: 'the gardener', color: 0x9ff0b0, hoursInside: 1.5,
+    memory: 'The gardener. Muddy boots, kind eyes. He talks to the orchids more than to people, and keeps careful notes on every one.' },
 ];
 
 export const CULPRIT_INDEX = 2;
@@ -61,14 +69,52 @@ export const ROOMS: Room[] = [
 
 export const BODY_X = 300;
 
-export const INTRO_LINES: string[] = [
-  'Tick... tick... tick...',
-  'The clocks are still ticking. I can hear every one of them.',
-  'I am floating. Below me, on the study rug, lies... me.',
-  'Alistair Finch, clockmaker. Asleep for good. Something was slipped into my evening tea.',
-  'Someone in this house did this. I need to know who.',
-  'Ghosts cannot jump to conclusions. Well, we can, but we shouldn’t.',
-  'I will gather the evidence and weigh each piece carefully: how likely would I be to see it if each person were guilty?',
+/** Where the ghost first flickers into existence. */
+export const AWAKEN_X = 860;
+
+/** Thrown into ghostly existence: no memory, no context. */
+export const AWAKEN_LINES: string[] = [
+  '...',
+  'Where... am I?',
+  'Cold. Quiet. Only the ticking of clocks. So many clocks.',
+  'I don\u2019t remember arriving here. I don\u2019t remember... anything.',
+  'There is something on the rug. A shape, lying very still.',
+];
+
+/** Shown once the player can move. */
+export const DRIFT_HINT = 'I feel weightless. If I reach toward something, I drift to it.';
+
+/** Discovering the body. */
+export const BODY_LINES: string[] = [
+  'Someone is lying here. So still. As if asleep.',
+  'That coat. Those hands. The ink stain on the left cuff...',
+  '...it\u2019s me.',
+  'I am Alistair Finch. I make clocks. I made clocks.',
+  'No wound, nothing broken. Just... asleep, for good.',
+  'My evening tea. It tasted bitter tonight.',
+  'Someone did this to me.',
+];
+
+export const MEMORY_INTRO =
+  'Faces rise out of the fog, one by one. The people who were in the house tonight.';
+
+export const MEMORY_OUTRO = [
+  'One of them did this.',
+  'Already my gut whispers a name. But a gut feeling is how the living get things wrong.',
+  'I will gather what I can find, and weigh each piece honestly.',
+];
+
+export const AFTER_MEMORY_THOUGHTS: string[] = [
+  'Where to begin...',
+  'Graves keeps a log of everyone who comes and goes. It should be on the side table.',
+];
+
+/** The first time the ghost drifts into each room. */
+export const ROOM_THOUGHTS: string[] = [
+  '',
+  'The hallway. Portraits of Finches long gone. Soon, I suppose, mine will hang here too.',
+  'The conservatory. Cold glass, sleeping plants. That window is open. It never is.',
+  'The office. Twenty years of Finch & Voss in these ledgers.',
 ];
 
 /** The opportunity sheet that sets the prior. */
@@ -84,6 +130,10 @@ export const PRIOR_SHEET = {
   lesson:
     'Prior = opportunity. Divide each person’s hours inside by the total (10 hours). ' +
     'Graves starts as the most likely suspect, but only because he was home the longest.',
+  reaction: [
+    'Graves was home the longest, so he starts as the likeliest. That is opportunity, not guilt.',
+    'Every clue from now on should shift these numbers. By how much is the whole question.',
+  ],
   nextThought: 'My teacup is still on the desk...',
 };
 
@@ -105,6 +155,10 @@ export const CLUES: Clue[] = [
     lesson:
       'It FEELS damning, but evidence that is almost equally likely whatever happened barely moves anything. ' +
       'The likelihood ratio is about 1.06. Graves barely moves.',
+    reaction: [
+      'Graves\u2019s prints! It must be Graves.',
+      '...But he carries that cup every single night. Of course his prints are on it.',
+    ],
     nextThought: 'I heard paper rustling in the hallway...',
   },
   {
@@ -125,6 +179,10 @@ export const CLUES: Clue[] = [
     lesson:
       'Angry words are dramatic, but plenty of people write angry letters and harm no one. ' +
       'The likelihood ratio is only 2: it doubles Clara’s odds, so she is now the top suspect at about 45%. That is not a confession.',
+    reaction: [
+      'Clara. She was so angry with me...',
+      'Anger makes a vivid story. But a vivid story isn\u2019t the same as a likely one.',
+    ],
     nextThought: 'A cold draft blows in from the conservatory...',
   },
   {
@@ -144,6 +202,10 @@ export const CLUES: Clue[] = [
     lesson:
       'Mud screams "gardener!", but Voss would also leave prints, and Pip started with the lowest prior. ' +
       'Prior × likelihood: Pip and Voss end up close (38% vs 32%). The clue points to the GARDEN, not one person.',
+    reaction: [
+      'Garden mud. Pip, surely. It has to be Pip.',
+      'Or anyone who came in through the garden gate tonight. Pip started as the least likely of all.',
+    ],
     nextThought: 'Voss always kept the partnership books in the office...',
   },
   {
@@ -164,6 +226,10 @@ export const CLUES: Clue[] = [
     lesson:
       'THIS clue is diagnostic: it is 3.5× more likely if Voss is guilty than if anyone else is. ' +
       'Voss jumps to about 62%. Notice that it took a strong likelihood ratio, not a vivid story.',
+    reaction: [
+      'Voss. My partner. Stealing from me?',
+      'This clue fits one person far better than anyone else. That is what strong evidence feels like.',
+    ],
     nextThought: 'The telephone switchboard log is on the office desk...',
   },
   {
@@ -184,6 +250,10 @@ export const CLUES: Clue[] = [
     lesson:
       'Evidence can clear people too. An alibi makes the clue 10× LESS likely under "Clara did it". ' +
       'Her probability collapses to about 1%, and the others share what she loses.',
+    reaction: [
+      'Clara was on the telephone when my tea was poured.',
+      'I am almost relieved. An alibi is evidence too: it pushes belief away from someone.',
+    ],
     nextThought: 'Pip keeps a greenhouse log... back in the conservatory.',
   },
   {
@@ -204,6 +274,10 @@ export const CLUES: Clue[] = [
     lesson:
       'Remember the boot print that pointed at Pip? This alibi cancels most of it. ' +
       'Bayesian updating lets evidence add up AND cancel out. Pip drops to about 4%.',
+    reaction: [
+      'Dear Pip, counting temperatures while I fell asleep for good.',
+      'The mud pointed at him; this points away. Evidence can cancel out evidence.',
+    ],
     nextThought: 'Something glinted under my desk in the study...',
   },
   {
@@ -223,6 +297,10 @@ export const CLUES: Clue[] = [
     lesson:
       'P(cufflink | Voss guilty) = 0.6, but that is NOT P(Voss guilty | cufflink). ' +
       'On its own this clue is weak (likelihood ratio 2). What convicts Voss is ALL the evidence together: about 92%.',
+    reaction: [
+      'Voss\u2019s cufflink. But he sat at this desk this afternoon...',
+      'On its own it proves little. Together with everything else, the picture is clear.',
+    ],
     nextThought: 'I have seen enough. Time to return to my body and name the culprit.',
   },
 ];
