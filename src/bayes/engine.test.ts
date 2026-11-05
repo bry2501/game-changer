@@ -1,0 +1,64 @@
+import { describe, expect, it } from 'vitest';
+import { chain, likelihoodRatio, normalize, scoreGuess, update, argmax } from './engine';
+import { CLUES, CULPRIT_INDEX, SUSPECTS } from '../data/case1';
+import { truePrior } from '../state/GameState';
+
+describe('engine', () => {
+  it('normalizes', () => {
+    expect(normalize([1, 1, 2])).toEqual([0.25, 0.25, 0.5]);
+    expect(normalize([0, 0])).toEqual([0.5, 0.5]);
+  });
+
+  it('applies Bayes rule (classic disease test)', () => {
+    // 1% prevalence, 90% sensitivity, 9% false positives -> ~9.2% posterior
+    const post = update([0.01, 0.99], [0.9, 0.09]);
+    expect(post[0]).toBeCloseTo(0.0917, 3);
+  });
+
+  it('likelihood ratio of non-diagnostic evidence is ~1', () => {
+    expect(likelihoodRatio([0.25, 0.25, 0.25, 0.25], [0.9, 0.9, 0.9, 0.9], 0)).toBeCloseTo(1);
+  });
+
+  it('scores guesses', () => {
+    expect(scoreGuess([1, 0], [1, 0])).toBe(100);
+    expect(scoreGuess([0, 1], [1, 0])).toBe(0);
+  });
+});
+
+describe('case 1 design', () => {
+  const prior = truePrior();
+  const steps = chain(prior, CLUES.map((c) => c.likelihoods));
+
+  it('has the designed prior', () => {
+    expect(prior.map((p) => +p.toFixed(2))).toEqual([0.35, 0.3, 0.2, 0.15]);
+  });
+
+  it('matches the designed posterior chain', () => {
+    const expected = [
+      [0.36, 0.29, 0.2, 0.15],
+      [0.28, 0.45, 0.15, 0.11],
+      [0.12, 0.19, 0.32, 0.38],
+      [0.07, 0.11, 0.62, 0.21],
+      [0.07, 0.01, 0.68, 0.23],
+      [0.09, 0.01, 0.85, 0.04],
+      [0.05, 0.01, 0.92, 0.02],
+    ];
+    expected.forEach((row, i) => {
+      row.forEach((v, j) => expect(Math.abs(steps[i + 1][j] - v)).toBeLessThan(0.011));
+    });
+  });
+
+  it('sets intuition traps: someone other than the culprit leads mid-case', () => {
+    const leaders = steps.map(argmax);
+    expect(leaders).toContain(1); // Clara after the letter
+    expect(leaders).toContain(3); // Pip after the boot print
+    expect(leaders[leaders.length - 1]).toBe(CULPRIT_INDEX);
+  });
+
+  it('every clue has a reason per suspect', () => {
+    for (const c of CLUES) {
+      expect(c.likelihoods).toHaveLength(SUSPECTS.length);
+      expect(c.reasons).toHaveLength(SUSPECTS.length);
+    }
+  });
+});

@@ -1,0 +1,27 @@
+import Phaser from 'phaser';
+import { BootScene } from './scenes/BootScene';
+import { TitleScene } from './scenes/TitleScene';
+import { IntroScene } from './scenes/IntroScene';
+import { WorldScene } from './scenes/WorldScene';
+import { EvidenceScene } from './scenes/EvidenceScene';
+import { BoardScene } from './scenes/BoardScene';
+import { AccuseScene } from './scenes/AccuseScene';
+import { H, W } from './ui/widgets';
+
+const game = new Phaser.Game({
+  type: Phaser.AUTO,
+  parent: 'game',
+  backgroundColor: '#05060a',
+  scale: {
+    mode: Phaser.Scale.FIT,
+    autoCenter: Phaser.Scale.CENTER_BOTH,
+    width: W,
+    height: H,
+  },
+  input: { activePointers: 3 },
+  render: { antialias: true },
+  scene: [BootScene, TitleScene, IntroScene, WorldScene, EvidenceScene, BoardScene, AccuseScene],
+});
+
+// handy for automated testing / debugging
+(window as unknown as { __game: Phaser.Game }).__game = game;

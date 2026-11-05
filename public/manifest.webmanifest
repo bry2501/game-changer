@@ -1,0 +1,9 @@
+{
+  "name": "Ghost Mystery",
+  "short_name": "Ghost Mystery",
+  "display": "fullscreen",
+  "orientation": "landscape",
+  "background_color": "#05060a",
+  "theme_color": "#05060a",
+  "start_url": "."
+}
