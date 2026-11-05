@@ -14,6 +14,12 @@ npm run preview    # serve the build
 npm test           # Bayes engine and case design tests
 ```
 
+### GitHub Pages
+
+The game must be **built** before it can be served; the raw source won't run on Pages.
+`.github/workflows/deploy-pages.yml` builds it and publishes `dist/` on every push.
+One-time setup: **Settings → Pages → Build and deployment → Source: GitHub Actions**.
+
 The game is best played in landscape. Controls:
 - **Touch:** ◀ ▶ to float, **Inspect** to examine the glowing clue, **Board** to see your suspicion board.
 - **Keyboard:** ← → or A/D to float, Space or E to inspect, B or Tab for the board.
