@@ -50,6 +50,7 @@ interface ClueSource extends Omit<Clue, 'nextThought'> {
   leadIn: string;
   /** Overrides for Easy, where only Clara and Voss are suspects. */
   lessonEasy?: string;
+  trapEasy?: string;
   reactionEasy?: string[];
 }
 
@@ -221,6 +222,7 @@ const ALL_CLUES: ClueSource[] = [
     lesson:
       'Mud screams "gardener!", but Voss would also leave prints, and Pip started with the lowest prior. ' +
       'Prior × likelihood: Pip {gardener} vs Voss {partner}. The clue points to the GARDEN, not one person.',
+    trapEasy: 'A large likelihood ratio flips the lead',
     lessonEasy:
       'Clara\u2019s room is upstairs, while Voss parks by the garden gate. Mud is 5\u00D7 more likely if Voss did it, ' +
       'so this one clue flips the lead: Voss is now {partner}. A large likelihood ratio moves belief a lot.',
@@ -401,7 +403,7 @@ export function setCase(difficulty: Difficulty) {
       text: src.text,
       likelihoods,
       reasons: idx.map((i) => src.reasons[i]),
-      trap: src.trap,
+      trap: (easy && src.trapEasy) || src.trap,
       lesson: fill((easy && src.lessonEasy) || src.lesson, belief),
       reaction: (easy && src.reactionEasy) || src.reaction,
       nextThought: n + 1 < sources.length ? sources[n + 1].leadIn : FINAL_THOUGHT,

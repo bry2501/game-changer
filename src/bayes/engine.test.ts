@@ -111,6 +111,6 @@ describe('suspects per difficulty', () => {
 
   it('easy never mentions the absent suspects in its lessons', () => {
     setCase('easy');
-    for (const c of CLUES) expect(c.lesson + c.reaction.join(' ') + c.reasons.join(' ')).not.toMatch(/Pip|Graves/);
+    for (const c of CLUES) expect(c.lesson + c.trap + c.reaction.join(' ') + c.reasons.join(' ')).not.toMatch(/Pip|Graves|gardener/);
   });
 });
