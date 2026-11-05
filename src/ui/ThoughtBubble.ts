@@ -12,12 +12,12 @@ const NAV_H = 30;
  * - A single passing thought fades by itself after a generous pause.
  * - A thought SEQUENCE (two or more lines) waits for the player: tap / Space / →
  *   for the next bubble, ← (or the ‹ on the bubble) to go back. Nothing auto-advances.
+ *   Only the ‹ › arrows are shown; there is no page counter.
  */
 export class ThoughtBubble {
   private box: Phaser.GameObjects.Container;
   private bg: Phaser.GameObjects.Graphics;
   private label: Phaser.GameObjects.Text;
-  private nav: Phaser.GameObjects.Text;
   private prevBtn: Phaser.GameObjects.Text;
   private nextBtn: Phaser.GameObjects.Text;
   private lines: string[] = [];
@@ -39,7 +39,6 @@ export class ThoughtBubble {
       wordWrap: { width: MAX_W - PAD_X * 2 },
       lineSpacing: 2,
     }).setOrigin(0.5);
-    this.nav = txt(scene, 0, 0, '', 15, '#8fa6cf').setOrigin(0.5);
     // generous hit areas: these are tapped with thumbs
     this.prevBtn = txt(scene, 0, 0, '‹', 34, '#9fd8ff', { padding: { x: 18, y: 2 } })
       .setOrigin(0.5)
@@ -50,7 +49,7 @@ export class ThoughtBubble {
     this.prevBtn.on('pointerup', () => this.back());
     this.nextBtn.on('pointerup', () => this.next());
     this.box = scene.add
-      .container(0, 0, [this.bg, this.label, this.nav, this.prevBtn, this.nextBtn])
+      .container(0, 0, [this.bg, this.label, this.prevBtn, this.nextBtn])
       .setDepth(950)
       .setAlpha(0);
   }
@@ -136,7 +135,6 @@ export class ThoughtBubble {
     this.bh = this.label.height + PAD_Y * 2 + (seq ? NAV_H : 0);
     this.label.setY(seq ? -NAV_H / 2 : 0);
     const navY = this.bh / 2 - NAV_H / 2 - 4;
-    this.nav.setVisible(seq).setText(`${this.index + 1} / ${this.lines.length}`).setY(navY);
     this.prevBtn.setVisible(seq).setPosition(-this.bw / 2 + 26, navY).setAlpha(this.index > 0 ? 1 : 0.25);
     this.nextBtn.setVisible(seq).setPosition(this.bw / 2 - 26, navY);
     this.scene.tweens.killTweensOf(this.box);

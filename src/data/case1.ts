@@ -29,6 +29,10 @@ export interface Clue {
   title: string;
   /** What the ghost sees. */
   text: string;
+  /** Why it matters: the narrative context before any analysis. */
+  context: string;
+  /** Short name used in questions: "How likely would I be to find ___?" */
+  short: string;
   /** P(this clue | suspect i is the culprit). */
   likelihoods: number[];
   /** Plain-language reasoning for each likelihood (shown as hints; the only info in Hard mode). */
@@ -145,8 +149,10 @@ const PRIOR_SOURCE = {
   x: 620,
   title: 'The Household Log',
   text:
-    'Everyone signs the household log when they come and go. It shows who was inside tonight between 6 pm and 10 pm, and for how long.{absent} ' +
-    'Before any clues, the more time someone spent inside, the more opportunity they had. That is our PRIOR: our belief before the evidence.',
+    'Everyone signs the household log when they come and go. It shows who was inside tonight between 6 pm and 10 pm, and for how long.{absent}',
+  context:
+    'Before I weigh a single clue, I need a starting point. The longer someone was inside, the more chances they had to reach my tea. ' +
+    'That starting belief is called the PRIOR.',
   lesson:
     'Prior = opportunity. Divide each person\u2019s hours inside by the total ({total} hours). ' +
     '{top} starts as the most likely suspect, but only because of the time spent in the house.',
@@ -159,6 +165,9 @@ const PRIOR_SOURCE = {
 const ALL_CLUES: ClueSource[] = [
   {
     id: 'teacup',
+    short: 'Graves\u2019s fingerprints on my teacup',
+    context:
+      'The sleeping draught was in my tea, so whoever handled this cup had a chance to slip it in. But a teacup passes through hands for innocent reasons too.',
     leadIn: 'My teacup is still on the desk...',
     room: 0,
     x: 930,
@@ -182,6 +191,9 @@ const ALL_CLUES: ClueSource[] = [
   },
   {
     id: 'letter',
+    short: 'an angry letter like this',
+    context:
+      'Clara and I quarrelled about my will. A letter like this shows strong feelings, maybe even a motive. But strong feelings are common, and poisoning is rare.',
     leadIn: 'I heard paper rustling in the hallway...',
     room: 1,
     x: 1900,
@@ -206,6 +218,9 @@ const ALL_CLUES: ClueSource[] = [
   },
   {
     id: 'boot',
+    short: 'a muddy print under that window',
+    context:
+      'Someone came or went through the garden tonight, by a window that is never open. Who would be likely to leave a print like this?',
     leadIn: 'A cold draft blows in from the conservatory...',
     room: 2,
     x: 3000,
@@ -237,6 +252,9 @@ const ALL_CLUES: ClueSource[] = [
   },
   {
     id: 'ledger',
+    short: 'a ledger like this',
+    context:
+      'Money is missing from Finch & Voss Clockworks. If someone was stealing from me and feared I would find out, that would be a reason to silence me.',
     leadIn: 'Voss always kept the partnership books in the office...',
     room: 3,
     x: 4300,
@@ -261,6 +279,9 @@ const ALL_CLUES: ClueSource[] = [
   },
   {
     id: 'phone',
+    short: 'this telephone log',
+    context:
+      'My tea was poured at about 9:40. Anyone on the telephone at that exact moment could hardly have been in my study at the same time.',
     leadIn: 'The telephone switchboard log is on the office desk...',
     room: 3,
     x: 4800,
@@ -285,6 +306,9 @@ const ALL_CLUES: ClueSource[] = [
   },
   {
     id: 'greenhouse',
+    short: 'Pip\u2019s careful greenhouse log',
+    context:
+      'Pip\u2019s notes put him in the greenhouse all evening, writing every ten minutes. Would someone busy poisoning my tea keep such a steady record?',
     leadIn: 'Pip keeps a greenhouse log... back in the conservatory.',
     room: 2,
     x: 3500,
@@ -309,6 +333,9 @@ const ALL_CLUES: ClueSource[] = [
   },
   {
     id: 'cufflink',
+    short: 'a \u201CV\u201D cufflink under my desk',
+    context:
+      'Voss wears cufflinks like this. But he also sat at this very desk this afternoon, hours before anything happened.',
     leadIn: 'Something glinted under my desk in the study...',
     room: 0,
     x: 1110,
@@ -366,7 +393,7 @@ export const CASE_SETUP: Record<Difficulty, { suspects: string[]; clues: string[
 export let SUSPECTS: Suspect[] = [];
 export let CLUES: Clue[] = [];
 export let CULPRIT_INDEX = 0;
-export let PRIOR_SHEET = { ...PRIOR_SOURCE, nextThought: '' };
+export let PRIOR_SHEET = { ...PRIOR_SOURCE, nextThought: '', total: 0 };
 
 function fmtPct(x: number) {
   return `${Math.round(x * 100)}%`;
@@ -401,6 +428,8 @@ export function setCase(difficulty: Difficulty) {
       x: src.x,
       title: src.title,
       text: src.text,
+      context: src.context,
+      short: src.short,
       likelihoods,
       reasons: idx.map((i) => src.reasons[i]),
       trap: (easy && src.trapEasy) || src.trap,
@@ -420,6 +449,7 @@ export function setCase(difficulty: Difficulty) {
   PRIOR_SHEET = {
     ...PRIOR_SOURCE,
     text: fillPrior(PRIOR_SOURCE.text),
+    total,
     lesson: fillPrior(PRIOR_SOURCE.lesson),
     reaction: PRIOR_SOURCE.reaction.map(fillPrior),
     nextThought: sources[0].leadIn,
