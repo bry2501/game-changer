@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { chain, likelihoodRatio, normalize, scoreGuess, update, argmax } from './engine';
-import { CLUES, CULPRIT_INDEX, SUSPECTS } from '../data/case1';
+import { CLUES, CULPRIT_INDEX, SUSPECTS, setCase } from '../data/case1';
 import { truePrior } from '../state/GameState';
 
 describe('engine', () => {
@@ -25,7 +25,8 @@ describe('engine', () => {
   });
 });
 
-describe('case 1 design', () => {
+describe('case 1 design (hard: 4 suspects)', () => {
+  setCase('hard');
   const prior = truePrior();
   const steps = chain(prior, CLUES.map((c) => c.likelihoods));
 
@@ -77,7 +78,39 @@ describe('story progression', () => {
   });
 
   it('every clue has an inner-voice reaction', () => {
+    setCase('hard');
     for (const c of CLUES) expect(c.reaction.length).toBeGreaterThan(0);
     for (const s of SUSPECTS) expect(s.memory.length).toBeGreaterThan(20);
+  });
+});
+
+describe('suspects per difficulty', () => {
+  const expectations = {
+    easy: { n: 2, misleads: ['niece'] },
+    medium: { n: 3, misleads: ['niece', 'gardener'] },
+    hard: { n: 4, misleads: ['niece', 'gardener'] },
+  } as const;
+  for (const [d, e] of Object.entries(expectations)) {
+    it(`${d}: ${e.n} suspects, intuition traps, and Voss wins in the end`, () => {
+      setCase(d as 'easy' | 'medium' | 'hard');
+      expect(SUSPECTS).toHaveLength(e.n);
+      expect(SUSPECTS[CULPRIT_INDEX].id).toBe('partner');
+      const steps = chain(truePrior(), CLUES.map((c) => c.likelihoods));
+      const leaders = steps.slice(1).map((s) => SUSPECTS[argmax(s)].id);
+      for (const m of e.misleads) expect(leaders).toContain(m);
+      expect(steps[steps.length - 1][CULPRIT_INDEX]).toBeGreaterThan(0.9);
+      // templates are resolved and thoughts chain correctly
+      for (const c of CLUES) {
+        expect(c.lesson).not.toMatch(/\{\w+\}/);
+        expect(c.likelihoods).toHaveLength(e.n);
+        expect(c.reasons).toHaveLength(e.n);
+      }
+      expect(CLUES[CLUES.length - 1].nextThought).toMatch(/name the culprit/);
+    });
+  }
+
+  it('easy never mentions the absent suspects in its lessons', () => {
+    setCase('easy');
+    for (const c of CLUES) expect(c.lesson + c.reaction.join(' ') + c.reasons.join(' ')).not.toMatch(/Pip|Graves/);
   });
 });

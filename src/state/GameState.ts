@@ -1,7 +1,7 @@
-import { AWAKEN_X, CLUES, SUSPECTS } from '../data/case1';
+import { AWAKEN_X, CLUES, Difficulty, SUSPECTS, setCase } from '../data/case1';
 import { chain, Dist, normalize, scoreGuess, update } from '../bayes/engine';
 
-export type Difficulty = 'easy' | 'medium' | 'hard';
+export type { Difficulty };
 
 export interface StepRecord {
   clueId: string;
@@ -25,7 +25,7 @@ export interface SaveData {
   ghostX: number;
 }
 
-const KEY = 'ghost-mystery-save-v1';
+const KEY = 'ghost-mystery-save-v2';
 
 export function truePrior(): Dist {
   return normalize(SUSPECTS.map((s) => s.hoursInside));
@@ -40,6 +40,7 @@ class GameStateImpl {
   data: SaveData = GameStateImpl.fresh('easy');
 
   static fresh(difficulty: Difficulty): SaveData {
+    setCase(difficulty);
     const uniform = SUSPECTS.map(() => 1 / SUSPECTS.length);
     return { difficulty, found: -2, prior: uniform, belief: uniform, history: [], ghostX: AWAKEN_X };
   }
@@ -142,6 +143,7 @@ class GameStateImpl {
       const raw = localStorage.getItem(KEY);
       if (!raw) return false;
       this.data = JSON.parse(raw) as SaveData;
+      setCase(this.data.difficulty);
       return true;
     } catch {
       return false;

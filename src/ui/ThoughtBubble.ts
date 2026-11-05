@@ -1,61 +1,106 @@
 import Phaser from 'phaser';
 import { txt } from './widgets';
 
-const MAX_W = 400;
-const PAD_X = 18;
-const PAD_Y = 12;
+const MAX_W = 420;
+const PAD_X = 22;
+const PAD_Y = 14;
+const NAV_H = 30;
 
 /**
- * The ghost's inner voice: a soft thought bubble that floats beside the ghost
- * (not across the top of the screen). Lines play one after another.
+ * The ghost's inner voice: a thought bubble that floats beside the ghost.
+ *
+ * - A single passing thought fades by itself after a generous pause.
+ * - A thought SEQUENCE (two or more lines) waits for the player: tap / Space / →
+ *   for the next bubble, ← (or the ‹ on the bubble) to go back. Nothing auto-advances.
  */
 export class ThoughtBubble {
   private box: Phaser.GameObjects.Container;
   private bg: Phaser.GameObjects.Graphics;
   private label: Phaser.GameObjects.Text;
-  private queue: string[] = [];
+  private nav: Phaser.GameObjects.Text;
+  private prevBtn: Phaser.GameObjects.Text;
+  private nextBtn: Phaser.GameObjects.Text;
+  private lines: string[] = [];
+  private index = 0;
   private timer?: Phaser.Time.TimerEvent;
   private onDone?: () => void;
   private bw = 0;
   private bh = 0;
-  /** True while lines are queued or showing. */
+  /** True while lines are showing. */
   busy = false;
+  /** True while a player-paced sequence is showing. */
+  sequence = false;
 
   constructor(private scene: Phaser.Scene, private target: Phaser.GameObjects.Image) {
     this.bg = scene.add.graphics();
-    this.label = txt(scene, 0, 0, '', 22, '#e6edff', {
+    this.label = txt(scene, 0, 0, '', 23, '#e6edff', {
       fontStyle: 'italic',
       align: 'center',
       wordWrap: { width: MAX_W - PAD_X * 2 },
       lineSpacing: 2,
     }).setOrigin(0.5);
-    this.box = scene.add.container(0, 0, [this.bg, this.label]).setDepth(950).setAlpha(0);
+    this.nav = txt(scene, 0, 0, '', 15, '#8fa6cf').setOrigin(0.5);
+    // generous hit areas: these are tapped with thumbs
+    this.prevBtn = txt(scene, 0, 0, '‹', 34, '#9fd8ff', { padding: { x: 18, y: 2 } })
+      .setOrigin(0.5)
+      .setInteractive({ useHandCursor: true });
+    this.nextBtn = txt(scene, 0, 0, '›', 34, '#9fd8ff', { padding: { x: 18, y: 2 } })
+      .setOrigin(0.5)
+      .setInteractive({ useHandCursor: true });
+    this.prevBtn.on('pointerup', () => this.back());
+    this.nextBtn.on('pointerup', () => this.next());
+    this.box = scene.add
+      .container(0, 0, [this.bg, this.label, this.nav, this.prevBtn, this.nextBtn])
+      .setDepth(950)
+      .setAlpha(0);
   }
 
-  /** Play lines in order, replacing anything currently showing. */
+  /**
+   * Show lines. Two or more lines form a sequence the player steps through;
+   * a single line is a passing thought. `onDone` fires after the last line.
+   */
   say(lines: string[], onDone?: () => void) {
     this.timer?.remove();
-    this.queue = lines.filter(Boolean);
+    this.lines = lines.filter(Boolean);
+    this.index = 0;
     this.onDone = onDone;
-    this.busy = this.queue.length > 0;
-    if (this.busy) this.next();
-    else onDone?.();
+    this.sequence = this.lines.length > 1;
+    this.busy = this.lines.length > 0;
+    if (!this.busy) {
+      this.hide();
+      onDone?.();
+      return;
+    }
+    this.show(true);
   }
 
-  /** Skip to the next line now (used by taps during story moments). */
-  advance() {
+  next() {
     if (!this.busy) return;
-    this.timer?.remove();
+    if (this.index + 1 < this.lines.length) {
+      this.index++;
+      this.show(false);
+    } else {
+      this.finish();
+    }
+  }
+
+  back() {
+    if (!this.busy || this.index === 0) return;
+    this.index--;
+    this.show(false);
+  }
+
+  /** Kept for callers that just want to move things along. */
+  advance() {
     this.next();
   }
 
   clear() {
     this.timer?.remove();
-    this.queue = [];
-    this.busy = false;
+    this.lines = [];
+    this.busy = this.sequence = false;
     this.onDone = undefined;
-    this.scene.tweens.killTweensOf(this.box);
-    this.scene.tweens.add({ targets: this.box, alpha: 0, duration: 250 });
+    this.hide();
   }
 
   update() {
@@ -63,37 +108,58 @@ export class ThoughtBubble {
     const view = this.scene.cameras.main.worldView;
     const half = this.bw / 2 + 12;
     const x = Phaser.Math.Clamp(this.target.x, view.x + half, view.right - half);
-    const y = Math.max(this.target.y - 82 - this.bh / 2, view.y + this.bh / 2 + 10);
+    const y = Math.max(this.target.y - 84 - this.bh / 2, view.y + this.bh / 2 + 10);
     this.box.setPosition(x, y);
-    this.drawTail(this.target.x - x, this.bh / 2);
+    this.draw(this.target.x - x);
   }
 
-  private next() {
-    const line = this.queue.shift();
-    if (line === undefined) {
-      this.busy = false;
-      this.scene.tweens.killTweensOf(this.box);
-      this.scene.tweens.add({ targets: this.box, alpha: 0, duration: 400 });
-      const done = this.onDone;
-      this.onDone = undefined;
-      done?.();
-      return;
-    }
-    this.label.setText(line);
-    this.bw = Math.min(MAX_W, this.label.width + PAD_X * 2);
-    this.bh = this.label.height + PAD_Y * 2;
+  private finish() {
+    this.timer?.remove();
+    this.busy = this.sequence = false;
+    this.hide();
+    const done = this.onDone;
+    this.onDone = undefined;
+    done?.();
+  }
+
+  private hide() {
     this.scene.tweens.killTweensOf(this.box);
-    this.box.setAlpha(0);
-    this.scene.tweens.add({ targets: this.box, alpha: 1, duration: 300 });
-    this.update();
-    const ms = line === '...' ? 1600 : 1900 + line.length * 42;
-    this.timer = this.scene.time.delayedCall(ms, () => this.next());
+    this.scene.tweens.add({ targets: this.box, alpha: 0, duration: 300 });
   }
 
-  private drawTail(dx: number, halfH: number) {
+  private show(fresh: boolean) {
+    this.timer?.remove();
+    const line = this.lines[this.index];
+    this.label.setText(line);
+    const seq = this.sequence;
+    this.bw = Math.max(seq ? 200 : 0, Math.min(MAX_W, this.label.width + PAD_X * 2));
+    this.bh = this.label.height + PAD_Y * 2 + (seq ? NAV_H : 0);
+    this.label.setY(seq ? -NAV_H / 2 : 0);
+    const navY = this.bh / 2 - NAV_H / 2 - 4;
+    this.nav.setVisible(seq).setText(`${this.index + 1} / ${this.lines.length}`).setY(navY);
+    this.prevBtn.setVisible(seq).setPosition(-this.bw / 2 + 26, navY).setAlpha(this.index > 0 ? 1 : 0.25);
+    this.nextBtn.setVisible(seq).setPosition(this.bw / 2 - 26, navY);
+    this.scene.tweens.killTweensOf(this.box);
+    if (fresh) this.box.setAlpha(0);
+    this.scene.tweens.add({ targets: this.box, alpha: 1, duration: fresh ? 300 : 150 });
+    this.update();
+    if (!seq) {
+      // a passing thought lingers long enough to read comfortably, then fades
+      const ms = 4000 + line.length * 70;
+      this.timer = this.scene.time.delayedCall(ms, () => this.finish());
+    } else {
+      // invite the tap with a gentle pulse on the "next" chevron
+      this.scene.tweens.killTweensOf(this.nextBtn);
+      this.nextBtn.setAlpha(1);
+      this.scene.tweens.add({ targets: this.nextBtn, alpha: 0.35, duration: 700, yoyo: true, repeat: -1 });
+    }
+  }
+
+  private draw(dx: number) {
     const g = this.bg;
+    const halfH = this.bh / 2;
     g.clear();
-    g.fillStyle(0x0b1222, 0.85);
+    g.fillStyle(0x0b1222, 0.88);
     g.lineStyle(2, 0x9fd8ff, 0.45);
     g.fillRoundedRect(-this.bw / 2, -halfH, this.bw, this.bh, 18);
     g.strokeRoundedRect(-this.bw / 2, -halfH, this.bw, this.bh, 18);

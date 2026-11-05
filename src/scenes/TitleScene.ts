@@ -4,9 +4,9 @@ import { CASE_TITLE } from '../data/case1';
 import { Difficulty, GameState } from '../state/GameState';
 
 const MODES: { id: Difficulty; label: string; desc: string }[] = [
-  { id: 'easy', label: 'Easy', desc: 'The ghost does the math and shows every step of Bayes’ rule.' },
-  { id: 'medium', label: 'Medium', desc: 'You guess each update by dragging the bars, then see the true answer and your score.' },
-  { id: 'hard', label: 'Hard', desc: 'You choose the priors and likelihoods yourself. No feedback until you accuse.' },
+  { id: 'easy', label: 'Easy', desc: '2 suspects. The ghost does the math and shows every step of Bayes’ rule.' },
+  { id: 'medium', label: 'Medium', desc: '3 suspects. You guess each update by dragging the bars, then see the true answer and your score.' },
+  { id: 'hard', label: 'Hard', desc: '4 suspects. You choose the priors and likelihoods yourself. No feedback until you accuse.' },
 ];
 
 export class TitleScene extends Phaser.Scene {

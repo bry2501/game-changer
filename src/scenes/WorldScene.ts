@@ -112,9 +112,15 @@ export class WorldScene extends Phaser.Scene {
       () => this.inspect(),
       () => this.openBoard(),
     );
-    // During story moments a tap moves the inner monologue along.
-    this.input.on('pointerdown', () => {
-      if (this.cutscene) this.bubble.advance();
+    // During a thought sequence a tap (anywhere but the bubble's own ‹ ›) moves to the next thought,
+    // and the arrow keys step forward and back.
+    this.input.on('pointerdown', (_p: Phaser.Input.Pointer, over: Phaser.GameObjects.GameObject[]) => {
+      if (this.cutscene && !over.length) this.bubble.next();
+    });
+    this.input.keyboard?.on('keydown', (e: KeyboardEvent) => {
+      if (!this.bubble.sequence || e.repeat) return;
+      if (['ArrowRight', 'KeyD', 'Space', 'Enter', 'KeyE'].includes(e.code)) this.bubble.next();
+      else if (['ArrowLeft', 'KeyA'].includes(e.code)) this.bubble.back();
     });
 
     this.events.on('resume', (_s: unknown, data?: { from?: string }) => this.onResume(data?.from));
@@ -235,8 +241,22 @@ export class WorldScene extends Phaser.Scene {
     if (from === 'evidence') {
       const f = GameState.data.found;
       const src = f === 0 ? PRIOR_SHEET : CLUES[f - 1];
-      this.bubble.say([...src.reaction, src.nextThought]);
+      this.think([...src.reaction, src.nextThought]);
     }
+  }
+
+  /** Show thoughts beside the ghost. A multi-line sequence waits for the player and pauses drifting. */
+  private think(lines: string[], onDone?: () => void) {
+    const seq = lines.filter(Boolean).length > 1;
+    if (seq) {
+      this.cutscene = true;
+      this.controls.enabled = false;
+      this.controls.reset();
+    }
+    this.bubble.say(lines, () => {
+      if (seq) this.endCutscene();
+      onDone?.();
+    });
   }
 
   private endCutscene() {

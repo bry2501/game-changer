@@ -34,7 +34,7 @@ export class AccuseScene extends Phaser.Scene {
     txt(this, W / 2, 60, 'Back beside my body. It is time to name the culprit.', 30, '#ffe9b8').setOrigin(0.5);
     txt(this, W / 2, 110, 'Your board shows these beliefs. Who did it?', 22, DIM).setOrigin(0.5);
     SUSPECTS.forEach((s, i) => {
-      const x = W / 2 + (i - 1.5) * 300;
+      const x = W / 2 + (i - (SUSPECTS.length - 1) / 2) * 300;
       const b = new Button(this, x, 330, `${s.name}`, () => this.accuse(i), {
         width: 260,
         height: 180,

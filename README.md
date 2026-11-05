@@ -27,19 +27,19 @@ The game is best played in landscape. Controls:
 - **Touch / mouse:** press and hold and the ghost drifts toward your finger. Tap the glowing clue to drift to it and examine it. **Suspects** opens the suspicion board.
 - **Keyboard:** ← → or A/D to drift, Space or E to examine, B or Tab for the board.
 
-There are no on-screen arrows. The ghost's own thoughts appear in a bubble beside it; notes and memories open as full overlays.
+There are no on-screen arrows. The ghost's own thoughts appear in a bubble beside it. A sequence of thoughts waits for you: tap, Space or → for the next one, ← or the ‹ on the bubble to go back. Notes and memories open as full overlays.
 
 ## Difficulty
 
-All three modes use the same case and clues; they differ in how much help you get.
+Each mode plays the same mystery with a different number of suspects and clues, and a different amount of help.
 
-| Mode | What you do |
-|---|---|
-| Easy | The ghost shows the full Bayes update: prior × P(E\|H) ÷ P(E) → posterior. |
-| Medium | You drag the bars to guess each posterior, then see the true answer, your score (0–100) and the lesson. |
-| Hard | You choose your own prior and P(E\|H) for every suspect, using only verbal hints. There is no feedback until you accuse; then the breakdown shows where your model drifted. |
+| Mode | Suspects | What you do |
+|---|---|---|
+| Easy | Clara, Voss (5 clues) | The ghost shows the full Bayes update: prior × P(E\|H) ÷ P(E) → posterior. |
+| Medium | Clara, Voss, Pip (6 clues) | You drag the bars to guess each posterior, then see the true answer, your score (0–100) and the lesson. |
+| Hard | Graves, Clara, Voss, Pip (7 clues) | You choose your own prior and P(E\|H) for every suspect, using only verbal hints. There is no feedback until you accuse; then the breakdown shows where your model drifted. |
 
-## The case, "The Clockmaker's Last Hour"
+## The case, "The Clockmaker's Last Hour" (Hard mode)
 
 The prior is opportunity: each person's hours inside the house divided by 10. That gives Graves 35%, Clara 30%, Voss 20% and Pip 15%.
 

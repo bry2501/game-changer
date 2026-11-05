@@ -126,7 +126,7 @@ export class MemoryScene extends Phaser.Scene {
         }).setOrigin(0.5),
       );
       SUSPECTS.forEach((_, i) => {
-        const fig = drawSuspect(this, W / 2 + (i - 1.5) * 190, H / 2 + 170, i, 0.55).setAlpha(0.35);
+        const fig = drawSuspect(this, W / 2 + (i - (SUSPECTS.length - 1) / 2) * 190, H / 2 + 170, i, 0.55).setAlpha(0.35);
         this.layer.add(fig);
       });
     } else if (p <= SUSPECTS.length) {
