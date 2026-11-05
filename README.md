@@ -16,9 +16,12 @@ npm test           # Bayes engine and case design tests
 
 ### GitHub Pages
 
-The game must be **built** before it can be served; the raw source won't run on Pages.
-`.github/workflows/deploy-pages.yml` builds it and publishes `dist/` on every push.
-One-time setup: **Settings → Pages → Build and deployment → Source: GitHub Actions**.
+Browsers can't run the TypeScript source, so Pages must serve a **built** copy. Both Pages modes work:
+
+- **Source: GitHub Actions** (recommended): `.github/workflows/deploy-pages.yml` tests, builds and publishes `dist/`.
+- **Source: Deploy from a branch** (root): `index.html` sees that it's the raw source page on github.io and redirects to the pre-built copy in `docs/`.
+
+After changing game code, run `npm run build:pages` and commit `docs/`. CI fails if `docs/` is out of date.
 
 The game is best played in landscape. Controls:
 - **Touch:** ◀ ▶ to float, **Inspect** to examine the glowing clue, **Board** to see your suspicion board.

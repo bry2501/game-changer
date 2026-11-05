@@ -26,6 +26,8 @@ jobs:
       - run: npm ci
       - run: npm test
       - run: npm run build
+      - name: Check the committed docs/ copy is up to date
+        run: npm run build:pages && git diff --exit-code -- docs || (echo '::error::docs/ is stale. Run npm run build:pages and commit.' && exit 1)
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist

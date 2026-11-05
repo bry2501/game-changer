@@ -20,5 +20,23 @@
     <div id="game"></div>
     <div id="rotate">Turn your phone sideways to haunt properly.</div>
     <script type="module" src="/src/main.ts"></script>
+    <script>
+      // GitHub Pages "Deploy from a branch" serves this raw source page, which cannot run
+      // TypeScript. In that case jump to the pre-built copy of the game in docs/.
+      (function () {
+        if (document.querySelector('script[src$="main.ts"]') && /github\.io$/.test(location.hostname)) {
+          location.replace('docs/' + location.search);
+        }
+      })();
+      // Never leave players on a silent black screen: explain if the game failed to start.
+      setTimeout(function () {
+        if (document.querySelector('#game canvas')) return;
+        var m = document.createElement('div');
+        m.style.cssText = 'position:fixed;inset:0;display:flex;align-items:center;justify-content:center;' +
+          'text-align:center;padding:24px;color:#cfd8ff;font:18px Georgia,serif;background:#05060a;z-index:5';
+        m.textContent = 'The ghost could not wake up: the game failed to load. Try reloading the page.';
+        document.body.appendChild(m);
+      }, 10000);
+    </script>
   </body>
 </html>
