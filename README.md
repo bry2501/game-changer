@@ -2,7 +2,7 @@
 
 A mobile-friendly, silhouette-noir 2D side-scroller that teaches **Bayesian inference**.
 
-You flicker into existence in a dark study, with no memory and no idea what you are. Drifting closer to a figure on the rug, you realise it is you: Alistair Finch, clockmaker, put to sleep for good by something in your evening tea. Memories return of the four people in the house tonight. From there you float through your house, gather evidence, and weigh it properly to work out who did it. The case is designed so that **gut instinct points to the wrong person**. Vivid clues create false leaders, and only careful updating (prior × likelihood, normalized) finds the culprit.
+You flicker into existence in a dark study, with no memory and no idea what you are. Your hand passes through a grandfather clock; the window shows no reflection. Drifting to a figure on the rug, you realise it is you: Alistair Finch, clockmaker, put to sleep for good by something in your evening tea. Memories return of the people in the house tonight. Then you search a two-storey house (drawers, cupboards, things to push aside) for the clues that matter among plenty that don't, and weigh each one properly to work out who did it.
 
 ## Play
 
@@ -26,6 +26,10 @@ After changing game code, run `npm run build:pages` and commit `docs/`. CI fails
 The game is best played in landscape. Controls:
 - **Touch / mouse:** press and hold and the ghost drifts toward your finger. Tap the glowing clue to drift to it and examine it. **Suspects** opens the suspicion board.
 - **Keyboard:** ← → or A/D to drift, Space or E to examine, B or Tab for the board.
+
+Search by drifting up to anything that shimmers and tapping it (or pressing E). Most drawers hold nothing useful; the ghost will say so and move on. The stairs are in the hallway: tap them, or press ↑ / ↓.
+
+There is a procedural 80s-synth soundtrack (WebAudio, no audio files) that starts on your first tap; the ♪ button mutes it.
 
 There are no on-screen arrows. The ghost's own thoughts appear in a bubble beside it. A sequence of thoughts waits for you: tap, Space or → for the next one, ← or the ‹ on the bubble to go back. Notes and memories open as full overlays.
 
@@ -60,6 +64,8 @@ All story content and probabilities live in `src/data/case1.ts`. The tests in `s
 ```
 src/bayes/engine.ts       pure Bayes functions (update, chain, likelihood ratio, scoring)
 src/data/case1.ts         suspects, priors, clues, likelihoods, lessons, dialogue
+src/data/house.ts         rooms on two floors, stairs, and every searchable drawer / cupboard / object
+src/audio/Sound.ts        procedural synth soundtrack and sound effects (WebAudio)
 src/state/GameState.ts    difficulty, beliefs, history, localStorage save
 src/scenes/               Boot (procedural textures), Title, World (incl. the amnesia opening), Memory, Evidence, Board, Accuse
 src/ui/                   widgets (buttons, bars), procedural silhouette art, drift controls, thought bubble

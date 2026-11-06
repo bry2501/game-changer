@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { Sound } from '../audio/Sound';
 
 export const W = 1280;
 export const H = 720;
@@ -200,4 +201,32 @@ export function stackedBar(
 export function overlayBackground(scene: Phaser.Scene, alpha = 0.94) {
   scene.add.rectangle(0, 0, W, H, 0x05070d, alpha).setOrigin(0).setInteractive();
   scene.add.rectangle(W / 2, H / 2, W - 24, H - 24).setStrokeStyle(2, 0x2c3a5e, 0.9);
+}
+
+/** A small round sound on/off toggle, fixed to the screen. */
+export function soundToggle(scene: Phaser.Scene, x: number, y: number) {
+  const cont = scene.add.container(x, y).setDepth(1001);
+  const bg = scene.add.circle(0, 0, 26, 0x0d1424, 0.65).setStrokeStyle(2, 0x9fd8ff, 0.5).setInteractive({ useHandCursor: true });
+  const icon = txt(scene, 0, 1, '♪', 26, '#cfe6ff').setOrigin(0.5);
+  const slash = scene.add.rectangle(0, 0, 40, 3, 0xff9f9f).setAngle(-45);
+  cont.add([bg, icon, slash]);
+  cont.setScrollFactor(0, 0, true);
+  {
+    const refresh = () => {
+      slash.setVisible(Sound.muted);
+      icon.setAlpha(Sound.muted ? 0.5 : 1);
+    };
+    refresh();
+    let pressed = false;
+    bg.on('pointerdown', () => (pressed = true));
+    bg.on('pointerout', () => (pressed = false));
+    bg.on('pointerup', () => {
+      if (!pressed) return;
+      pressed = false;
+      Sound.unlock();
+      Sound.toggleMute();
+      refresh();
+    });
+  }
+  return cont;
 }

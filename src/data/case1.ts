@@ -24,8 +24,6 @@ export interface Suspect {
 
 export interface Clue {
   id: string;
-  room: number;
-  x: number;
   title: string;
   /** What the ghost sees. */
   text: string;
@@ -58,14 +56,6 @@ interface ClueSource extends Omit<Clue, 'nextThought'> {
   reactionEasy?: string[];
 }
 
-export interface Room {
-  name: string;
-  /** Top and bottom gradient colours of the room's back wall. */
-  wallTop: number;
-  wallBottom: number;
-}
-
-export const ROOM_WIDTH = 1280;
 
 export const CASE_TITLE = "The Clockmaker's Last Hour";
 
@@ -85,39 +75,53 @@ const ALL_SUSPECTS: Suspect[] = [
 ];
 
 
-export const ROOMS: Room[] = [
-  { name: 'The Study', wallTop: 0x1b2233, wallBottom: 0x0a0d14 },
-  { name: 'The Hallway', wallTop: 0x221c2b, wallBottom: 0x0c0a10 },
-  { name: 'The Conservatory', wallTop: 0x14261f, wallBottom: 0x070d0a },
-  { name: 'The Office', wallTop: 0x2a2018, wallBottom: 0x0e0a07 },
-];
-
-export const BODY_X = 300;
-
-/** Where the ghost first flickers into existence. */
-export const AWAKEN_X = 860;
 
 /** Thrown into ghostly existence: no memory, no context. */
 export const AWAKEN_LINES: string[] = [
   '...',
+  '...',
   'Where... am I?',
-  'Cold. Quiet. Only the ticking of clocks. So many clocks.',
-  'I don\u2019t remember arriving here. I don\u2019t remember... anything.',
-  'There is something on the rug. A shape, lying very still.',
+  'Dark. Cold. Somewhere, a clock is ticking. No... many clocks.',
+  'I don\u2019t remember arriving here.',
+  'I don\u2019t remember anything at all. Not even my own name.',
 ];
 
-/** Shown once the player can move. */
-export const DRIFT_HINT = 'I feel weightless. If I reach toward something, I drift to it.';
+/** Beat: drifting to the grandfather clock and reaching for it. */
+export const CLOCK_LINES: string[] = [
+  'A grandfather clock. I know this clock. The way it leans, just slightly...',
+  'Did I... make it?',
+  'Let me steady myself on it...',
+];
+export const CLOCK_AFTER: string[] = [
+  'My hand went straight through.',
+  'As if the clock were the real thing, and I were the shadow.',
+];
 
-/** Discovering the body. */
+/** Beat: the window that shows no reflection. */
+export const WINDOW_LINES: string[] = [
+  'The window. Moonlight on the garden.',
+  'There should be a face looking back at me.',
+  'There is nothing. Only the room behind me, and the moon.',
+  'What... am I?',
+];
+
+/** Shown once the player can move again. */
+export const DRIFT_HINT = 'Something is lying on the rug, very still. I should look. If I reach toward it, I drift.';
+
+/** Discovering the body: paced with silences. */
 export const BODY_LINES: string[] = [
-  'Someone is lying here. So still. As if asleep.',
-  'That coat. Those hands. The ink stain on the left cuff...',
+  'Someone is lying here.',
+  'So still. As if asleep.',
+  'That coat. Those hands. The ink stain on the left cuff, the one that never washed out...',
+  '...',
   '...it\u2019s me.',
-  'I am Alistair Finch. I make clocks. I made clocks.',
-  'No wound, nothing broken. Just... asleep, for good.',
-  'My evening tea. It tasted bitter tonight.',
-  'Someone did this to me.',
+  'That is my body. I am looking down at my own body.',
+  'My name... my name is Alistair Finch. I make clocks.',
+  'I made clocks.',
+  'No wound. Nothing broken. Just... asleep, and never waking.',
+  'My evening tea. It tasted bitter tonight. I remember thinking so.',
+  'Someone put something in my tea.',
+  'Someone in this house did this to me.',
 ];
 
 export const MEMORY_INTRO =
@@ -134,19 +138,10 @@ export const AFTER_MEMORY_THOUGHTS: string[] = [
   'Everyone who comes and goes signs the household log. It should be on the side table.',
 ];
 
-/** The first time the ghost drifts into each room. */
-export const ROOM_THOUGHTS: string[] = [
-  '',
-  'The hallway. Portraits of Finches long gone. Soon, I suppose, mine will hang here too.',
-  'The conservatory. Cold glass, sleeping plants. That window is open. It never is.',
-  'The office. Twenty years of Finch & Voss in these ledgers.',
-];
 
 /** The opportunity sheet that sets the prior. {total}, {top} and {absent} are filled in per case. */
 const PRIOR_SOURCE = {
   id: 'log',
-  room: 0,
-  x: 620,
   title: 'The Household Log',
   text:
     'Everyone signs the household log when they come and go. It shows who was inside tonight between 6 pm and 10 pm, and for how long.{absent}',
@@ -168,9 +163,7 @@ const ALL_CLUES: ClueSource[] = [
     short: 'Graves\u2019s fingerprints on my teacup',
     context:
       'The sleeping draught was in my tea, so whoever handled this cup had a chance to slip it in. But a teacup passes through hands for innocent reasons too.',
-    leadIn: 'My teacup is still on the desk...',
-    room: 0,
-    x: 930,
+    leadIn: 'My teacup is still on the desk. Let me start there.',
     title: 'Fingerprints on the Teacup',
     text: 'Graves’s fingerprints are all over my teacup. The one that held the sleeping draught!',
     likelihoods: [0.95, 0.9, 0.9, 0.9],
@@ -194,12 +187,10 @@ const ALL_CLUES: ClueSource[] = [
     short: 'an angry letter like this',
     context:
       'Clara and I quarrelled about my will. A letter like this shows strong feelings, maybe even a motive. But strong feelings are common, and poisoning is rare.',
-    leadIn: 'I heard paper rustling in the hallway...',
-    room: 1,
-    x: 1900,
+    leadIn: 'Clara\u2019s room is upstairs. If she has been writing to me, the drafts will be in her writing desk.',
     title: 'An Angry Letter',
     text:
-      'A crumpled letter from Clara: "Uncle, if you change your will, I will NEVER forgive you!"',
+      'Folded in Clara\u2019s writing desk, a crumpled draft: "Uncle, if you change your will, I will NEVER forgive you!"',
     likelihoods: [0.3, 0.6, 0.3, 0.3],
     reasons: [
       'If Graves did it, the quarrel with Clara happened anyway, and the letter could still turn up: 0.3.',
@@ -218,14 +209,12 @@ const ALL_CLUES: ClueSource[] = [
   },
   {
     id: 'boot',
-    short: 'a muddy print under that window',
+    short: 'a muddy print hidden behind the fern',
     context:
       'Someone came or went through the garden tonight, by a window that is never open. Who would be likely to leave a print like this?',
-    leadIn: 'A cold draft blows in from the conservatory...',
-    room: 2,
-    x: 3000,
+    leadIn: 'A cold draft... it comes from the conservatory, at the far end of the house.',
     title: 'A Muddy Boot Print',
-    text: 'A muddy boot print below the open conservatory window. Mud from the garden beds.',
+    text: 'Behind the big fern, under the open window: a muddy boot print. Mud from the garden beds.',
     likelihoods: [0.1, 0.1, 0.5, 0.8],
     reasons: [
       'Graves never goes through the garden at night: unlikely, 0.1.',
@@ -255,9 +244,7 @@ const ALL_CLUES: ClueSource[] = [
     short: 'a ledger like this',
     context:
       'Money is missing from Finch & Voss Clockworks. If someone was stealing from me and feared I would find out, that would be a reason to silence me.',
-    leadIn: 'Voss always kept the partnership books in the office...',
-    room: 3,
-    x: 4300,
+    leadIn: 'Voss kept the partnership books in his desk, in the office.',
     title: 'The Partnership Ledger',
     text:
       'The ledger for Finch & Voss Clockworks. Large sums are missing, and the entries are in Voss’s handwriting.',
@@ -282,12 +269,10 @@ const ALL_CLUES: ClueSource[] = [
     short: 'this telephone log',
     context:
       'My tea was poured at about 9:40. Anyone on the telephone at that exact moment could hardly have been in my study at the same time.',
-    leadIn: 'The telephone switchboard log is on the office desk...',
-    room: 3,
-    x: 4800,
+    leadIn: 'The switchboard log lives in the telephone table drawer, back in the hallway.',
     title: 'The Telephone Log',
     text:
-      'The switchboard log: Clara was on a long-distance call from 9:35 to 9:50 pm, just when my tea was poured.',
+      'In the telephone table drawer, the switchboard log: Clara was on a long-distance call from 9:35 to 9:50 pm, just when my tea was poured.',
     likelihoods: [1, 0.1, 1, 1],
     reasons: [
       'Clara’s call has nothing to do with Graves: certain to appear either way, 1.0.',
@@ -309,12 +294,10 @@ const ALL_CLUES: ClueSource[] = [
     short: 'Pip\u2019s careful greenhouse log',
     context:
       'Pip\u2019s notes put him in the greenhouse all evening, writing every ten minutes. Would someone busy poisoning my tea keep such a steady record?',
-    leadIn: 'Pip keeps a greenhouse log... back in the conservatory.',
-    room: 2,
-    x: 3500,
+    leadIn: 'Pip keeps his greenhouse log in the potting cupboard, in the conservatory.',
     title: 'The Greenhouse Log',
     text:
-      'Pip’s greenhouse log: temperatures written down every ten minutes from 9:00 to 10:00 pm, in his handwriting.',
+      'In the potting cupboard, Pip’s greenhouse log: temperatures written down every ten minutes from 9:00 to 10:00 pm, in his handwriting.',
     likelihoods: [1, 1, 1, 0.15],
     reasons: [
       'Pip’s log has nothing to do with Graves: 1.0.',
@@ -333,14 +316,12 @@ const ALL_CLUES: ClueSource[] = [
   },
   {
     id: 'cufflink',
-    short: 'a \u201CV\u201D cufflink under my desk',
+    short: 'a \u201CV\u201D cufflink under my chair',
     context:
       'Voss wears cufflinks like this. But he also sat at this very desk this afternoon, hours before anything happened.',
-    leadIn: 'Something glinted under my desk in the study...',
-    room: 0,
-    x: 1110,
+    leadIn: 'My desk chair in the study has been pushed back. Was something underneath it?',
     title: 'A Cufflink Engraved "V"',
-    text: 'Under my desk: a silver cufflink engraved with a "V". Voss came for a business meeting at 4 pm.',
+    text: 'Under my desk chair: a silver cufflink engraved with a "V". Voss came for a business meeting at 4 pm.',
     likelihoods: [0.3, 0.3, 0.6, 0.3],
     reasons: [
       'If Graves did it, Voss could still have lost it at the afternoon meeting: 0.3.',
@@ -424,8 +405,6 @@ export function setCase(difficulty: Difficulty) {
     const easy = difficulty === 'easy';
     return {
       id: src.id,
-      room: src.room,
-      x: src.x,
       title: src.title,
       text: src.text,
       context: src.context,

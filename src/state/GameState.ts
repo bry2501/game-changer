@@ -1,4 +1,5 @@
-import { AWAKEN_X, CLUES, Difficulty, SUSPECTS, setCase } from '../data/case1';
+import { CLUES, Difficulty, SUSPECTS, setCase } from '../data/case1';
+import { AWAKEN_X } from '../data/house';
 import { chain, Dist, normalize, scoreGuess, update } from '../bayes/engine';
 
 export type { Difficulty };
@@ -23,9 +24,13 @@ export interface SaveData {
   belief: Dist;
   history: StepRecord[];
   ghostX: number;
+  /** 0 = ground floor, 1 = upstairs. */
+  floor: number;
+  /** Ids of searchables already searched. */
+  searched: string[];
 }
 
-const KEY = 'ghost-mystery-save-v2';
+const KEY = 'ghost-mystery-save-v3';
 
 export function truePrior(): Dist {
   return normalize(SUSPECTS.map((s) => s.hoursInside));
@@ -42,7 +47,7 @@ class GameStateImpl {
   static fresh(difficulty: Difficulty): SaveData {
     setCase(difficulty);
     const uniform = SUSPECTS.map(() => 1 / SUSPECTS.length);
-    return { difficulty, found: -2, prior: uniform, belief: uniform, history: [], ghostX: AWAKEN_X };
+    return { difficulty, found: -2, prior: uniform, belief: uniform, history: [], ghostX: AWAKEN_X, floor: 0, searched: [] };
   }
 
   newGame(difficulty: Difficulty) {

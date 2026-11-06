@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { Sound } from './audio/Sound';
 import { BootScene } from './scenes/BootScene';
 import { TitleScene } from './scenes/TitleScene';
 import { MemoryScene } from './scenes/MemoryScene';
@@ -22,6 +23,11 @@ const game = new Phaser.Game({
   render: { antialias: true },
   scene: [BootScene, TitleScene, WorldScene, MemoryScene, EvidenceScene, BoardScene, AccuseScene],
 });
+
+// Audio may only start after a user gesture.
+const unlockAudio = () => Sound.unlock();
+window.addEventListener('pointerdown', unlockAudio);
+window.addEventListener('keydown', unlockAudio);
 
 // handy for automated testing / debugging
 (window as unknown as { __game: Phaser.Game }).__game = game;

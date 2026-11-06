@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { Button, H, W, hex, txt } from '../ui/widgets';
 import { MEMORY_INTRO, MEMORY_OUTRO, SUSPECTS } from '../data/case1';
+import { Sound } from '../audio/Sound';
 
 /** Draws a suspect as a silhouette bust with a coloured rim and a small identifying detail. */
 export function drawSuspect(scene: Phaser.Scene, x: number, y: number, i: number, scale = 1) {
@@ -53,6 +54,7 @@ export class MemoryScene extends Phaser.Scene {
   create() {
     this.page = 0;
     this.busy = false;
+    Sound.setMood('memory');
     const bg = this.add.graphics();
     bg.fillGradientStyle(0x2a1d10, 0x2a1d10, 0x0b0805, 0x0b0805, 0.97);
     bg.fillRect(0, 0, W, H);
@@ -92,6 +94,7 @@ export class MemoryScene extends Phaser.Scene {
   private next() {
     if (this.busy) return;
     this.page++;
+    Sound.blip();
     if (this.page > SUSPECTS.length + 1) {
       this.busy = true;
       this.cameras.main.fade(700, 0, 0, 0, true);

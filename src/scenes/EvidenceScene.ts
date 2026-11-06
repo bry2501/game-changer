@@ -4,6 +4,7 @@ import { CLUES, PRIOR_SHEET, SUSPECTS } from '../data/case1';
 import { GameState, StepRecord, truePrior } from '../state/GameState';
 import { joint, normalize, pct, scoreGuess, update } from '../bayes/engine';
 import { drawSuspect } from './MemoryScene';
+import { Sound } from '../audio/Sound';
 
 type Kind = 'prior' | 'clue';
 
@@ -90,6 +91,7 @@ export class EvidenceScene extends Phaser.Scene {
   // ================================================================== navigation
 
   private go(delta: number) {
+    Sound.blip();
     if (delta > 0 && this.index === this.steps.length - 1) return this.close();
     this.index = Phaser.Math.Clamp(this.index + delta, 0, this.steps.length - 1);
     this.show();

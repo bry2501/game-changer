@@ -114,3 +114,26 @@ describe('suspects per difficulty', () => {
     for (const c of CLUES) expect(c.lesson + c.trap + c.reaction.join(' ') + c.reasons.join(' ')).not.toMatch(/Pip|Graves|gardener/);
   });
 });
+
+describe('the house', () => {
+  it('hides every clue of every mode in exactly one searchable place, among plenty of dead ends', async () => {
+    const { SEARCHABLES, ROOMS, STAIRS_X } = await import('../data/house');
+    for (const d of ['easy', 'medium', 'hard'] as const) {
+      setCase(d);
+      for (const c of CLUES) expect(SEARCHABLES.filter((s) => s.holds === c.id)).toHaveLength(1);
+    }
+    expect(SEARCHABLES.filter((s) => s.holds === 'prior')).toHaveLength(1);
+    const deadEnds = SEARCHABLES.filter((s) => !s.holds && s.kind !== 'stairs');
+    expect(deadEnds.length).toBeGreaterThanOrEqual(10);
+    for (const s of deadEnds) expect(s.noise?.length).toBeGreaterThan(0);
+    // something to search on both floors, and stairs that meet
+    expect(new Set(SEARCHABLES.map((s) => s.floor))).toEqual(new Set([0, 1]));
+    const stairs = SEARCHABLES.filter((s) => s.kind === 'stairs');
+    expect(stairs.map((s) => s.floor).sort()).toEqual([0, 1]);
+    for (const s of stairs) expect(s.x).toBe(STAIRS_X);
+    // every searchable sits inside a room on its floor
+    for (const s of SEARCHABLES) {
+      expect(ROOMS.some((r) => r.floor === s.floor && s.x >= r.x0 && s.x < r.x1)).toBe(true);
+    }
+  });
+});

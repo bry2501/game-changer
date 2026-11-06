@@ -4,6 +4,7 @@ import { CLUES, CULPRIT_INDEX, EPILOGUE_CORRECT, EPILOGUE_WRONG, SUSPECTS } from
 import { GameState, trueChain } from '../state/GameState';
 import { argmax, pct, totalVariation, update } from '../bayes/engine';
 import { beliefChart } from './BoardScene';
+import { Sound } from '../audio/Sound';
 
 export class AccuseScene extends Phaser.Scene {
   private layer!: Phaser.GameObjects.Container;
@@ -15,6 +16,8 @@ export class AccuseScene extends Phaser.Scene {
 
   create() {
     this.accused = -1;
+    Sound.setTicking(false);
+    Sound.setMood('memory');
     this.cameras.main.setBackgroundColor('#05060a');
     this.add.image(W / 2, 260, 'moon').setScale(4).setAlpha(0.6);
     this.layer = this.add.container();
@@ -52,6 +55,8 @@ export class AccuseScene extends Phaser.Scene {
     this.accused = i;
     this.clear();
     const correct = i === CULPRIT_INDEX;
+    Sound.toll();
+    Sound.setMood(correct ? 'reveal' : 'emerge');
     const lines = correct ? EPILOGUE_CORRECT : [`"${SUSPECTS[i].name}!" ` + EPILOGUE_WRONG[0], ...EPILOGUE_WRONG.slice(1)];
     let k = 0;
     const title = txt(this, W / 2, 120, correct ? 'Case Closed' : 'Case Reopened', 52, correct ? '#9ff0b0' : '#ff9f9f', {

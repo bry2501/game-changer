@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
-import { Button, DIM, H, W, txt } from '../ui/widgets';
+import { Button, DIM, H, W, soundToggle, txt } from '../ui/widgets';
+import { Sound } from '../audio/Sound';
 import { CASE_TITLE } from '../data/case1';
 import { Difficulty, GameState } from '../state/GameState';
 
@@ -48,6 +49,10 @@ export class TitleScene extends Phaser.Scene {
       }, { width: 360, height: 56, size: 22, fill: 0x0f1a14, stroke: 0x9ff0b0 });
     }
 
+    soundToggle(this, W - 50, 50);
+    Sound.setTicking(false);
+    Sound.setMood('explore');
+    txt(this, W / 2, H - 26, 'Best with sound on', 15, '#56627f', { fontStyle: 'italic' }).setOrigin(0.5);
     this.cameras.main.fadeIn(600);
   }
 

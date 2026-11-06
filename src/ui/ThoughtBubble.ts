@@ -24,6 +24,7 @@ export class ThoughtBubble {
   private index = 0;
   private timer?: Phaser.Time.TimerEvent;
   private onDone?: () => void;
+  private onLine?: (index: number) => void;
   private bw = 0;
   private bh = 0;
   /** True while lines are showing. */
@@ -58,8 +59,9 @@ export class ThoughtBubble {
    * Show lines. Two or more lines form a sequence the player steps through;
    * a single line is a passing thought. `onDone` fires after the last line.
    */
-  say(lines: string[], onDone?: () => void) {
+  say(lines: string[], onDone?: () => void, onLine?: (index: number) => void) {
     this.timer?.remove();
+    this.onLine = onLine;
     this.lines = lines.filter(Boolean);
     this.index = 0;
     this.onDone = onDone;
@@ -102,6 +104,13 @@ export class ThoughtBubble {
     this.hide();
   }
 
+  /** Hide immediately (e.g. before an overlay pauses the world mid-fade). */
+  hideNow() {
+    this.clear();
+    this.scene.tweens.killTweensOf(this.box);
+    this.box.setAlpha(0);
+  }
+
   update() {
     if (this.box.alpha <= 0) return;
     const view = this.scene.cameras.main.worldView;
@@ -129,6 +138,7 @@ export class ThoughtBubble {
   private show(fresh: boolean) {
     this.timer?.remove();
     const line = this.lines[this.index];
+    this.onLine?.(this.index);
     this.label.setText(line);
     const seq = this.sequence;
     this.bw = Math.max(seq ? 200 : 0, Math.min(MAX_W, this.label.width + PAD_X * 2));
