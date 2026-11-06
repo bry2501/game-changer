@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { fadeThen, fitCamera, H, soundToggle, txt, viewOf, W, ZOOM } from '../ui/widgets';
+import { fadeThen, fitCamera, H, soundToggle, txt, viewOf, W, ZOOM, GHOST_RES } from '../ui/widgets';
 import {
   drawBody,
   drawBookshelf,
@@ -142,7 +142,7 @@ export class WorldScene extends Phaser.Scene {
     this.buildProps();
 
     this.glow = this.add.image(0, 0, 'glow').setScale(2.4).setBlendMode(Phaser.BlendModes.ADD).setDepth(50);
-    this.ghost = this.add.image(GameState.data.ghostX, this.baseY, 'ghost').setDepth(51).setScale(0.85);
+    this.ghost = this.add.image(GameState.data.ghostX, this.baseY, 'ghost').setDepth(51).setScale(0.85 / GHOST_RES);
     this.accent.keep(this.glow, this.ghost);
     const trail = this.add
       .particles(0, 0, 'spark', {
@@ -312,10 +312,10 @@ export class WorldScene extends Phaser.Scene {
     this.bodyMarker.setVisible(false);
     this.roomLabel.setAlpha(0);
     this.counter.setAlpha(0);
-    this.ghost.setAlpha(0).setScale(0.3);
+    this.ghost.setAlpha(0).setScale(0.3 / GHOST_RES);
     Sound.setMood('emerge');
     this.cameras.main.fadeIn(4500);
-    this.tweens.add({ targets: this.ghost, alpha: 0.9, scale: 0.85, duration: 4500, ease: 'Sine.easeOut' });
+    this.tweens.add({ targets: this.ghost, alpha: 0.9, scale: 0.85 / GHOST_RES, duration: 4500, ease: 'Sine.easeOut' });
     this.tweens.add({ targets: this.ghost, alpha: 0.4, duration: 160, yoyo: true, repeat: 4, delay: 4600 });
     this.time.delayedCall(4000, () => this.think(AWAKEN_LINES, () => this.beatClock(), true));
   }

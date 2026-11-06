@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { Button, fadeThen, fitCamera, H, soundToggle, txt, W } from '../ui/widgets';
+import { Button, fadeThen, fitCamera, H, soundToggle, txt, W, GHOST_RES } from '../ui/widgets';
 import { Sound } from '../audio/Sound';
 import { drawMansion } from '../ui/exterior';
 import { AccentCamera, Noir, filmGrain } from '../ui/noir';
@@ -30,7 +30,7 @@ export class TitleScene extends Phaser.Scene {
     });
 
     const glow = this.add.image(W / 2, 170, 'glow').setScale(2.2).setBlendMode(Phaser.BlendModes.ADD);
-    const ghost = this.add.image(W / 2, 170, 'ghost').setScale(0.9);
+    const ghost = this.add.image(W / 2, 170, 'ghost').setScale(0.9 / GHOST_RES);
     this.tweens.add({ targets: [ghost, glow], y: '-=14', duration: 1800, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
     accent.keep(glow, ghost);
     this.add.image(W / 2, H / 2, 'vignette');

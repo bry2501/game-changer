@@ -4,8 +4,22 @@ import { Sound } from '../audio/Sound';
 /** Layout units: every scene is laid out on a 1280×720 stage. */
 export const W = 1280;
 export const H = 720;
-/** The canvas is drawn at full HD; each camera zooms the 1280×720 stage up to fill it. */
-export const ZOOM = 1.5;
+/**
+ * Each camera zooms the 1280×720 stage up to fill the canvas. The canvas is sized to the
+ * player's screen in physical pixels: 1920×1080 on a 1080p screen, 2560×1440 on 1440p, and
+ * 2880×1620 at most (Retina, 4K), so it is never stretched soft. ?res=1.5|2|2.25|3 forces a level.
+ */
+export const ZOOM = pickZoom();
+function pickZoom() {
+  if (typeof window === 'undefined') return 1.5;
+  const forced = Number(new URLSearchParams(location.search).get('res'));
+  if (forced >= 1 && forced <= 3) return forced;
+  const dpr = window.devicePixelRatio || 1;
+  const fit = Math.min((window.screen.width * dpr) / 1280, (window.screen.height * dpr) / 720);
+  return Math.min(2.25, Math.max(1.5, Math.round(fit * 4) / 4));
+}
+/** The ghost is painted this many times larger than it is shown, so it stays sharp when zoomed. */
+export const GHOST_RES = 3;
 export const VIEW_W = W * ZOOM;
 export const VIEW_H = H * ZOOM;
 export const FONT = 'Georgia, "Times New Roman", serif';

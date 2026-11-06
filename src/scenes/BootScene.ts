@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { fitCamera, H, W } from '../ui/widgets';
+import { fitCamera, H, W, GHOST_RES } from '../ui/widgets';
 import { makePaintTextures } from '../ui/paint';
 
 /** Generates every texture procedurally: no binary assets. */
@@ -49,8 +49,9 @@ export class BootScene extends Phaser.Scene {
   private makeGhost() {
     const w = 96;
     const h = 120;
-    const tex = this.textures.createCanvas('ghost', w, h)!;
+    const tex = this.textures.createCanvas('ghost', w * GHOST_RES, h * GHOST_RES)!;
     const ctx = tex.getContext();
+    ctx.scale(GHOST_RES, GHOST_RES);
     const grad = ctx.createLinearGradient(0, 0, 0, h);
     grad.addColorStop(0, 'rgba(240,248,255,0.98)');
     grad.addColorStop(0.7, 'rgba(200,225,255,0.85)');

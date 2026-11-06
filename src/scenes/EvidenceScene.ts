@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { Button, DIM, fadeThen, fitCamera, hex, INK, overlayBackground, stackedBar, txt, W } from '../ui/widgets';
+import { Button, DIM, fadeThen, fitCamera, hex, INK, overlayBackground, stackedBar, txt, W, GHOST_RES } from '../ui/widgets';
 import { CLUES, Evidence, LOG_ROWS, PRIOR_SHEET, SUSPECTS } from '../data/case1';
 import { GameState, StepRecord, truePrior } from '../state/GameState';
 import { update } from '../bayes/engine';
@@ -318,7 +318,7 @@ export class EvidenceScene extends Phaser.Scene {
     bg.fillRoundedRect(x0, y, w, h, 18);
     bg.strokeRoundedRect(x0, y, w, h, 18);
     const glow = this.add.image(x0 - 52, y + h / 2, 'glow').setScale(0.9).setBlendMode(Phaser.BlendModes.ADD).setAlpha(0.7);
-    const ghost = this.add.image(x0 - 52, y + h / 2, 'ghost').setScale(0.42);
+    const ghost = this.add.image(x0 - 52, y + h / 2, 'ghost').setScale(0.42 / GHOST_RES);
     note.add([glow, ghost]);
     bg.fillCircle(x0 - 14, y + h / 2 + 4, 6);
     bg.strokeCircle(x0 - 14, y + h / 2 + 4, 6);
@@ -338,7 +338,7 @@ export class EvidenceScene extends Phaser.Scene {
     bg.lineStyle(2, 0xd0d0d0, 0.4);
     bg.fillRoundedRect(x, y, w, h, 14);
     bg.strokeRoundedRect(x, y, w, h, 14);
-    note.add(this.add.image(x + 28, y + h / 2, 'ghost').setScale(0.3));
+    note.add(this.add.image(x + 28, y + h / 2, 'ghost').setScale(0.3 / GHOST_RES));
     return y + h;
   }
 

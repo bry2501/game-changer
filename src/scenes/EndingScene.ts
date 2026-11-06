@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { Button, fitCamera, H, hex, txt, W } from '../ui/widgets';
+import { Button, fitCamera, H, hex, txt, W, GHOST_RES } from '../ui/widgets';
 import { ENDING_CORRECT, ENDING_WRONG, EndLine, SUSPECTS } from '../data/case1';
 import { FLOOR_Y, drawBody, drawDesk, drawGrandfatherClock, drawWainscot, drawWindow } from '../ui/art';
 import { PAL, cobweb, paintRect } from '../ui/paint';
@@ -48,7 +48,7 @@ export class EndingScene extends Phaser.Scene {
     this.cameras.main.setBackgroundColor('#050505');
     this.drawStudy();
     this.glow = this.add.image(BODY_AT + 120, 360, 'glow').setScale(2.2).setBlendMode(Phaser.BlendModes.ADD).setDepth(40);
-    this.ghost = this.add.image(BODY_AT + 120, 360, 'ghost').setScale(0.8).setDepth(41);
+    this.ghost = this.add.image(BODY_AT + 120, 360, 'ghost').setScale(0.8 / GHOST_RES).setDepth(41);
     this.tweens.add({ targets: [this.ghost, this.glow], y: '-=12', duration: 1600, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
     this.amber = this.add.rectangle(0, 0, W, H, 0x2a1d10, 0).setOrigin(0).setDepth(50);
     this.caption = txt(this, W / 2, 40, '', 22, '#d9b98a', { fontStyle: 'italic' }).setOrigin(0.5, 0).setDepth(80);
