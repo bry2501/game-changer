@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { ACCENT, BarRow, Button, DIM, INK, W, hex, overlayBackground, stackedBar, txt } from '../ui/widgets';
+import { ACCENT, BarRow, Button, DIM, INK, W, fadeThen, hex, overlayBackground, stackedBar, txt } from '../ui/widgets';
 import { CLUES, PRIOR_SHEET, SUSPECTS } from '../data/case1';
 import { GameState, StepRecord, truePrior } from '../state/GameState';
 import { joint, normalize, pct, scoreGuess, update } from '../bayes/engine';
@@ -98,6 +98,9 @@ export class EvidenceScene extends Phaser.Scene {
   }
 
   private show() {
+    // cancel the previous page's pending animations before its objects are destroyed
+    this.time.removeAllEvents();
+    this.tweens.killTweensOf(this.page.list);
     this.page.removeAll(true);
     this.page.setAlpha(0);
     this.setNext('Next ›', true);
@@ -107,8 +110,8 @@ export class EvidenceScene extends Phaser.Scene {
       this.setNext('Continue ›', this.nextBtn.alpha === 1);
     }
     this.crumbs.forEach((c, i) => {
+      // colour only: bold text is wider than the measured trail and would overlap the separators
       c.setColor(i === this.index ? GOLD : i < this.index ? '#9fb0d6' : '#4a5677');
-      c.setFontStyle(i === this.index ? 'bold' : 'normal');
     });
     this.tweens.add({ targets: this.page, alpha: 1, duration: 250 });
   }
@@ -141,8 +144,7 @@ export class EvidenceScene extends Phaser.Scene {
   private close() {
     if (this.closing) return;
     this.closing = true;
-    this.cameras.main.fade(200, 0, 0, 0, true);
-    this.cameras.main.once('camerafadeoutcomplete', () => {
+    fadeThen(this, 200, () => {
       this.scene.stop();
       this.scene.resume('World', { from: 'evidence' });
     });
@@ -163,6 +165,69 @@ export class EvidenceScene extends Phaser.Scene {
     return this.put(
       txt(this, x, y, s, size, color, { wordWrap: { width }, lineSpacing: 6, align: origin ? 'center' : 'left' }).setOrigin(origin, 0),
     );
+  }
+
+  /**
+   * The evidence itself, as found: a parchment card with dark ink, so it never
+   * looks like the ghost's own thoughts. Returns the card's bottom y.
+   */
+  private evidenceCard(y: number, heading: string, body: string, rows: string[][] = [], cols: number[] = []): number {
+    const w = 1010;
+    const pad = 30;
+    const x0 = W / 2 - w / 2;
+    const card = this.put(this.add.container(0, 0));
+    const bg = this.add.graphics();
+    card.add(bg);
+    const head = txt(this, x0 + pad, y + 18, `EVIDENCE  \u00B7  ${heading.toUpperCase()}`, 15, '#8a6a44', { fontStyle: 'bold' });
+    card.add(head);
+    let cy = y + 48;
+    if (body) {
+      const t = txt(this, x0 + pad, cy, body, 23, '#2a2118', { wordWrap: { width: w - pad * 2 }, lineSpacing: 6 });
+      card.add(t);
+      cy += t.height + 10;
+    }
+    // tabular rows: one text object per column, so the columns line up in a proportional font
+    for (const r of rows) {
+      let rowH = 0;
+      r.forEach((cell, k) => {
+        const t = txt(this, x0 + pad + 10 + (cols[k] ?? 0), cy, cell, 21, k === 0 ? '#2a2118' : '#3d2f22', k === 0 ? { fontStyle: 'bold' } : {});
+        card.add(t);
+        rowH = Math.max(rowH, t.height);
+      });
+      cy += rowH + 4;
+    }
+    const h = cy - y + pad - 10;
+    bg.fillStyle(0x000000, 0.35);
+    bg.fillRoundedRect(x0 + 6, y + 8, w, h, 6); // shadow
+    bg.fillStyle(0xe9dfc7, 0.97);
+    bg.fillRoundedRect(x0, y, w, h, 6);
+    bg.fillStyle(0xd3c5a5, 1);
+    bg.fillTriangle(x0 + w - 34, y, x0 + w, y, x0 + w, y + 34); // folded corner
+    bg.lineStyle(1, 0xb9a882, 1);
+    bg.strokeRoundedRect(x0, y, w, h, 6);
+    return y + h;
+  }
+
+  /** The ghost's own reading of it: a small ghost and a pale-blue thought, set apart from the evidence. */
+  private ghostNote(y: number, text: string): number {
+    const w = 900;
+    const x0 = W / 2 - w / 2 + 50;
+    const note = this.put(this.add.container(0, 0));
+    const bg = this.add.graphics();
+    note.add(bg);
+    const t = txt(this, x0 + 24, y + 16, text, 22, '#cfe6ff', { fontStyle: 'italic', wordWrap: { width: w - 48 }, lineSpacing: 5 });
+    note.add(t);
+    const h = t.height + 32;
+    bg.fillStyle(0x0b1222, 0.9);
+    bg.lineStyle(2, 0x9fd8ff, 0.45);
+    bg.fillRoundedRect(x0, y, w, h, 18);
+    bg.strokeRoundedRect(x0, y, w, h, 18);
+    const glow = this.add.image(x0 - 52, y + h / 2, 'glow').setScale(0.9).setBlendMode(Phaser.BlendModes.ADD).setAlpha(0.7);
+    const ghost = this.add.image(x0 - 52, y + h / 2, 'ghost').setScale(0.42);
+    note.add([glow, ghost]);
+    bg.fillCircle(x0 - 14, y + h / 2 + 4, 6);
+    bg.strokeCircle(x0 - 14, y + h / 2 + 4, 6);
+    return y + h;
   }
 
   /** "Where I stand": the current belief as a labelled stacked bar. */
@@ -196,9 +261,9 @@ export class EvidenceScene extends Phaser.Scene {
         crumb: 'The log',
         build: () => {
           this.title(PRIOR_SHEET.title);
-          this.para(W / 2, CONTENT_Y + 20, PRIOR_SHEET.text, 25, INK, 980, 0.5);
-          this.para(W / 2, CONTENT_Y + 200, PRIOR_SHEET.context, 25, '#cfe6ff', 980, 0.5);
-          this.para(W / 2, CONTENT_Y + 350, 'So where should my suspicion start? One person at a time.', 23, ACCENT, 980, 0.5);
+          const rows = SUSPECTS.map((s) => [s.name, `in ${s.logIn}`, `out ${s.logOut}`, `${s.hoursInside} h inside`]);
+          const bottom = this.evidenceCard(CONTENT_Y + 6, 'the household log, tonight', PRIOR_SHEET.text, rows, [0, 150, 320, 700]);
+          this.ghostNote(bottom + 28, PRIOR_SHEET.context);
         },
       },
     ];
@@ -313,14 +378,29 @@ export class EvidenceScene extends Phaser.Scene {
         crumb: 'The clue',
         build: () => {
           this.title(head);
-          this.para(W / 2, CONTENT_Y + 20, clue.text, 27, INK, 1000, 0.5);
-          this.para(W / 2, CONTENT_Y + 140, clue.context, 24, '#cfe6ff', 980, 0.5);
-          this.beliefStrip(CONTENT_Y + 300, this.prior, 'Where my suspicion stands before this clue (the prior):');
+          const bottom = this.evidenceCard(CONTENT_Y + 6, clue.title, clue.text);
+          this.ghostNote(bottom + 28, clue.context);
+        },
+      },
+      {
+        crumb: 'Before',
+        build: () => {
+          this.title(head);
+          this.beliefStrip(CONTENT_Y + 30, this.prior, 'Before this clue, my suspicion stands here (the prior):');
           this.para(
             W / 2,
-            CONTENT_Y + 420,
-            'The question is never "who does this point at?" but: if each person were guilty, how likely is it that I would find this?',
-            21,
+            CONTENT_Y + 200,
+            'The question is never "who does this point at?"',
+            26,
+            INK,
+            1000,
+            0.5,
+          );
+          this.para(
+            W / 2,
+            CONTENT_Y + 250,
+            'It is: if each person were guilty, how likely is it that I would find this? One suspect at a time.',
+            24,
             ACCENT,
             1000,
             0.5,
@@ -409,7 +489,10 @@ export class EvidenceScene extends Phaser.Scene {
       const y = CONTENT_Y + 140 + i * rowH;
       const row = this.put(this.add.container(0, 0).setAlpha(0));
       row.add(txt(this, 70, y - 14, s.name, 25, hex(s.color), { fontStyle: 'bold' }));
-      row.add(txt(this, 300, y - 14, `${pct(this.prior[i])}  ×  ${num(this.lik[i])}  =  ${j[i].toFixed(3)}`, 25, INK));
+      // show the prior as a decimal so the multiplication can be checked by hand
+      const shown = +this.prior[i].toFixed(3) * this.lik[i];
+      const eq = shown.toFixed(3) === j[i].toFixed(3) ? '=' : '\u2248';
+      row.add(txt(this, 300, y - 14, `${this.prior[i].toFixed(3)}  ×  ${num(this.lik[i])}  ${eq}  ${j[i].toFixed(3)}`, 25, INK));
       const bar = new BarRow(this, 760, y, 360, s.color, 0, () => j[i].toFixed(3), { height: 24 });
       row.add(bar);
       this.time.delayedCall(350 + i * 650, () => {
@@ -421,7 +504,16 @@ export class EvidenceScene extends Phaser.Scene {
       d === 'hard'
         ? 'These are YOUR likelihoods.'
         : 'Notice: only the RATIOS between the likelihoods matter. A clue equally likely for everyone changes nothing.';
-    this.para(W / 2, CONTENT_Y + 470, ratioNote, 19, DIM, 1060, 0.5);
+    this.para(W / 2, CONTENT_Y + 450, ratioNote, 19, DIM, 1060, 0.5);
+    this.para(
+      W / 2,
+      CONTENT_Y + 490,
+      'Weighing clues one at a time like this assumes each clue depends only on who did it, not on the other clues.',
+      16,
+      '#56627f',
+      1060,
+      0.5,
+    );
   }
 
   /** ÷ P(E): turn the weights back into beliefs that add up to 100%. */
@@ -430,6 +522,8 @@ export class EvidenceScene extends Phaser.Scene {
     this.title(head);
     const j = joint(this.prior, this.lik);
     const pE = j.reduce((a, b) => a + b, 0);
+    // the rounded weights may not add up exactly to the rounded total: say so honestly
+    const sumEq = j.reduce((a, x) => a + +x.toFixed(3), 0).toFixed(3) === pE.toFixed(3) ? '=' : '\u2248';
     const post = update(this.prior, this.lik);
 
     if (d === 'medium' && !this.guessLocked) {
@@ -460,7 +554,7 @@ export class EvidenceScene extends Phaser.Scene {
     this.para(
       W / 2,
       CONTENT_Y + 4,
-      `Add the weights: ${j.map((x) => x.toFixed(3)).join(' + ')} = ${pE.toFixed(3)}. That total is P(clue). Divide each weight by it:`,
+      `Add the weights: ${j.map((x) => x.toFixed(3)).join(' + ')} ${sumEq} ${pE.toFixed(3)}. That total is P(clue). Divide each weight by it:`,
       22,
       '#cfe6ff',
       1060,

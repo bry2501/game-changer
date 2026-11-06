@@ -20,6 +20,13 @@ export interface Suspect {
   memory: string;
   /** Why they were not in the house, for difficulties that leave them out. */
   absent: string;
+  /** Who they are to Alistair, and what they might have to gain or lose. */
+  backstory: string;
+  /** What they did tonight (consistent with the household log). */
+  tonight: string;
+  /** The household log entry, e.g. "in 6:00 pm \u2013 out 9:30 pm". Must span hoursInside. */
+  logIn: string;
+  logOut: string;
 }
 
 export interface Clue {
@@ -60,18 +67,46 @@ interface ClueSource extends Omit<Clue, 'nextThought'> {
 export const CASE_TITLE = "The Clockmaker's Last Hour";
 
 const ALL_SUSPECTS: Suspect[] = [
-  { id: 'butler', name: 'Graves', role: 'the butler', color: 0x8fb3ff, hoursInside: 3.5,
-    memory: 'My butler for thirty years. He brings my tea at nine every night, as he has since my wife passed. He says little, and notices everything.',
-    absent: 'Graves had the evening off and was visiting his sister.' },
-  { id: 'niece', name: 'Clara', role: 'the niece', color: 0xff9fc6, hoursInside: 3,
-    memory: 'My niece, bright and stubborn, staying with us this week. We argued about my will. I said things I regret.',
-    absent: '' },
-  { id: 'partner', name: 'Mr. Voss', role: 'the business partner', color: 0xffd27a, hoursInside: 2,
-    memory: 'My partner at Finch & Voss Clockworks for twenty years. He came this afternoon with papers to sign, and smiled a little too much.',
-    absent: '' },
-  { id: 'gardener', name: 'Pip', role: 'the gardener', color: 0x9ff0b0, hoursInside: 1.5,
-    memory: 'The gardener. Muddy boots, kind eyes. He talks to the orchids more than to people, and keeps careful notes on every one.',
-    absent: 'Pip went home at six, as he always does.' },
+  {
+    id: 'butler', name: 'Graves', role: 'the butler', color: 0x8fb3ff, hoursInside: 3.5,
+    memory: 'My butler for thirty years. He says little, and notices everything.',
+    backstory:
+      'Graves came to us the year Margaret and I married, barely twenty and terrified of the silver. He nursed this house through her long illness ' +
+      'and never once complained. He has no family but a sister in town, and no money of his own. My will leaves him a small sum.',
+    tonight: 'He served supper, brought my tea at half past nine as always, then signed out to visit his sister.',
+    logIn: '6:00 pm', logOut: '9:30 pm',
+    absent: 'Graves had the evening off and was visiting his sister.',
+  },
+  {
+    id: 'niece', name: 'Clara', role: 'the niece', color: 0xff9fc6, hoursInside: 3,
+    memory: 'My brother\u2019s girl. Bright, stubborn, and the closest thing I have to a daughter.',
+    backstory:
+      'Her parents died when she was twelve, and she grew up in this house, all elbows and questions. Now she studies law in the city and argues like a barrister. ' +
+      'This week I told her I meant to leave the house to the Clockmakers\u2019 Guild instead of to her. We both said things we regret.',
+    tonight: 'She came back from a long walk at seven and spent the evening upstairs. I heard her on the telephone.',
+    logIn: '7:00 pm', logOut: '10:00 pm (still in)',
+    absent: '',
+  },
+  {
+    id: 'partner', name: 'Mr. Voss', role: 'the business partner', color: 0xffd27a, hoursInside: 2,
+    memory: 'Edmund Voss, my partner at Finch & Voss Clockworks. He smiles a little too much.',
+    backstory:
+      'We founded the business twenty years ago: my hands, his head for numbers. It made us both comfortable. ' +
+      'But lately the accounts stopped making sense to me, and last week I told him I wanted to go through the books myself.',
+    tonight: 'He came at four with papers to sign, stayed to supper, and signed out at eight.',
+    logIn: '6:00 pm', logOut: '8:00 pm',
+    absent: '',
+  },
+  {
+    id: 'gardener', name: 'Pip', role: 'the gardener', color: 0x9ff0b0, hoursInside: 1.5,
+    memory: 'The gardener. Muddy boots, kind eyes, and hardly a word to anyone.',
+    backstory:
+      'Pip has tended this garden since he was a boy, as his father did before him. He knows every plant by its Latin name and writes the greenhouse temperature down every ten minutes, ' +
+      'as if the orchids might die without the numbers. Last month I told him I might sell the greenhouse.',
+    tonight: 'He ate supper in the kitchen and mended the boiler, then went out to the greenhouse for the rest of the evening.',
+    logIn: '6:00 pm', logOut: '7:30 pm (to the greenhouse)',
+    absent: 'Pip went home at six, as he always does.',
+  },
 ];
 
 
@@ -165,7 +200,9 @@ const ALL_CLUES: ClueSource[] = [
       'The sleeping draught was in my tea, so whoever handled this cup had a chance to slip it in. But a teacup passes through hands for innocent reasons too.',
     leadIn: 'My teacup is still on the desk. Let me start there.',
     title: 'Fingerprints on the Teacup',
-    text: 'Graves’s fingerprints are all over my teacup. The one that held the sleeping draught!',
+    text:
+      'My blue willow teacup, left on the desk beside the clock I was mending. A brown ring of cold tea at the bottom, and a faint bitter smell. ' +
+      'Clear fingerprints on the handle and the rim: a right thumb with a small scar across it, exactly like Graves\u2019s.',
     likelihoods: [0.95, 0.9, 0.9, 0.9],
     reasons: [
       'Graves serves my tea every night. His prints would be there almost no matter what: very likely.',
@@ -190,7 +227,8 @@ const ALL_CLUES: ClueSource[] = [
     leadIn: 'Clara\u2019s room is upstairs. If she has been writing to me, the drafts will be in her writing desk.',
     title: 'An Angry Letter',
     text:
-      'Folded in Clara\u2019s writing desk, a crumpled draft: "Uncle, if you change your will, I will NEVER forgive you!"',
+      'Folded small at the back of Clara\u2019s writing-desk drawer: a draft letter on her blue notepaper, crossed out and rewritten. ' +
+      'It reads: "Uncle, if you change your will, I will NEVER forgive you!" It is dated three days ago, and it was never sent.',
     likelihoods: [0.3, 0.6, 0.3, 0.3],
     reasons: [
       'If Graves did it, the quarrel with Clara happened anyway, and the letter could still turn up: 0.3.',
@@ -214,7 +252,9 @@ const ALL_CLUES: ClueSource[] = [
       'Someone came or went through the garden tonight, by a window that is never open. Who would be likely to leave a print like this?',
     leadIn: 'A cold draft... it comes from the conservatory, at the far end of the house.',
     title: 'A Muddy Boot Print',
-    text: 'Behind the big fern, under the open window: a muddy boot print. Mud from the garden beds.',
+    text:
+      'Hidden behind the big fern, right under the window that should have been latched: a boot print in wet garden mud, pointing into the house. ' +
+      'A large boot with a worn heel. The mud is still soft.',
     likelihoods: [0.1, 0.1, 0.5, 0.8],
     reasons: [
       'Graves never goes through the garden at night: unlikely, 0.1.',
@@ -247,7 +287,8 @@ const ALL_CLUES: ClueSource[] = [
     leadIn: 'Voss kept the partnership books in his desk, in the office.',
     title: 'The Partnership Ledger',
     text:
-      'The ledger for Finch & Voss Clockworks. Large sums are missing, and the entries are in Voss’s handwriting.',
+      'In the bottom drawer of Voss\u2019s desk, under a stack of blank invoices: the real partnership ledger. ' +
+      'Column after column of payments to a company I have never heard of, every entry in Voss\u2019s tidy hand. More than two thousand pounds this year alone.',
     likelihoods: [0.2, 0.2, 0.7, 0.2],
     reasons: [
       'If Graves did it, missing money in the books is an unrelated mess: 0.2.',
@@ -268,17 +309,18 @@ const ALL_CLUES: ClueSource[] = [
     id: 'phone',
     short: 'this telephone log',
     context:
-      'My tea was poured at about 9:40. Anyone on the telephone at that exact moment could hardly have been in my study at the same time.',
+      'Graves left my tea on the desk at half past nine, and I drank it a little before ten. The draught went in some time around 9:40. Anyone on the telephone then could hardly have been in my study.',
     leadIn: 'The switchboard log lives in the telephone table drawer, back in the hallway.',
     title: 'The Telephone Log',
     text:
-      'In the telephone table drawer, the switchboard log: Clara was on a long-distance call from 9:35 to 9:50 pm, just when my tea was poured.',
-    likelihoods: [1, 0.1, 1, 1],
+      'In the telephone table drawer: the switchboard operator\u2019s log for this month. One entry from tonight: a long-distance call from this house, ' +
+      'placed by Miss C. Finch to a number in Edinburgh, from 9:35 to 9:50 pm.',
+    likelihoods: [0.5, 0.05, 0.5, 0.5],
     reasons: [
-      'Clara’s call has nothing to do with Graves: certain to appear either way, 1.0.',
-      'If Clara poured the draught, she could hardly be on the phone at that moment: 0.1.',
-      'Unrelated to Voss: 1.0.',
-      'Unrelated to Pip: 1.0.',
+      'If Graves did it, Clara\u2019s evening call has nothing to do with it. She phones friends most evenings: about even odds, 0.5.',
+      'If Clara poured the draught at about 9:40, she could hardly be on a call from 9:35 to 9:50. Only a faked log would explain it: 0.05.',
+      'If Voss did it, Clara\u2019s call is unrelated. She phones friends most evenings: about even odds, 0.5.',
+      'If Pip did it, Clara\u2019s call is unrelated. She phones friends most evenings: about even odds, 0.5.',
     ],
     trap: 'Exculpatory evidence',
     lesson:
@@ -297,13 +339,14 @@ const ALL_CLUES: ClueSource[] = [
     leadIn: 'Pip keeps his greenhouse log in the potting cupboard, in the conservatory.',
     title: 'The Greenhouse Log',
     text:
-      'In the potting cupboard, Pip’s greenhouse log: temperatures written down every ten minutes from 9:00 to 10:00 pm, in his handwriting.',
-    likelihoods: [1, 1, 1, 0.15],
+      'On the top shelf of the potting cupboard: Pip\u2019s greenhouse notebook, smelling of earth. ' +
+      'Tonight\u2019s page lists the temperature every ten minutes from 9:00 to 10:00 pm, in his small, careful pencil. No gaps.',
+    likelihoods: [0.6, 0.6, 0.6, 0.09],
     reasons: [
-      'Pip’s log has nothing to do with Graves: 1.0.',
-      'Unrelated to Clara: 1.0.',
-      'Unrelated to Voss: 1.0.',
-      'Pip could have faked a few entries, but it’s unlikely he’d keep up a careful log while poisoning tea: 0.15.',
+      'If Graves did it, Pip simply did what he does most evenings: an unbroken log is likely, 0.6.',
+      'If Clara did it, Pip simply did what he does most evenings: an unbroken log is likely, 0.6.',
+      'If Voss did it, Pip simply did what he does most evenings: an unbroken log is likely, 0.6.',
+      'If Pip did it, he would have to leave the greenhouse and still keep an unbroken record every ten minutes. Possible, if he faked it: 0.09.',
     ],
     trap: 'Exculpatory evidence (weighing against the earlier clue)',
     lesson:
@@ -321,13 +364,15 @@ const ALL_CLUES: ClueSource[] = [
       'Voss wears cufflinks like this. But he also sat at this very desk this afternoon, hours before anything happened.',
     leadIn: 'My desk chair in the study has been pushed back. Was something underneath it?',
     title: 'A Cufflink Engraved "V"',
-    text: 'Under my desk chair: a silver cufflink engraved with a "V". Voss came for a business meeting at 4 pm.',
+    text:
+      'Under my desk chair, caught in the fringe of the rug: a silver cufflink engraved with a looping "V". Its partner is missing. ' +
+      'Voss wore a pair just like it today, at our meeting and at supper.',
     likelihoods: [0.3, 0.3, 0.6, 0.3],
     reasons: [
-      'If Graves did it, Voss could still have lost it at the afternoon meeting: 0.3.',
-      'If Clara did it, Voss could still have lost it at the afternoon meeting: 0.3.',
+      'If Graves did it, Voss could still have lost it at our meeting or at supper: 0.3.',
+      'If Clara did it, Voss could still have lost it at our meeting or at supper: 0.3.',
       'If Voss came back tonight, a dropped cufflink is more likely: 0.6.',
-      'If Pip did it, Voss could still have lost it at the afternoon meeting: 0.3.',
+      'If Pip did it, Voss could still have lost it at our meeting or at supper: 0.3.',
     ],
     trap: "Prosecutor's fallacy",
     lesson:

@@ -137,3 +137,41 @@ describe('the house', () => {
     }
   });
 });
+
+describe('logic audit', () => {
+  it('no likelihood claims certainty or impossibility', () => {
+    for (const d of ['easy', 'medium', 'hard'] as const) {
+      setCase(d);
+      for (const c of CLUES) for (const l of c.likelihoods) {
+        expect(l).toBeGreaterThan(0);
+        expect(l).toBeLessThan(1);
+      }
+    }
+  });
+
+  it('the household log times match the hours that set the prior', () => {
+    setCase('hard');
+    const toHours = (t: string) => {
+      const m = t.match(/(\d+):(\d+)\s*pm/)!;
+      return (+m[1] % 12) + 12 + +m[2] / 60;
+    };
+    for (const s of SUSPECTS) {
+      expect(s.backstory.length).toBeGreaterThan(80);
+      expect(s.tonight.length).toBeGreaterThan(20);
+      const inside = Math.min(toHours(s.logOut), 22) - Math.max(toHours(s.logIn), 18);
+      expect(inside).toBeCloseTo(s.hoursInside, 5);
+    }
+  });
+
+  it('every likelihood reason states the number it justifies', () => {
+    for (const d of ['easy', 'medium', 'hard'] as const) {
+      setCase(d);
+      for (const c of CLUES) {
+        c.reasons.forEach((r, i) => {
+          const m = r.match(/(\d+(\.\d+)?)\.$/);
+          if (m) expect(+m[1]).toBeCloseTo(c.likelihoods[i], 5);
+        });
+      }
+    }
+  });
+});

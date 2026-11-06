@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { H, W, soundToggle, txt } from '../ui/widgets';
+import { H, W, fadeThen, soundToggle, txt } from '../ui/widgets';
 import {
   SIL,
   drawBody,
@@ -503,8 +503,7 @@ export class WorldScene extends Phaser.Scene {
       if (!GameState.allFound) return;
       this.lock();
       this.bubble.hideNow();
-      this.cameras.main.fade(600, 0, 0, 0, true);
-      this.cameras.main.once('camerafadeoutcomplete', () => this.scene.start('Accuse'));
+      fadeThen(this, 600, () => this.scene.start('Accuse'));
       return;
     }
     const p = this.props.get(id);

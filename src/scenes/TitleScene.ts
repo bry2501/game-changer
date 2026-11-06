@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { Button, DIM, H, W, soundToggle, txt } from '../ui/widgets';
+import { Button, DIM, H, W, fadeThen, soundToggle, txt } from '../ui/widgets';
 import { Sound } from '../audio/Sound';
 import { CASE_TITLE } from '../data/case1';
 import { Difficulty, GameState } from '../state/GameState';
@@ -65,7 +65,6 @@ export class TitleScene extends Phaser.Scene {
         /* not allowed */
       }
     }
-    this.cameras.main.fade(500, 0, 0, 0, true);
-    this.cameras.main.once('camerafadeoutcomplete', () => this.scene.start('World'));
+    fadeThen(this, 500, () => this.scene.start('World'));
   }
 }

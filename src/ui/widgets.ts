@@ -141,6 +141,7 @@ export class BarRow extends Phaser.GameObjects.Container {
   }
 
   setValue(v: number, animate = false) {
+    if (!this.scene) return; // destroyed (its page was left before a delayed animation ran)
     this.value = v;
     const w = Math.max(0, this.barWidth * v);
     if (animate) {
@@ -153,10 +154,12 @@ export class BarRow extends Phaser.GameObjects.Container {
   }
 
   setLabel(s: string) {
+    if (!this.scene) return;
     this.valueText.setText(s);
   }
 
   showMarker(v: number, color = 0xffffff) {
+    if (!this.scene) return;
     if (!this.marker) {
       this.marker = this.scene.add
         .rectangle(0, 0, 5, (this.track.height as number) + 18, color, 1)
@@ -229,4 +232,23 @@ export function soundToggle(scene: Phaser.Scene, x: number, y: number) {
     });
   }
   return cont;
+}
+
+/**
+ * Fade the scene's camera to black, then run `next` exactly once. The camera's
+ * "fade complete" event can occasionally be missed (for example if the fade is
+ * restarted or the frame rate stalls), so a real-time fallback guarantees the
+ * game never sits on a finished fade.
+ */
+export function fadeThen(scene: Phaser.Scene, ms: number, next: () => void) {
+  let done = false;
+  const run = () => {
+    if (done) return;
+    done = true;
+    next();
+  };
+  const cam = scene.cameras.main;
+  cam.once('camerafadeoutcomplete', run);
+  cam.fade(ms, 0, 0, 0, true);
+  window.setTimeout(run, ms + 600);
 }

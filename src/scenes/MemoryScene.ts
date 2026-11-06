@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { Button, H, W, hex, txt } from '../ui/widgets';
+import { Button, H, W, fadeThen, hex, txt } from '../ui/widgets';
 import { MEMORY_INTRO, MEMORY_OUTRO, SUSPECTS } from '../data/case1';
 import { Sound } from '../audio/Sound';
 
@@ -97,8 +97,7 @@ export class MemoryScene extends Phaser.Scene {
     Sound.blip();
     if (this.page > SUSPECTS.length + 1) {
       this.busy = true;
-      this.cameras.main.fade(700, 0, 0, 0, true);
-      this.cameras.main.once('camerafadeoutcomplete', () => {
+      fadeThen(this, 700, () => {
         this.scene.stop();
         this.scene.resume('World', { from: 'memory' });
       });
@@ -135,13 +134,22 @@ export class MemoryScene extends Phaser.Scene {
     } else if (p <= SUSPECTS.length) {
       const i = p - 1;
       const s = SUSPECTS[i];
-      this.layer.add(drawSuspect(this, 330, 400, i));
-      this.layer.add(txt(this, 600, 190, s.name, 52, hex(s.color), { fontStyle: 'bold' }));
-      this.layer.add(txt(this, 600, 256, s.role, 26, '#d9b98a', { fontStyle: 'italic' }));
-      this.layer.add(
-        txt(this, 600, 320, `“${s.memory}”`, 26, '#f3e2c4', { wordWrap: { width: 600 }, lineSpacing: 8 }),
-      );
-      this.layer.add(txt(this, 600, 560, `${p} of ${SUSPECTS.length}`, 18, '#8a7558'));
+      this.layer.add(drawSuspect(this, 300, 400, i));
+      this.layer.add(txt(this, 300, 612, `${p} of ${SUSPECTS.length}`, 17, '#8a7558').setOrigin(0.5, 0));
+      // stack: name, role, the remembered line, their story, and what they did tonight
+      let y = 92;
+      const add = (t: Phaser.GameObjects.Text, gap: number) => {
+        this.layer.add(t);
+        y += t.height + gap;
+      };
+      const col = 560;
+      const width = 660;
+      add(txt(this, col, y, s.name, 46, hex(s.color), { fontStyle: 'bold' }), 2);
+      add(txt(this, col, y, s.role, 22, '#d9b98a', { fontStyle: 'italic' }), 18);
+      add(txt(this, col, y, `\u201C${s.memory}\u201D`, 23, '#f3e2c4', { fontStyle: 'italic', wordWrap: { width }, lineSpacing: 5 }), 16);
+      add(txt(this, col, y, s.backstory, 20, '#e2d2b4', { wordWrap: { width }, lineSpacing: 5 }), 16);
+      add(txt(this, col, y, 'Tonight', 16, '#c9a46a', { fontStyle: 'bold' }), 4);
+      add(txt(this, col, y, s.tonight, 20, '#ffd9a0', { wordWrap: { width }, lineSpacing: 5 }), 0);
     } else {
       MEMORY_OUTRO.forEach((line, k) => {
         this.layer.add(
