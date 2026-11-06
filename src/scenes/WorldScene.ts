@@ -188,8 +188,10 @@ export class WorldScene extends Phaser.Scene {
     cam.setScroll(this.followX(), floorTop(this.floor));
 
     // HUD
-    this.roomLabel = txt(this, 30, 24, '', 26, '#e8e8e8', { fontStyle: 'italic' }).setScrollFactor(0).setDepth(1000);
-    this.counter = txt(this, 30, 60, '', 20, '#9a9a9a').setScrollFactor(0).setDepth(1000);
+    this.roomLabel = txt(this, 30, 24, '', 26, '#f2f2f2', { fontStyle: 'italic' }).setScrollFactor(0).setDepth(1000);
+    this.counter = txt(this, 30, 60, '', 20, '#c4c4c4').setScrollFactor(0).setDepth(1000);
+    // the HUD is drawn without the noir filter, so it stays crisp and bright
+    this.accent.keep(this.roomLabel, this.counter);
     this.label = txt(this, 0, 0, '', 21, '#f2f2f2', { backgroundColor: '#060606cc', padding: { x: 10, y: 4 } })
       .setOrigin(0.5)
       .setDepth(940)
