@@ -62,30 +62,30 @@ export class BootScene extends Phaser.Scene {
     const pts: [number, number][] = [];
     const bez = (t: number, a: number, b: number, c: number, d: number) =>
       (1 - t) ** 3 * a + 3 * (1 - t) ** 2 * t * b + 3 * (1 - t) * t ** 2 * c + t ** 3 * d;
-    for (let i = 0; i <= 28; i++) {
-      const t = i / 28;
+    for (let i = 0; i <= 56; i++) {
+      const t = i / 56;
       pts.push([bez(t, 10, 10, 86, 86), bez(t, 50, 8, 8, 50)]);
     }
-    for (let i = 1; i <= 8; i++) pts.push([86, 50 + (46 * i) / 8]);
+    for (let i = 1; i <= 16; i++) pts.push([86, 50 + (46 * i) / 16]);
     const waves = 4;
     for (let w = 0; w < waves; w++) {
       const x0 = 86 - (w * 76) / waves;
       const x1 = 86 - ((w + 1) * 76) / waves;
       const y0 = w === 0 ? 96 : 104;
       const cy = w % 2 === 0 ? 120 : 92;
-      for (let i = 1; i <= 8; i++) {
-        const t = i / 8;
+      for (let i = 1; i <= 16; i++) {
+        const t = i / 16;
         const cx = (x0 + x1) / 2;
         pts.push([(1 - t) ** 2 * x0 + 2 * (1 - t) * t * cx + t * t * x1, (1 - t) ** 2 * y0 + 2 * (1 - t) * t * cy + t * t * 104]);
       }
     }
-    for (let i = 1; i < 8; i++) pts.push([10, 104 - (54 * i) / 8]);
+    for (let i = 1; i < 16; i++) pts.push([10, 104 - (54 * i) / 16]);
     // push each point in or out from the middle by a gentle, irregular wave
     const rough = pts.map(([x, y], i) => {
       const dx = x - 48;
       const dy = y - 62;
       const len = Math.hypot(dx, dy) || 1;
-      const off = Math.sin(i * 0.55) * 2.6 + Math.sin(i * 0.23 + 2) * 1.6; // soft, rolling swells
+      const off = Math.sin(i * 0.95) * 0.9 + Math.sin(i * 0.41 + 1) * 0.5; // small, even ripples
       return [x + (dx / len) * off, y + (dy / len) * off] as [number, number];
     });
     ctx.beginPath();
