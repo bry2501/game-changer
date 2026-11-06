@@ -1,7 +1,6 @@
 import Phaser from 'phaser';
 import { H, W, fadeThen, soundToggle, txt } from '../ui/widgets';
 import {
-  SIL,
   drawBody,
   drawBookshelf,
   drawChandelier,
@@ -9,8 +8,12 @@ import {
   drawGrandfatherClock,
   drawPlant,
   drawPortrait,
+  drawDoor,
+  drawFireplace,
+  drawWainscot,
   drawWindow,
 } from '../ui/art';
+import { PAL, cobweb, crack, paintRect } from '../ui/paint';
 import {
   AFTER_MEMORY_THOUGHTS,
   AWAKEN_LINES,
@@ -44,6 +47,19 @@ import { ThoughtBubble } from '../ui/ThoughtBubble';
 import { Sound } from '../audio/Sound';
 
 const WORLD_W = Math.max(...ROOMS.map((r) => r.x1));
+
+/** Wall tints per room: moonlit blues and teals with a little plum, after the painted references. */
+const ROOM_TINT: Record<string, number> = {
+  study: 0x5a7aa6,
+  hallway: 0x5d6b92,
+  dining: 0x6e5f88,
+  conservatory: 0x4f8580,
+  office: 0x65708c,
+  clara: 0x7a6390,
+  landing: 0x58689a,
+  library: 0x4d7a72,
+  boxroom: 0x6a6a80,
+};
 const WORLD_H = FLOOR_H * 2;
 const SPEED = 340;
 const REACH = 110;
@@ -78,7 +94,7 @@ export class WorldScene extends Phaser.Scene {
   /** During the awakening, the body only draws the ghost in after the opening beats. */
   private bodyVisible = false;
   private tapTarget?: string;
-  private roomGfx: { g: Phaser.GameObjects.Graphics; floor: number; x0: number; x1: number }[] = [];
+  private roomGfx: { g: Phaser.GameObjects.Components.Visible; floor: number; x0: number; x1: number }[] = [];
   private t = 0;
   private vx = 0;
 
@@ -649,26 +665,29 @@ export class WorldScene extends Phaser.Scene {
     const b = floorBounds(floor);
     const R: Record<string, Phaser.GameObjects.Graphics> = {};
     rooms.forEach((r, i) => {
+      const w = r.x1 - r.x0;
+      // painted plaster, tinted to the room, and floorboards below
+      const wall = this.add.tileSprite(r.x0, 0, w, F, 'paintWall').setOrigin(0).setTint(ROOM_TINT[r.id] ?? 0x4a6890);
+      const boards = this.add.tileSprite(r.x0, F, w, FLOOR_H - F, 'floorboards').setOrigin(0).setTint(0xa9b4c8);
       const g = this.add.graphics();
-      layer.add(g);
+      layer.add([wall, boards, g]);
       R[r.id] = g;
-      this.roomGfx.push({ g, floor, x0: r.x0, x1: r.x1 });
-      g.fillGradientStyle(r.wallTop, r.wallTop, r.wallBottom, r.wallBottom, 1);
-      g.fillRect(r.x0, 0, r.x1 - r.x0, FLOOR_H);
-      g.fillStyle(SIL, 1);
-      g.fillRect(r.x0, F, r.x1 - r.x0, FLOOR_H - F); // floorboards
-      g.fillRect(r.x0, 0, r.x1 - r.x0, 34); // ceiling
-      g.lineStyle(2, 0x1c2235, 1);
-      g.lineBetween(r.x0, F, r.x1, F);
+      for (const o of [wall, boards, g]) this.roomGfx.push({ g: o, floor, x0: r.x0, x1: r.x1 });
+      drawWainscot(g, r.x0, r.x1);
+      // a few plaster cracks
+      crack(g, r.x0 + 180 + (i * 137) % 400, 70, 120, i + 2);
+      crack(g, r.x1 - 260 - (i * 89) % 300, 90, 90, i + 5);
       if (i > 0) {
-        g.fillStyle(SIL, 1);
-        g.fillRect(r.x0 - 60, 0, 30, F);
-        g.fillRect(r.x0 + 30, 0, 30, F);
-        g.fillRect(r.x0 - 60, 0, 120, 120);
+        // a painted archway between rooms
+        paintRect(g, r.x0 - 60, 0, 30, F, PAL.woodDark);
+        paintRect(g, r.x0 + 30, 0, 30, F, PAL.woodDark);
+        paintRect(g, r.x0 - 60, 40, 120, 70, PAL.woodDark);
       }
-      g.fillStyle(SIL, 1);
-      if (i === 0) g.fillRect(b.min - 100, 0, 40, FLOOR_H); // outer walls
-      if (i === rooms.length - 1) g.fillRect(b.max + 60, 0, 40, FLOOR_H);
+      if (i === 0) paintRect(g, b.min - 100, 0, 40, FLOOR_H, PAL.woodDark); // outer walls
+      if (i === rooms.length - 1) paintRect(g, b.max + 60, 0, 40, FLOOR_H, PAL.woodDark);
+      // cobwebs in the top corners of most rooms
+      if (i % 2 === 0) layer.add(cobweb(this, r.x0 + (i > 0 ? 62 : 0) + (i === 0 ? b.min - 60 - r.x0 : 0), 40, 0.9));
+      if (i % 3 !== 1) layer.add(cobweb(this, r.x1 - (i < rooms.length - 1 ? 62 : 0) - (i === rooms.length - 1 ? r.x1 - b.max - 60 : 0), 40, 0.8, true));
     });
     if (floor === 0) this.decorGround(R, layer);
     else this.decorUpstairs(R, layer);
@@ -683,64 +702,87 @@ export class WorldScene extends Phaser.Scene {
     }
   }
 
+  /** Soft moonlight falling from a window onto the floor. */
+  private shaft(layer: Phaser.GameObjects.Container, x: number, y: number, w: number, lean = 0.12) {
+    const img = this.add.image(x, y, 'shaft').setOrigin(0.5, 0).setBlendMode(Phaser.BlendModes.ADD);
+    img.setDisplaySize(w * 1.4, F - y).setRotation(-lean).setAlpha(0.9);
+    layer.add(img);
+  }
+
   private decorGround(R: Record<string, Phaser.GameObjects.Graphics>, layer: Phaser.GameObjects.Container) {
-    // Study
+    // Study: the window, a desk, the fireplace and my clock
     let g = R.study;
     drawWindow(g, WINDOW_X - 90, 120, 180, 240);
-    drawWindow(g, 1460, 140, 150, 200);
+    this.shaft(layer, WINDOW_X, 372, 180);
+    drawFireplace(g, 1490, 230, 280);
     drawDesk(g, 820, 360);
-    g.fillStyle(SIL, 1);
-    g.fillRect(580, F - 106, 80, 12); // side table
-    g.fillRect(614, F - 94, 12, 94);
+    paintRect(g, 580, F - 106, 80, 12, PAL.plumWood); // side table
+    paintRect(g, 614, F - 94, 12, 94, PAL.plumWood);
     drawChandelier(g, 640);
-    drawChandelier(g, 1300);
+    drawChandelier(g, 1150);
     drawGrandfatherClock(this, CLOCK_X, layer);
     const body = this.add.graphics();
     drawBody(body, BODY_X, F - 4);
     layer.add(body);
-    g.fillStyle(0xd9d2bc, 0.75);
+    g.fillStyle(0xe9dfc7, 0.9);
     g.fillRect(598, F - 116, 44, 10); // the household log
-    g.fillStyle(0xd9d2bc, 0.9);
-    g.fillEllipse(930, F - 128, 26, 12); // the teacup
-    g.lineStyle(3, 0xd9d2bc, 0.9);
+    g.fillStyle(0xdfe8ff, 0.95);
+    g.fillEllipse(930, F - 128, 26, 12); // the teacup (blue willow)
+    g.lineStyle(3, 0xdfe8ff, 0.95);
     g.strokeCircle(945, F - 130, 5);
+    g.fillStyle(0x3b5a9a, 1);
+    g.fillRect(924, F - 130, 12, 3);
 
-    // Hallway, with the staircase rising up through the ceiling
+    // Hallway: portraits, a panelled door, and the staircase rising through the ceiling
     g = R.hallway;
-    [1950, 2250, 3200].forEach((x) => drawPortrait(g, x, 250));
+    drawDoor(g, 1830);
+    [1990, 2250, 3200].forEach((x) => drawPortrait(g, x, 250));
     drawChandelier(g, 2250);
     drawGrandfatherClock(this, 2620, layer);
-    g.fillStyle(SIL, 1);
-    for (let s = 0; s < 12; s++) g.fillRect(STAIRS_X - 140 + s * 30, F - (s + 1) * 51, 400 - s * 30, 51);
-    g.lineStyle(4, 0x2a2f44, 1);
-    g.lineBetween(STAIRS_X - 140, F - 120, STAIRS_X + 220, F - 120 - 12 * 51);
+    for (let s = 0; s < 12; s++) {
+      const sx = STAIRS_X - 140 + s * 30;
+      const sy = F - (s + 1) * 51;
+      paintRect(g, sx, sy, 400 - s * 30, 51, PAL.wood);
+      g.lineStyle(3, PAL.edge, 0.6);
+      g.lineBetween(sx, sy + 1, sx + 400 - s * 30, sy + 1); // pale nosing on each tread
+    }
+    g.lineStyle(7, PAL.maroon, 1);
+    g.lineBetween(STAIRS_X - 140, F - 120, STAIRS_X + 220, F - 120 - 12 * 51); // banister
+    g.lineStyle(2, 0xc77a8f, 0.6);
+    g.lineBetween(STAIRS_X - 140, F - 124, STAIRS_X + 220, F - 124 - 12 * 51);
+    g.lineStyle(4, PAL.maroon, 1);
     for (let s = 0; s < 12; s += 2) g.lineBetween(STAIRS_X - 130 + s * 30, F - (s + 1) * 51, STAIRS_X - 130 + s * 30, F - (s + 1) * 51 - 70);
+    paintRect(g, STAIRS_X - 156, F - 150, 18, 150, PAL.maroon); // newel post
+    layer.add(cobweb(this, STAIRS_X + 60, 40, 1.4, false, 0.5));
 
-    // Dining room
+    // Dining room: a long table before a second fireplace
     g = R.dining;
     drawWindow(g, 3600, 130, 160, 230);
-    drawChandelier(g, 4300);
-    g.fillStyle(SIL, 1);
-    [4060, 4160, 4440, 4540].forEach((x) => {
-      g.fillRect(x - 4, F - 150, 8, 150); // chair backs
-      g.fillRect(x - 18, F - 62, 36, 8);
-    });
+    this.shaft(layer, 3680, 372, 160);
     drawPortrait(g, 4300, 230);
+    drawChandelier(g, 4300);
+    [4060, 4160, 4440, 4540].forEach((x) => {
+      paintRect(g, x - 5, F - 150, 10, 150, PAL.plumWood); // chair backs
+      paintRect(g, x - 20, F - 64, 40, 10, PAL.plumWood);
+    });
 
-    // Conservatory
+    // Conservatory: tall windows, plants, a potting bench
     g = R.conservatory;
-    for (let i = 0; i < 4; i++) drawWindow(g, 5180 + i * 400, 70, 260, 330);
+    for (let i = 0; i < 4; i++) {
+      drawWindow(g, 5180 + i * 400, 70, 260, 330);
+      this.shaft(layer, 5310 + i * 400, 412, 260, 0.08);
+    }
     drawPlant(g, 5530, 1.0);
     drawPlant(g, 6080, 0.9);
     drawPlant(g, 6650, 1.3);
-    g.fillStyle(SIL, 1);
-    g.fillRect(5950, F - 90, 230, 14); // potting bench
-    g.fillRect(5960, F - 76, 12, 76);
-    g.fillRect(6160, F - 76, 12, 76);
+    paintRect(g, 5950, F - 90, 230, 14, PAL.woodDark); // potting bench
+    paintRect(g, 5960, F - 76, 12, 76, PAL.woodDark);
+    paintRect(g, 6160, F - 76, 12, 76, PAL.woodDark);
 
     // Office
     g = R.office;
     drawWindow(g, 7700, 140, 170, 210);
+    this.shaft(layer, 7785, 362, 170);
     drawBookshelf(g, 7880, 140, 330);
     drawGrandfatherClock(this, 7250, layer);
     drawChandelier(g, 7500);
@@ -750,22 +792,21 @@ export class WorldScene extends Phaser.Scene {
     // Clara's room
     let g = R.clara;
     drawWindow(g, 1420, 130, 140, 190);
-    g.fillStyle(SIL, 1);
-    g.fillRoundedRect(1790, F - 70, 170, 50, 8); // bed
-    g.fillRect(1790, F - 130, 14, 130);
-    g.fillRect(1946, F - 100, 14, 100);
-    g.fillStyle(0x3a2a3e, 1);
-    g.fillRoundedRect(1806, F - 86, 60, 20, 8);
-    // the landing: the stairwell going down, behind a banister
+    this.shaft(layer, 1490, 332, 140);
+    paintRect(g, 1790, F - 72, 170, 52, PAL.maroon, { radius: 8 }); // bed
+    paintRect(g, 1790, F - 130, 14, 130, PAL.plumWood);
+    paintRect(g, 1946, F - 100, 14, 100, PAL.plumWood);
+    paintRect(g, 1806, F - 88, 60, 20, 0xc9b9c9, { radius: 8 }); // pillow
+    // the landing: the stairwell going down, behind a maroon banister
     g = R.landing;
-    g.fillStyle(0x010102, 1);
+    g.fillStyle(0x0b1120, 1);
     g.fillRect(STAIRS_X - 160, F - 6, 330, FLOOR_H - F + 6);
-    g.fillStyle(SIL, 1);
-    for (let s = 0; s < 4; s++) g.fillRect(STAIRS_X - 160 + s * 40, F + s * 26, 330 - s * 40, 26);
-    g.lineStyle(5, 0x2a2f44, 1);
+    for (let s = 0; s < 4; s++) paintRect(g, STAIRS_X - 160 + s * 40, F + s * 26, 330 - s * 40, 26, PAL.wood);
+    g.lineStyle(7, PAL.maroon, 1);
     g.lineBetween(STAIRS_X - 170, F - 80, STAIRS_X + 180, F - 80);
+    g.lineStyle(4, PAL.maroon, 1);
     for (let x = STAIRS_X - 170; x <= STAIRS_X + 180; x += 35) g.lineBetween(x, F - 80, x, F);
-    drawPortrait(g, 2500, 240);
+    drawPortrait(g, 2560, 240);
     drawGrandfatherClock(this, 2370, layer);
     drawChandelier(g, 2900);
     // Library
@@ -773,17 +814,19 @@ export class WorldScene extends Phaser.Scene {
     drawBookshelf(g, 3600, 150, 380);
     drawBookshelf(g, 3990, 260, 380);
     drawBookshelf(g, 4800, 220, 380);
-    g.fillStyle(SIL, 1);
-    g.fillRoundedRect(4280, F - 120, 110, 120, 30); // armchair
+    paintRect(g, 4280, F - 120, 110, 120, PAL.velvet, { radius: 30 }); // armchair
     drawChandelier(g, 4300);
     // Box room
     g = R.boxroom;
     drawWindow(g, 5700, 160, 120, 160);
-    g.fillStyle(SIL, 1);
-    g.fillRect(5180, F - 90, 110, 90); // crates
-    g.fillRect(5200, F - 160, 80, 70);
-    g.fillRect(6230, F - 120, 120, 120);
+    this.shaft(layer, 5760, 332, 120);
+    paintRect(g, 5180, F - 90, 110, 90, PAL.plumWood); // crates
+    paintRect(g, 5200, F - 160, 80, 70, PAL.plumWood);
+    paintRect(g, 6230, F - 120, 120, 120, PAL.plumWood);
+    g.fillStyle(0x7d90ab, 1);
     g.fillTriangle(5800, F, 5870, F - 140, 5940, F); // something under a dust sheet
+    g.lineStyle(2, PAL.ink, 0.6);
+    g.strokeTriangle(5800, F, 5870, F - 140, 5940, F);
   }
 
   /** Searchable furniture, each with its own little opening animation. */
@@ -797,16 +840,15 @@ export class WorldScene extends Phaser.Scene {
       if (def.kind === 'drawer') {
         const g = this.add.graphics().setDepth(18);
         if (def.id !== 'study-desk') {
-          g.fillStyle(SIL, 1);
-          g.fillRect(def.x - w / 2 - 20, base - 100, w + 40, 14);
-          g.fillRect(def.x - w / 2 - 12, base - 86, 12, 86);
-          g.fillRect(def.x + w / 2, base - 86, 12, 86);
-          g.fillRect(def.x - w / 2, base - 86, w, 52);
+          paintRect(g, def.x - w / 2 - 12, base - 86, 12, 86, PAL.woodDark);
+          paintRect(g, def.x + w / 2, base - 86, 12, 86, PAL.woodDark);
+          paintRect(g, def.x - w / 2, base - 86, w, 52, PAL.wood);
+          paintRect(g, def.x - w / 2 - 20, base - 100, w + 40, 14, PAL.wood);
         }
-        g.fillStyle(0x020203, 1);
+        g.fillStyle(0x0b1120, 1);
         g.fillRect(def.x - w / 2 + 8, base - 82, w - 16, h);
-        const front = this.add.rectangle(def.x, base - 82 + h / 2, w - 16, h, 0x1a2032).setStrokeStyle(2, 0x2c3550).setDepth(19);
-        const knob = this.add.circle(def.x, base - 82 + h / 2, 4, 0x8a96b8).setDepth(19);
+        const front = this.add.rectangle(def.x, base - 82 + h / 2, w - 16, h, 0x3c5578).setStrokeStyle(2, PAL.edge, 0.55).setDepth(19);
+        const knob = this.add.circle(def.x, base - 82 + h / 2, 4, PAL.brass).setDepth(19);
         p.hotY = base - 100;
         p.open = (instant) => {
           if (p.opened) return;
@@ -816,16 +858,15 @@ export class WorldScene extends Phaser.Scene {
         };
       } else if (def.kind === 'cabinet') {
         const g = this.add.graphics().setDepth(18);
-        g.fillStyle(SIL, 1);
-        g.fillRect(def.x - w / 2 - 6, base - h - 8, w + 12, h + 8);
-        g.fillStyle(0x020203, 1);
+        paintRect(g, def.x - w / 2 - 6, base - h - 8, w + 12, h + 8, PAL.woodDark);
+        g.fillStyle(0x0b1120, 1);
         g.fillRect(def.x - w / 2, base - h, w, h - 4);
         const door = this.add
-          .rectangle(def.x - w / 2, base - h / 2 - 2, w, h - 4, 0x161c2c)
+          .rectangle(def.x - w / 2, base - h / 2 - 2, w, h - 4, 0x34496c)
           .setOrigin(0, 0.5)
-          .setStrokeStyle(2, 0x2c3550)
+          .setStrokeStyle(2, PAL.edge, 0.55)
           .setDepth(19);
-        const knob = this.add.circle(def.x + w / 2 - 14, base - h / 2, 4, 0x8a96b8).setDepth(19);
+        const knob = this.add.circle(def.x + w / 2 - 14, base - h / 2, 4, PAL.brass).setDepth(19);
         p.hotY = base - Math.min(h, 260) / 2 - 20;
         p.open = (instant) => {
           if (p.opened) return;
@@ -888,10 +929,11 @@ export class WorldScene extends Phaser.Scene {
     const under = this.add.graphics().setDepth(17);
     const g = this.add.graphics();
     obj.add(g);
-    g.fillStyle(SIL, 1);
+    g.fillStyle(PAL.wood, 1);
     switch (def.id) {
       case 'chair':
-        under.fillStyle(0xc8d0e0, 1);
+        g.fillStyle(PAL.plumWood, 1);
+        under.fillStyle(0xdfe8ff, 1);
         under.fillCircle(def.x + 6, base - 6, 4); // the cufflink
         g.fillRect(-w / 2, -h, 10, h);
         g.fillRect(-w / 2, -52, w, 10);
@@ -901,42 +943,69 @@ export class WorldScene extends Phaser.Scene {
         under.fillStyle(0x3a2a1a, 1);
         under.fillEllipse(def.x - 10, base - 6, 30, 12); // the boot print
         under.fillEllipse(def.x + 32, base - 9, 30, 12);
-        g.fillRect(-w / 2, -h, w, h);
+        g.fillStyle(PAL.leaf, 1);
         for (let i = 0; i < 7; i++) {
           const a = -Math.PI / 2 + (i - 3) * 0.33;
           g.fillTriangle(-6, -h, 6, -h, Math.cos(a) * 130, -h + Math.sin(a) * 130);
         }
+        g.lineStyle(2, PAL.leafLight, 0.7);
+        for (let i = 0; i < 7; i++) {
+          const a = -Math.PI / 2 + (i - 3) * 0.33;
+          g.lineBetween(0, -h, Math.cos(a) * 70, -h + Math.sin(a) * 70);
+        }
+        paintRect(g, -w / 2, -h, w, h, PAL.plum, { radius: 6 });
         break;
       case 'cans':
+        g.fillStyle(0x5a6a7a, 1);
         g.fillRoundedRect(-w / 2, -h, 36, h, 6);
         g.fillRoundedRect(-w / 2 + 42, -h + 14, 34, h - 14, 6);
         g.fillTriangle(-w / 2 + 36, -h + 20, -w / 2 + 36, -h + 30, -w / 2 + 60, -h - 6);
         break;
       case 'coats':
+        g.fillStyle(PAL.woodDark, 1);
         g.fillRect(-4, -h, 8, h);
+        g.fillEllipse(0, -4, 50, 10);
+        g.fillStyle(PAL.plum, 1);
         g.fillEllipse(-14, -h + 50, 46, 110);
+        g.fillStyle(0x3d4f6e, 1);
         g.fillEllipse(16, -h + 60, 40, 120);
-        g.fillCircle(0, -h, 12);
+        g.lineStyle(2, PAL.edge, 0.4);
+        g.strokeEllipse(-14, -h + 50, 46, 110);
+        g.strokeEllipse(16, -h + 60, 40, 120);
+        g.fillStyle(PAL.maroon, 1);
+        g.fillEllipse(0, -h + 2, 40, 12); // a hat on the peg
+        g.fillRect(-12, -h - 14, 24, 14);
         break;
       case 'tablecloth': {
+        g.fillStyle(PAL.plumWood, 1);
         g.fillRect(-w / 2, -h - 8, w, 12);
         g.fillRect(-w / 2 + 10, -h, 10, h);
         g.fillRect(w / 2 - 20, -h, 10, h);
-        const cloth = this.add.rectangle(0, -h + 2, w + 10, h - 20, 0x2b1e22).setOrigin(0.5, 0);
+        const cloth = this.add.rectangle(0, -h + 2, w + 10, h - 20, 0x6a2a3d).setOrigin(0.5, 0).setStrokeStyle(2, PAL.edge, 0.35);
         cloth.setName('cloth');
         obj.add(cloth);
         break;
       }
       case 'hollow-book':
-        under.fillStyle(SIL, 1);
-        under.fillRect(def.x - 70, base - 240, 140, 240);
-        under.fillStyle(0x10131f, 1);
-        for (let i = 0; i < 6; i++) under.fillRect(def.x - 62 + i * 22, base - 230, 16, 50);
+        paintRect(under, def.x - 70, base - 240, 140, 240, PAL.wood);
+        under.fillStyle(0x0b1120, 1);
+        under.fillRect(def.x - 62, base - 232, 124, 54);
+        under.fillRect(def.x - 62, base - 160, 124, 54);
+        const spines = [PAL.plum, 0x3f6f6a, PAL.brassDark, 0x4a5f8a, PAL.maroon, 0x5a6a7a];
+        for (let i = 0; i < 6; i++) {
+          under.fillStyle(spines[i], 1);
+          under.fillRect(def.x - 60 + i * 20, base - 226, 15, 48);
+          under.fillStyle(spines[(i + 3) % 6], 1);
+          under.fillRect(def.x - 60 + i * 20, base - 152, 15, 46);
+        }
         obj.setY(base - 120);
-        g.fillStyle(0x3b2c22, 1);
+        g.fillStyle(PAL.maroon, 1);
         g.fillRect(-12, -h, 24, h);
+        g.lineStyle(1, PAL.edge, 0.5);
+        g.strokeRect(-12, -h, 24, h);
         break;
       case 'hatboxes':
+        g.fillStyle(PAL.plum, 1);
         g.fillEllipse(0, -20, w, 40);
         g.fillEllipse(0, -55, w - 14, 36);
         g.fillEllipse(0, -88, w - 28, 32);
@@ -947,15 +1016,28 @@ export class WorldScene extends Phaser.Scene {
   }
 
   private buildForeground() {
-    // near layer (fast horizontal parallax): dark curtains and posts passing in front
+    // near layer (fast horizontal parallax): heavy velvet curtains and blurred furniture passing in front
     const fg = this.add.graphics().setScrollFactor(1.25, 1).setDepth(80);
-    fg.fillStyle(0x000000, 0.75);
     for (let x = 0; x < WORLD_W * 1.25 + W; x += 1100) {
       for (const top of [0, FLOOR_H]) {
-        fg.fillRect(x, top, 60, FLOOR_H);
-        fg.fillTriangle(x + 60, top, x + 60, top + 240, x + 160, top);
+        // a curtain gathered at the top, folds picked out with lighter strokes
+        fg.fillStyle(0x141c34, 0.82);
+        fg.beginPath();
+        fg.moveTo(x - 40, top);
+        fg.lineTo(x + 150, top);
+        fg.lineTo(x + 70, top + 260);
+        fg.lineTo(x + 60, top + FLOOR_H);
+        fg.lineTo(x - 40, top + FLOOR_H);
+        fg.closePath();
+        fg.fillPath();
+        fg.lineStyle(3, 0x3a4a78, 0.55);
+        for (const dx of [-10, 15, 40]) fg.lineBetween(x + dx + 40, top + 10, x + dx, top + FLOOR_H);
+        fg.fillStyle(PAL.maroon, 0.85); // a tie-back
+        fg.fillRoundedRect(x + 40, top + 250, 46, 16, 6);
+        fg.fillStyle(0x0d1428, 0.7);
         fg.fillEllipse(x + 500, top + FLOOR_H + 10, 420, 110);
       }
     }
   }
+
 }

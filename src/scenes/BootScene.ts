@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { H, W } from '../ui/widgets';
+import { makePaintTextures } from '../ui/paint';
 
 /** Generates every texture procedurally: no binary assets. */
 export class BootScene extends Phaser.Scene {
@@ -29,6 +30,7 @@ export class BootScene extends Phaser.Scene {
     ]);
     this.makeGhost();
     this.makeVignette();
+    makePaintTextures(this);
     this.scene.start('Title');
   }
 
@@ -86,7 +88,7 @@ export class BootScene extends Phaser.Scene {
     const ctx = tex.getContext();
     const g = ctx.createRadialGradient(W / 2, H / 2, H * 0.3, W / 2, H / 2, W * 0.65);
     g.addColorStop(0, 'rgba(0,0,0,0)');
-    g.addColorStop(1, 'rgba(0,0,0,0.85)');
+    g.addColorStop(1, 'rgba(0,0,0,0.7)');
     ctx.fillStyle = g;
     ctx.fillRect(0, 0, W, H);
     tex.refresh();

@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { Button, DIM, H, W, fadeThen, soundToggle, txt } from '../ui/widgets';
 import { Sound } from '../audio/Sound';
+import { drawMansion } from '../ui/exterior';
 import { CASE_TITLE } from '../data/case1';
 import { Difficulty, GameState, LEVELS, unlockedLevel } from '../state/GameState';
 
@@ -11,7 +12,7 @@ export class TitleScene extends Phaser.Scene {
 
   create() {
     this.cameras.main.setBackgroundColor('#05060a');
-    this.add.image(W / 2, H / 2, 'moon').setScale(5).setAlpha(0.8);
+    drawMansion(this, W, H);
     this.add.particles(0, 0, 'fog', {
       x: { min: -200, max: W + 200 },
       y: { min: 380, max: H },
@@ -21,6 +22,13 @@ export class TitleScene extends Phaser.Scene {
       lifespan: 9000,
       frequency: 300,
     });
+
+    // a soft dark panel so the title and level buttons read over the painting
+    const panel = this.add.graphics();
+    panel.fillStyle(0x070b16, 0.72);
+    panel.fillRoundedRect(W / 2 - 590, 225, 1180, 330, 24);
+    panel.lineStyle(2, 0x9cbfe0, 0.25);
+    panel.strokeRoundedRect(W / 2 - 590, 225, 1180, 330, 24);
 
     const glow = this.add.image(W / 2, 150, 'glow').setScale(2.2).setBlendMode(Phaser.BlendModes.ADD);
     const ghost = this.add.image(W / 2, 150, 'ghost').setScale(0.9);
