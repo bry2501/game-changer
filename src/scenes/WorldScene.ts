@@ -83,6 +83,8 @@ export class WorldScene extends Phaser.Scene {
   /** The camera follows the ghost horizontally (floors change by a deliberate move). */
   private following = true;
   private lantern: Phaser.GameObjects.Image[] = [];
+  /** Faint chevrons at the screen edges, pointing toward the next thing to find. */
+  private guides: Phaser.GameObjects.Text[] = [];
   /** Window frames (drawn over the shared sky) and the panes the sky shows through. */
   private frames!: Phaser.GameObjects.Graphics;
   private windowRects: Phaser.Geom.Rectangle[] = [];
@@ -192,6 +194,10 @@ export class WorldScene extends Phaser.Scene {
     this.counter = txt(this, 30, 60, '', 20, '#c4c4c4').setScrollFactor(0).setDepth(1000);
     // the HUD is drawn without the noir filter, so it stays crisp and bright
     this.accent.keep(this.roomLabel, this.counter);
+    this.guides = ['‹', '›'].map((c, i) =>
+      txt(this, i === 0 ? 34 : W - 34, H / 2, c, 64, '#d8d8d8').setOrigin(0.5).setScrollFactor(0).setDepth(1000).setAlpha(0),
+    );
+    this.accent.keep(...this.guides);
     this.label = txt(this, 0, 0, '', 21, '#f2f2f2', { backgroundColor: '#060606cc', padding: { x: 10, y: 4 } })
       .setOrigin(0.5)
       .setDepth(940)
@@ -247,6 +253,7 @@ export class WorldScene extends Phaser.Scene {
     // the light travels with the ghost, breathing a little like a flame
     const breathe = 2800 * (1 + Math.sin(this.t * 1.7) * 0.025);
     for (const l of this.lantern) l.setPosition(this.ghost.x, this.ghost.y + 30).setDisplaySize(breathe, breathe);
+    this.updateGuides();
     if (this.following) {
       const cam = this.cameras.main;
       cam.scrollX += (this.followX() - cam.scrollX) * Math.min(1, 0.08 * dt * 60);
@@ -508,6 +515,37 @@ export class WorldScene extends Phaser.Scene {
   }
 
   // ================================================================== searching
+
+  /** Where the next thing to find is: its world x on its floor (or the stairs, if it is on the other floor). */
+  private guideX(): number | undefined {
+    const key = this.currentKey();
+    if (key === 'body') return undefined; // the opening is scripted
+    let x: number;
+    let floor: number;
+    if (key === 'accuse') {
+      x = BODY_X;
+      floor = 0;
+    } else {
+      const p = [...this.props.values()].find((q) => q.def.holds === key);
+      if (!p) return undefined;
+      x = p.def.x;
+      floor = p.def.floor;
+    }
+    return floor === this.floor ? x : STAIRS_X;
+  }
+
+  /** Show the left or right chevron, softly pulsing, when the next thing to find is off screen. */
+  private updateGuides() {
+    const gx = this.cutscene ? undefined : this.guideX();
+    const v = viewOf(this.cameras.main);
+    const side = gx === undefined ? -1 : gx < v.x + 40 ? 0 : gx > v.right - 40 ? 1 : -1;
+    const pulse = 0.35 + 0.25 * Math.sin(this.t * 3);
+    this.guides.forEach((g, i) => {
+      const want = i === side ? pulse : 0;
+      g.setAlpha(g.alpha + (want - g.alpha) * 0.15);
+      g.setX((i === 0 ? 34 : W - 34) + (i === side ? Math.sin(this.t * 3) * (i === 0 ? -5 : 5) : 0));
+    });
+  }
 
   private currentKey(): string {
     const t = GameState.nextTarget;
