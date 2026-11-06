@@ -77,6 +77,7 @@ export class WorldScene extends Phaser.Scene {
   /** During the awakening, the body only draws the ghost in after the opening beats. */
   private bodyVisible = false;
   private tapTarget?: string;
+  private roomGfx: { g: Phaser.GameObjects.Graphics; floor: number; x0: number; x1: number }[] = [];
   private t = 0;
   private vx = 0;
 
@@ -88,6 +89,7 @@ export class WorldScene extends Phaser.Scene {
 
   create() {
     this.props = new Map();
+    this.roomGfx = [];
     this.seenRooms = new Set(['study']);
     this.cutscene = false;
     this.vx = 0;
@@ -210,6 +212,7 @@ export class WorldScene extends Phaser.Scene {
     this.glow.setPosition(this.ghost.x, this.ghost.y + 8);
     this.glow.setAlpha((0.75 + Math.sin(this.t * 3) * 0.15) * this.ghost.alpha);
     this.bubble.update();
+    this.cullRooms();
 
     const room = roomAt(this.floor, this.ghost.x);
     if (room.id !== this.roomId) this.enterRoom(room.id);
@@ -604,41 +607,54 @@ export class WorldScene extends Phaser.Scene {
 
   // ================================================================== building the house
 
-  /** One floor, drawn in local coordinates inside a container placed at the floor's top. */
+  /**
+   * One floor, drawn in local coordinates inside a container placed at the floor's top.
+   * Each room gets its own Graphics so rooms far from the camera can be skipped entirely:
+   * vector shapes are redrawn every frame, and a whole house of them is too slow on phones.
+   */
   private buildFloor(floor: number) {
     const layer = this.add.container(0, floorTop(floor)).setDepth(10);
-    const g = this.add.graphics();
-    layer.add(g);
     const rooms = ROOMS.filter((r) => r.floor === floor);
     const b = floorBounds(floor);
-
-    g.fillStyle(0x020306, 1);
-    g.fillRect(-200, 0, WORLD_W + 400, FLOOR_H);
-    for (const r of rooms) {
+    const R: Record<string, Phaser.GameObjects.Graphics> = {};
+    rooms.forEach((r, i) => {
+      const g = this.add.graphics();
+      layer.add(g);
+      R[r.id] = g;
+      this.roomGfx.push({ g, floor, x0: r.x0, x1: r.x1 });
       g.fillGradientStyle(r.wallTop, r.wallTop, r.wallBottom, r.wallBottom, 1);
       g.fillRect(r.x0, 0, r.x1 - r.x0, FLOOR_H);
-    }
-    g.fillStyle(SIL, 1);
-    g.fillRect(b.min - 60, F, b.max - b.min + 120, FLOOR_H - F); // floorboards
-    g.fillRect(b.min - 60, 0, b.max - b.min + 120, 34); // ceiling
-    g.lineStyle(2, 0x1c2235, 1);
-    g.lineBetween(b.min - 60, F, b.max + 60, F);
-    for (const r of rooms.slice(1)) {
       g.fillStyle(SIL, 1);
-      g.fillRect(r.x0 - 60, 0, 30, F);
-      g.fillRect(r.x0 + 30, 0, 30, F);
-      g.fillRect(r.x0 - 60, 0, 120, 120);
-    }
-    g.fillStyle(SIL, 1);
-    g.fillRect(b.min - 100, 0, 40, FLOOR_H); // outer walls
-    g.fillRect(b.max + 60, 0, 40, FLOOR_H);
-
-    if (floor === 0) this.decorGround(g, layer);
-    else this.decorUpstairs(g, layer);
+      g.fillRect(r.x0, F, r.x1 - r.x0, FLOOR_H - F); // floorboards
+      g.fillRect(r.x0, 0, r.x1 - r.x0, 34); // ceiling
+      g.lineStyle(2, 0x1c2235, 1);
+      g.lineBetween(r.x0, F, r.x1, F);
+      if (i > 0) {
+        g.fillStyle(SIL, 1);
+        g.fillRect(r.x0 - 60, 0, 30, F);
+        g.fillRect(r.x0 + 30, 0, 30, F);
+        g.fillRect(r.x0 - 60, 0, 120, 120);
+      }
+      g.fillStyle(SIL, 1);
+      if (i === 0) g.fillRect(b.min - 100, 0, 40, FLOOR_H); // outer walls
+      if (i === rooms.length - 1) g.fillRect(b.max + 60, 0, 40, FLOOR_H);
+    });
+    if (floor === 0) this.decorGround(R, layer);
+    else this.decorUpstairs(R, layer);
   }
 
-  private decorGround(g: Phaser.GameObjects.Graphics, layer: Phaser.GameObjects.Container) {
+  /** Only draw the rooms near the camera. */
+  private cullRooms() {
+    const v = this.cameras.main.worldView;
+    for (const r of this.roomGfx) {
+      const top = floorTop(r.floor);
+      r.g.setVisible(r.x1 > v.x - 300 && r.x0 < v.right + 300 && top < v.bottom && top + FLOOR_H > v.y);
+    }
+  }
+
+  private decorGround(R: Record<string, Phaser.GameObjects.Graphics>, layer: Phaser.GameObjects.Container) {
     // Study
+    let g = R.study;
     drawWindow(g, WINDOW_X - 90, 120, 180, 240);
     drawWindow(g, 1460, 140, 150, 200);
     drawDesk(g, 820, 360);
@@ -659,6 +675,7 @@ export class WorldScene extends Phaser.Scene {
     g.strokeCircle(945, F - 130, 5);
 
     // Hallway, with the staircase rising up through the ceiling
+    g = R.hallway;
     [1950, 2250, 3200].forEach((x) => drawPortrait(g, x, 250));
     drawChandelier(g, 2250);
     drawGrandfatherClock(this, 2620, layer);
@@ -669,6 +686,7 @@ export class WorldScene extends Phaser.Scene {
     for (let s = 0; s < 12; s += 2) g.lineBetween(STAIRS_X - 130 + s * 30, F - (s + 1) * 51, STAIRS_X - 130 + s * 30, F - (s + 1) * 51 - 70);
 
     // Dining room
+    g = R.dining;
     drawWindow(g, 3600, 130, 160, 230);
     drawChandelier(g, 4300);
     g.fillStyle(SIL, 1);
@@ -679,6 +697,7 @@ export class WorldScene extends Phaser.Scene {
     drawPortrait(g, 4300, 230);
 
     // Conservatory
+    g = R.conservatory;
     for (let i = 0; i < 4; i++) drawWindow(g, 5180 + i * 400, 70, 260, 330);
     drawPlant(g, 5530, 1.0);
     drawPlant(g, 6080, 0.9);
@@ -689,14 +708,16 @@ export class WorldScene extends Phaser.Scene {
     g.fillRect(6160, F - 76, 12, 76);
 
     // Office
+    g = R.office;
     drawWindow(g, 7700, 140, 170, 210);
     drawBookshelf(g, 7880, 140, 330);
     drawGrandfatherClock(this, 7250, layer);
     drawChandelier(g, 7500);
   }
 
-  private decorUpstairs(g: Phaser.GameObjects.Graphics, layer: Phaser.GameObjects.Container) {
+  private decorUpstairs(R: Record<string, Phaser.GameObjects.Graphics>, layer: Phaser.GameObjects.Container) {
     // Clara's room
+    let g = R.clara;
     drawWindow(g, 1420, 130, 140, 190);
     g.fillStyle(SIL, 1);
     g.fillRoundedRect(1790, F - 70, 170, 50, 8); // bed
@@ -705,6 +726,7 @@ export class WorldScene extends Phaser.Scene {
     g.fillStyle(0x3a2a3e, 1);
     g.fillRoundedRect(1806, F - 86, 60, 20, 8);
     // the landing: the stairwell going down, behind a banister
+    g = R.landing;
     g.fillStyle(0x010102, 1);
     g.fillRect(STAIRS_X - 160, F - 6, 330, FLOOR_H - F + 6);
     g.fillStyle(SIL, 1);
@@ -713,9 +735,10 @@ export class WorldScene extends Phaser.Scene {
     g.lineBetween(STAIRS_X - 170, F - 80, STAIRS_X + 180, F - 80);
     for (let x = STAIRS_X - 170; x <= STAIRS_X + 180; x += 35) g.lineBetween(x, F - 80, x, F);
     drawPortrait(g, 2500, 240);
-    drawGrandfatherClock(this, 3080, layer);
+    drawGrandfatherClock(this, 2370, layer);
     drawChandelier(g, 2900);
     // Library
+    g = R.library;
     drawBookshelf(g, 3600, 150, 380);
     drawBookshelf(g, 3990, 260, 380);
     drawBookshelf(g, 4800, 220, 380);
@@ -723,6 +746,7 @@ export class WorldScene extends Phaser.Scene {
     g.fillRoundedRect(4280, F - 120, 110, 120, 30); // armchair
     drawChandelier(g, 4300);
     // Box room
+    g = R.boxroom;
     drawWindow(g, 5700, 160, 120, 160);
     g.fillStyle(SIL, 1);
     g.fillRect(5180, F - 90, 110, 90); // crates
