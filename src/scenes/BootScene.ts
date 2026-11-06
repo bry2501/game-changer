@@ -85,7 +85,7 @@ export class BootScene extends Phaser.Scene {
       const dx = x - 48;
       const dy = y - 62;
       const len = Math.hypot(dx, dy) || 1;
-      const off = Math.sin(i * 0.95) * 0.9 + Math.sin(i * 0.41 + 1) * 0.5; // small, even ripples
+      const off = Math.sin(i * 0.95) * 0.5 + Math.sin(i * 0.41 + 1) * 0.15; // small, shallow ripples
       return [x + (dx / len) * off, y + (dy / len) * off] as [number, number];
     });
     ctx.beginPath();
