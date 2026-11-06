@@ -60,6 +60,14 @@ export class TitleScene extends Phaser.Scene {
   }
 
   private begin() {
+    // Begin is a click, which browsers accept as permission to go full screen
+    if (!this.scale.isFullscreen) {
+      try {
+        this.scale.startFullscreen();
+      } catch {
+        /* the browser said no: play in the window */
+      }
+    }
     GameState.newGame();
     fadeThen(this, 500, () => this.scene.start('World'));
   }

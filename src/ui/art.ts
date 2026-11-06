@@ -32,9 +32,6 @@ export function drawBody(g: Phaser.GameObjects.Graphics, x: number, y: number) {
   g.strokePath();
   g.lineBetween(x - 78, y - 30, x + 34, y - 30);
   g.lineBetween(x + 34, y - 22, x + 118, y - 22);
-  // a soft outline (detective chalk, but friendly)
-  g.lineStyle(2, 0xdfe8ff, 0.08);
-  g.strokeRoundedRect(x - 128, y - 40, 268, 54, 24);
 }
 
 export function drawGrandfatherClock(scene: Phaser.Scene, x: number, layer?: Phaser.GameObjects.Container) {
