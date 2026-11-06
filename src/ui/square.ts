@@ -41,7 +41,7 @@ export class BayesSquare extends Phaser.GameObjects.Container {
     const total = joint.reduce((a, b) => a + b, 0) || 1;
     this.post = joint.map((j) => j / total);
 
-    this.add(scene.add.rectangle(0, 0, size, size, 0x05070d, 1).setOrigin(0));
+    this.add(scene.add.rectangle(0, 0, size, size, 0x060606, 1).setOrigin(0));
     prior.forEach((_, i) => {
       // unit rectangles, sized with scale so they tween cleanly
       const f = scene.add.rectangle(0, 0, 1, 1, colors[i], 0.85).setOrigin(0);

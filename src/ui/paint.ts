@@ -153,19 +153,39 @@ export function makePaintTextures(scene: Phaser.Scene) {
     }
   });
 
-  // moonlight falling in from a window
+  // moonlight through venetian blinds: a widening fan of bright slats with dark gaps
   canvas(scene, 'shaft', 200, 420, (ctx, w, h) => {
     const g = ctx.createLinearGradient(0, 0, 0, h);
-    g.addColorStop(0, 'rgba(190,215,255,0.22)');
-    g.addColorStop(1, 'rgba(190,215,255,0)');
+    g.addColorStop(0, 'rgba(235,240,255,0.42)');
+    g.addColorStop(1, 'rgba(235,240,255,0)');
     ctx.fillStyle = g;
-    ctx.beginPath();
-    ctx.moveTo(w * 0.15, 0);
-    ctx.lineTo(w * 0.85, 0);
-    ctx.lineTo(w, h);
-    ctx.lineTo(0, h);
-    ctx.closePath();
-    ctx.fill();
+    const slats = 9;
+    for (let i = 0; i < slats; i++) {
+      // each slat is a thin wedge across the fan, so the bars spread as they fall
+      const t0 = i / slats;
+      const t1 = t0 + 0.55 / slats;
+      ctx.beginPath();
+      ctx.moveTo(w * (0.15 + 0.7 * t0), 0);
+      ctx.lineTo(w * (0.15 + 0.7 * t1), 0);
+      ctx.lineTo(w * t1, h);
+      ctx.lineTo(w * t0, h);
+      ctx.closePath();
+      ctx.fill();
+    }
+  });
+
+  // film grain: fine random speckle, tileable
+  canvas(scene, 'grain', 256, 256, (ctx, w, h) => {
+    const img = ctx.createImageData(w, h);
+    const rnd = mulberry(23);
+    for (let i = 0; i < w * h; i++) {
+      const v = rnd() * 255;
+      img.data[i * 4] = v;
+      img.data[i * 4 + 1] = v;
+      img.data[i * 4 + 2] = v;
+      img.data[i * 4 + 3] = rnd() < 0.5 ? 255 : 0;
+    }
+    ctx.putImageData(img, 0, 0);
   });
 }
 

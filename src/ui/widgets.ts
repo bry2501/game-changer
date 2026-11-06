@@ -1,12 +1,35 @@
 import Phaser from 'phaser';
 import { Sound } from '../audio/Sound';
 
+/** Layout units: every scene is laid out on a 1280×720 stage. */
 export const W = 1280;
 export const H = 720;
+/** The canvas is drawn at full HD; each camera zooms the 1280×720 stage up to fill it. */
+export const ZOOM = 1.5;
+export const VIEW_W = W * ZOOM;
+export const VIEW_H = H * ZOOM;
 export const FONT = 'Georgia, "Times New Roman", serif';
-export const INK = '#dfe6ff';
-export const DIM = '#8f9ab8';
-export const ACCENT = '#9fd8ff';
+export const INK = '#e8e8e8';
+export const DIM = '#9a9a9a';
+export const ACCENT = '#e6e6e6';
+/** The one colour noir keeps for blood-red notes (stays PG: rugs, tea, seals, warnings). */
+export const RED = 0xb3202a;
+
+/** Fit a camera to the stage: the 1280×720 layout, drawn at full resolution. */
+export function fitCamera(cam: Phaser.Cameras.Scene2D.Camera) {
+  cam.setOrigin(0, 0).setZoom(ZOOM);
+  return cam;
+}
+
+/**
+ * What a fitted camera shows, in world units. (Phaser's own worldView assumes a centred
+ * camera origin; ours pivots on the top-left so that the 1280×720 layout maps cleanly.)
+ */
+export function viewOf(cam: Phaser.Cameras.Scene2D.Camera) {
+  return new Phaser.Geom.Rectangle(cam.scrollX, cam.scrollY, cam.width / cam.zoom, cam.height / cam.zoom);
+}
+
+const TEXT_RES = Math.min(3, ZOOM * (typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1));
 
 export function txt(
   scene: Phaser.Scene,
@@ -23,7 +46,7 @@ export function txt(
     color,
     ...extra,
   });
-  t.setResolution(2);
+  t.setResolution(TEXT_RES);
   return t;
 }
 
@@ -49,20 +72,20 @@ export class Button extends Phaser.GameObjects.Container {
     const w = opts.width ?? 260;
     const h = opts.height ?? 64;
     this.bg = scene.add
-      .rectangle(0, 0, w, h, opts.fill ?? 0x16203a, 0.92)
-      .setStrokeStyle(2, opts.stroke ?? 0x9fd8ff, 0.8);
+      .rectangle(0, 0, w, h, opts.fill ?? 0x161616, 0.92)
+      .setStrokeStyle(2, opts.stroke ?? 0xd0d0d0, 0.8);
     this.label = txt(scene, 0, 0, text, opts.size ?? 26).setOrigin(0.5);
     this.add([this.bg, this.label]);
     this.setSize(w, h);
     this.bg.setInteractive({ useHandCursor: true });
-    this.bg.on('pointerover', () => this.enabled && this.bg.setFillStyle(0x24345c, 0.95));
+    this.bg.on('pointerover', () => this.enabled && this.bg.setFillStyle(0x2c2c2c, 0.95));
     // Only fire when the press also started on this button, so a tap that opens
     // an overlay can never "fall through" onto a button underneath the finger.
     let pressed = false;
     this.bg.on('pointerdown', () => (pressed = true));
     this.bg.on('pointerout', () => {
       pressed = false;
-      this.bg.setFillStyle(opts.fill ?? 0x16203a, 0.92);
+      this.bg.setFillStyle(opts.fill ?? 0x161616, 0.92);
     });
     this.bg.on('pointerup', () => {
       if (!this.enabled || !pressed) return;
@@ -106,7 +129,7 @@ export class BarRow extends Phaser.GameObjects.Container {
     super(scene, x, y);
     const h = opts.height ?? 26;
     this.value = value;
-    this.track = scene.add.rectangle(0, 0, barWidth, h, 0x0c1120, 1).setOrigin(0, 0.5).setStrokeStyle(1, 0x3a4566);
+    this.track = scene.add.rectangle(0, 0, barWidth, h, 0x111111, 1).setOrigin(0, 0.5).setStrokeStyle(1, 0x444444);
     this.fill = scene.add.rectangle(0, 0, barWidth * value, h, color, 0.85).setOrigin(0, 0.5);
     this.valueText = txt(scene, barWidth + 14, 0, format(value), 22).setOrigin(0, 0.5);
     this.add([this.track, this.fill, this.valueText]);
@@ -196,22 +219,46 @@ export function stackedBar(
     if (w > 0.5) c.add(scene.add.rectangle(cx, 0, w, height, colors[i], 0.9).setOrigin(0, 0.5));
     cx += w;
   });
-  c.add(scene.add.rectangle(0, 0, width, height).setOrigin(0, 0.5).setStrokeStyle(1, 0x5a6688));
+  c.add(scene.add.rectangle(0, 0, width, height).setOrigin(0, 0.5).setStrokeStyle(1, 0x666666));
   return c;
 }
 
 /** Full-screen dim panel used by overlay scenes. */
 export function overlayBackground(scene: Phaser.Scene, alpha = 0.94) {
-  scene.add.rectangle(0, 0, W, H, 0x05070d, alpha).setOrigin(0).setInteractive();
-  scene.add.rectangle(W / 2, H / 2, W - 24, H - 24).setStrokeStyle(2, 0x2c3a5e, 0.9);
+  scene.add.rectangle(0, 0, W, H, 0x060606, alpha).setOrigin(0).setInteractive();
+  scene.add.rectangle(W / 2, H / 2, W - 24, H - 24).setStrokeStyle(2, 0x3a3a3a, 0.9);
 }
 
-/** A small round sound on/off toggle, fixed to the screen. */
-export function soundToggle(scene: Phaser.Scene, x: number, y: number) {
+/** A small full-screen toggle (F does the same), fixed to the screen. */
+export function fullscreenToggle(scene: Phaser.Scene, x: number, y: number) {
   const cont = scene.add.container(x, y).setDepth(1001);
-  const bg = scene.add.circle(0, 0, 26, 0x0d1424, 0.65).setStrokeStyle(2, 0x9fd8ff, 0.5).setInteractive({ useHandCursor: true });
-  const icon = txt(scene, 0, 1, '♪', 26, '#cfe6ff').setOrigin(0.5);
-  const slash = scene.add.rectangle(0, 0, 40, 3, 0xff9f9f).setAngle(-45);
+  const bg = scene.add.circle(0, 0, 26, 0x111111, 0.65).setStrokeStyle(2, 0xd0d0d0, 0.5).setInteractive({ useHandCursor: true });
+  const g = scene.add.graphics();
+  g.lineStyle(3, 0xdcdcdc, 1);
+  for (const [sx, sy] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) {
+    g.lineBetween(sx * 11, sy * 11, sx * 11, sy * 4);
+    g.lineBetween(sx * 11, sy * 11, sx * 4, sy * 11);
+  }
+  cont.add([bg, g]);
+  cont.setScrollFactor(0, 0, true);
+  let pressed = false;
+  bg.on('pointerdown', () => (pressed = true));
+  bg.on('pointerout', () => (pressed = false));
+  bg.on('pointerup', () => {
+    if (!pressed) return;
+    pressed = false;
+    scene.scale.toggleFullscreen();
+  });
+  return cont;
+}
+
+/** A small round sound on/off toggle, fixed to the screen, with the full-screen toggle beside it. */
+export function soundToggle(scene: Phaser.Scene, x: number, y: number) {
+  fullscreenToggle(scene, x - 64, y);
+  const cont = scene.add.container(x, y).setDepth(1001);
+  const bg = scene.add.circle(0, 0, 26, 0x111111, 0.65).setStrokeStyle(2, 0xd0d0d0, 0.5).setInteractive({ useHandCursor: true });
+  const icon = txt(scene, 0, 1, '♪', 26, '#dcdcdc').setOrigin(0.5);
+  const slash = scene.add.rectangle(0, 0, 40, 3, 0xd84a52).setAngle(-45);
   cont.add([bg, icon, slash]);
   cont.setScrollFactor(0, 0, true);
   {

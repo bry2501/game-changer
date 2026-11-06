@@ -1,9 +1,10 @@
 import Phaser from 'phaser';
-import { Button, H, W, hex, txt } from '../ui/widgets';
+import { Button, fitCamera, H, hex, txt, W } from '../ui/widgets';
 import { ENDING_CORRECT, ENDING_WRONG, EndLine, SUSPECTS } from '../data/case1';
 import { FLOOR_Y, drawBody, drawDesk, drawGrandfatherClock, drawWainscot, drawWindow } from '../ui/art';
 import { PAL, cobweb, paintRect } from '../ui/paint';
 import { drawSuspect } from './MemoryScene';
+import { Noir, filmGrain } from '../ui/noir';
 import { Sound } from '../audio/Sound';
 
 const BODY_AT = 520;
@@ -26,6 +27,7 @@ export class EndingScene extends Phaser.Scene {
   private caption!: Phaser.GameObjects.Text;
   private box!: Phaser.GameObjects.Container;
   private voss?: Phaser.GameObjects.Container;
+  private noir!: Noir;
 
   constructor() {
     super('Ending');
@@ -42,7 +44,8 @@ export class EndingScene extends Phaser.Scene {
   }
 
   create() {
-    this.cameras.main.setBackgroundColor('#05060a');
+    fitCamera(this.cameras.main);
+    this.cameras.main.setBackgroundColor('#050505');
     this.drawStudy();
     this.glow = this.add.image(BODY_AT + 120, 360, 'glow').setScale(2.2).setBlendMode(Phaser.BlendModes.ADD).setDepth(40);
     this.ghost = this.add.image(BODY_AT + 120, 360, 'ghost').setScale(0.8).setDepth(41);
@@ -51,6 +54,9 @@ export class EndingScene extends Phaser.Scene {
     this.caption = txt(this, W / 2, 40, '', 22, '#d9b98a', { fontStyle: 'italic' }).setOrigin(0.5, 0).setDepth(80);
     this.box = this.add.container(0, 0).setDepth(90);
     this.add.image(W / 2, H / 2, 'vignette').setDepth(60);
+    // the study in black and white; the story's turns bloom into colour
+    this.noir = new Noir(this, this.cameras.main, 0);
+    filmGrain(this, 70);
 
     const next = new Button(this, W - 120, H - 48, 'Next ▸', () => this.advance(), { width: 180, height: 52, size: 20 });
     next.setDepth(100);
@@ -110,8 +116,8 @@ export class EndingScene extends Phaser.Scene {
     const x0 = 120;
     const w = W - 240 - 120;
     const who = l.who === 'clara' ? 'Clara' : l.who === 'imagining' ? 'John, imagining' : 'John';
-    const color = l.who === 'clara' ? hex(SUSPECTS[0].color) : l.who === 'imagining' ? '#d9b98a' : '#9fd8ff';
-    const t = txt(this, x0 + 26, 0, l.text.replace(/\*/g, ''), 22, l.who === 'imagining' ? '#f3e2c4' : '#eef3ff', {
+    const color = l.who === 'clara' ? hex(SUSPECTS[0].color) : l.who === 'imagining' ? '#d9b98a' : '#e6e6e6';
+    const t = txt(this, x0 + 26, 0, l.text.replace(/\*/g, ''), 22, l.who === 'imagining' ? '#f3e2c4' : '#f2f2f2', {
       fontStyle: l.who === 'clara' ? 'normal' : 'italic',
       wordWrap: { width: w - 52 },
       lineSpacing: 5,
@@ -120,8 +126,8 @@ export class EndingScene extends Phaser.Scene {
     const y = H - 24 - h;
     t.setY(y + 40);
     const bg = this.add.graphics();
-    bg.fillStyle(l.who === 'imagining' ? 0x2a1d10 : 0x0b1222, 0.93);
-    bg.lineStyle(2, l.who === 'imagining' ? 0xd9b98a : l.who === 'clara' ? SUSPECTS[0].color : 0x9fd8ff, 0.6);
+    bg.fillStyle(l.who === 'imagining' ? 0x2a1d10 : 0x101010, 0.93);
+    bg.lineStyle(2, l.who === 'imagining' ? 0xd9b98a : l.who === 'clara' ? SUSPECTS[0].color : 0xd0d0d0, 0.6);
     bg.fillRoundedRect(x0, y, w, h, 16);
     bg.strokeRoundedRect(x0, y, w, h, 16);
     this.box.add([bg, txt(this, x0 + 26, y + 12, who, 17, color, { fontStyle: 'bold' }), t]);
@@ -139,6 +145,7 @@ export class EndingScene extends Phaser.Scene {
         return 1600;
       case 'reconstruct':
         this.tweens.add({ targets: this.amber, fillAlpha: 0.72, duration: 1400 });
+        this.noir.fade(1, 1400);
         this.caption.setText('— not a memory: what the evidence leaves standing —').setAlpha(0);
         this.tweens.add({ targets: this.caption, alpha: 1, duration: 900 });
         this.voss = drawSuspect(this, W / 2, 300, 1, 0.9).setAlpha(0).setDepth(55);
@@ -146,11 +153,14 @@ export class EndingScene extends Phaser.Scene {
         return 1800;
       case 'eleven': {
         this.tweens.add({ targets: [this.amber], fillAlpha: 0, duration: 1200 });
+        // back to black and white for the striking clock, then warm colour with the kitchen light
+        this.noir.fade(0, 1200);
+        this.noir.fade(1, 2200, 1800);
         this.tweens.add({ targets: [this.caption, this.voss].filter(Boolean), alpha: 0, duration: 1000 });
         for (let i = 0; i < 4; i++) this.time.delayedCall(300 + i * 900, () => Sound.toll());
         this.caption.setText('Eleven.');
         this.time.delayedCall(1100, () => {
-          this.caption.setAlpha(0).setColor('#ffe9b8');
+          this.caption.setAlpha(0).setColor('#f2f2f2');
           this.tweens.add({ targets: this.caption, alpha: 1, duration: 600 });
         });
         // light spills down the passage from the kitchen
@@ -187,11 +197,13 @@ export class EndingScene extends Phaser.Scene {
         Sound.whoosh();
         this.time.delayedCall(500, () => Sound.whoosh());
         this.time.delayedCall(1000, () => Sound.whoosh());
-        this.tweens.add({ targets: cam, rotation: -Math.PI * 2, duration: 2200, ease: 'Cubic.easeInOut' });
-        cam.flash(2200, 200, 210, 255);
+        cam.shake(2200, 0.012);
+        // the night rewinds in a red flash
+        this.noir.fade(0.8, 400);
+        this.noir.fade(0, 900, 1900);
+        cam.flash(2200, 190, 25, 35);
         this.caption.setText('Ten o’clock.').setAlpha(0);
         this.time.delayedCall(2000, () => {
-          cam.setRotation(0);
           Sound.toll();
           this.tweens.add({ targets: this.caption, alpha: 1, duration: 600 });
         });

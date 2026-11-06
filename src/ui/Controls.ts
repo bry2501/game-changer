@@ -2,13 +2,12 @@ import Phaser from 'phaser';
 import { W, txt } from './widgets';
 
 /**
- * Arrow-free controls.
- * - Touch / mouse: press and hold anywhere and the ghost drifts toward your finger;
- *   a quick tap sends the ghost to that spot. Tapping the glowing clue sends the
- *   ghost there and examines it on arrival.
- * - Keyboard: ← → / A D to drift, Space / E / Enter to examine, B or Tab for the board.
+ * Desktop controls (touch still works the same way).
+ * - Keyboard: ← → / A D to drift, Space / E / Enter to examine, W / S for the stairs, B or Tab for the board.
+ * - Mouse: click and hold anywhere and the ghost drifts toward the pointer; a click sends the
+ *   ghost to that spot. Clicking something searchable sends the ghost there and examines it on arrival.
  */
-export class TouchControls {
+export class Controls {
   /** World x the ghost is drifting toward, if any. */
   targetX: number | null = null;
   /** Set when the player tapped the glowing clue: examine it on arrival. */
@@ -85,10 +84,10 @@ export class TouchControls {
   private boardButton(fn: () => void) {
     const cont = this.scene.add.container(W - 100, 52).setDepth(1000);
     const bg = this.scene.add
-      .rectangle(0, 0, 160, 54, 0x0d1424, 0.65)
-      .setStrokeStyle(2, 0xffe2a0, 0.6)
+      .rectangle(0, 0, 160, 54, 0x111111, 0.65)
+      .setStrokeStyle(2, 0xd8d8d8, 0.6)
       .setInteractive({ useHandCursor: true });
-    const t = txt(this.scene, 0, 0, 'Suspects', 22, '#ffe9b8').setOrigin(0.5);
+    const t = txt(this.scene, 0, 0, 'Suspects', 22, '#f2f2f2').setOrigin(0.5);
     cont.add([bg, t]);
     cont.setScrollFactor(0, 0, true);
     let pressed = false;

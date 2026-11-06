@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { Button, DIM, H, INK, W, fadeThen, hex, overlayBackground, stackedBar, txt } from '../ui/widgets';
+import { Button, DIM, fadeThen, fitCamera, H, hex, INK, overlayBackground, stackedBar, txt, W } from '../ui/widgets';
 import { ACCUSE_LINES, CLUES, CULPRIT_INDEX, SUSPECTS } from '../data/case1';
 import { CONCEPTS } from '../data/lessons';
 import { GameState } from '../state/GameState';
@@ -25,8 +25,9 @@ export class AccuseScene extends Phaser.Scene {
   }
 
   create() {
+    fitCamera(this.cameras.main);
     Sound.setTicking(false);
-    this.cameras.main.setBackgroundColor('#05060a');
+    this.cameras.main.setBackgroundColor('#050505');
     this.add.image(W / 2, 260, 'moon').setScale(4).setAlpha(0.6);
     if (this.results) {
       Sound.setMood('memory');
@@ -49,7 +50,7 @@ export class AccuseScene extends Phaser.Scene {
     const belief = GameState.data.belief;
     const top = argmax(belief);
     const fill = (s: string) => s.replace('{likely}', SUSPECTS[top].name).replace('{other}', SUSPECTS[1 - top].name);
-    txt(this, W / 2, 56, ACCUSE_LINES[0], 28, '#ffe9b8').setOrigin(0.5);
+    txt(this, W / 2, 56, ACCUSE_LINES[0], 28, '#f2f2f2').setOrigin(0.5);
     txt(this, W / 2, 100, ACCUSE_LINES[1], 21, DIM).setOrigin(0.5);
     SUSPECTS.forEach((s, i) => {
       const x = W / 2 + (i - (SUSPECTS.length - 1) / 2) * 300;
@@ -57,12 +58,12 @@ export class AccuseScene extends Phaser.Scene {
       b.label.setColor(hex(s.color)).setY(-30);
       b.add(txt(this, 0, 18, s.role, 18, DIM).setOrigin(0.5));
       // suspicion as a bar, not a number
-      b.add(this.add.rectangle(-100, 52, 200, 14, 0x0c1120).setOrigin(0, 0.5).setStrokeStyle(1, 0x3a4566));
+      b.add(this.add.rectangle(-100, 52, 200, 14, 0x111111).setOrigin(0, 0.5).setStrokeStyle(1, 0x444444));
       b.add(this.add.rectangle(-100, 52, 200 * belief[i], 14, s.color, 0.9).setOrigin(0, 0.5));
     });
     const opts = { align: 'center' as const, wordWrap: { width: 1060 }, lineSpacing: 4 };
-    txt(this, W / 2, 425, fill(ACCUSE_LINES[2]), 21, '#cfe6ff', opts).setOrigin(0.5);
-    txt(this, W / 2, 510, ACCUSE_LINES[3], 19, '#cfe6ff', opts).setOrigin(0.5);
+    txt(this, W / 2, 425, fill(ACCUSE_LINES[2]), 21, '#dcdcdc', opts).setOrigin(0.5);
+    txt(this, W / 2, 510, ACCUSE_LINES[3], 19, '#dcdcdc', opts).setOrigin(0.5);
     txt(this, W / 2, 600, ACCUSE_LINES[4], 20, DIM, { fontStyle: 'italic' }).setOrigin(0.5);
   }
 
@@ -81,9 +82,9 @@ export class AccuseScene extends Phaser.Scene {
     const colors = SUSPECTS.map((s) => s.color);
     const journey = [data.prior, ...data.history.map((h) => h.belief)];
 
-    txt(this, W / 2, 22, correct ? 'Case closed' : 'Not this time', 34, correct ? '#9ff0b0' : '#ff9f9f', { fontStyle: 'bold' }).setOrigin(0.5, 0);
+    txt(this, W / 2, 22, correct ? 'Case closed' : 'Not this time', 34, correct ? '#f0f0f0' : '#d84a52', { fontStyle: 'bold' }).setOrigin(0.5, 0);
     const verdict = correct ? `You named ${SUSPECTS[this.accused].name}, and you were right.` : `You named ${SUSPECTS[this.accused].name}. It was not them.`;
-    txt(this, W / 2, 66, verdict, 20, '#dfe6ff').setOrigin(0.5, 0);
+    txt(this, W / 2, 66, verdict, 20, '#e8e8e8').setOrigin(0.5, 0);
 
     // how the player's board moved, clue by clue
     txt(this, 40, 106, 'How your suspicion moved, clue by clue', 17, DIM);
@@ -95,7 +96,7 @@ export class AccuseScene extends Phaser.Scene {
     txt(this, x0 + 470, 106, 'your board after', 17, DIM);
     CLUES.forEach((c, k) => {
       const y = 142 + k * 42;
-      txt(this, x0, y - 11, `${k + 1}. ${c.trap}`, 16, '#dfe6ff', { wordWrap: { width: 450 } });
+      txt(this, x0, y - 11, `${k + 1}. ${c.trap}`, 16, '#e8e8e8', { wordWrap: { width: 450 } });
       const h = data.history[k];
       if (h) stackedBar(this, x0 + 470, y, 150, 18, h.belief, colors);
     });
@@ -118,18 +119,18 @@ export class AccuseScene extends Phaser.Scene {
     else if (finalTop === this.accused)
       parts.push(`Your board pointed to ${top.name}, so some of your ratings put it there. A sound process can still end wrong when a rating is off; go back to the ratings, not to a hunch.`);
     else parts.push(`Your own board favoured ${top.name}, and you accused ${SUSPECTS[this.accused].name} anyway. That was the gut feeling I warned you about.`);
-    txt(this, 40, 480, parts.join(' '), 19, '#cfe6ff', { wordWrap: { width: 1200 }, lineSpacing: 4 });
+    txt(this, 40, 480, parts.join(' '), 19, '#dcdcdc', { wordWrap: { width: 1200 }, lineSpacing: 4 });
 
     const y = H - 52;
     if (correct) {
-      new Button(this, 170, y, 'See the math', () => this.showMath(0), { width: 260, height: 58, size: 22, stroke: 0xffe2a0 });
+      new Button(this, 170, y, 'See the math', () => this.showMath(0), { width: 260, height: 58, size: 22, stroke: 0xd8d8d8 });
       new Button(this, 470, y, 'Read all lessons', () => this.showLessons(), { width: 280, height: 58, size: 21 });
       new Button(this, 780, y, 'Play again', () => this.playAgain(), { width: 240, height: 58, size: 21 });
       new Button(this, 1060, y, 'Title', () => this.toTitle(), { width: 200, height: 58, size: 21 });
     } else {
       new Button(this, 200, y, 'Read all lessons', () => this.showLessons(), { width: 300, height: 58, size: 21 });
       new Button(this, W / 2, y, 'Title', () => this.toTitle(), { width: 200, height: 58, size: 21 });
-      new Button(this, W - 200, y, 'Try again', () => this.playAgain(), { width: 300, height: 58, size: 22, stroke: 0x9ff0b0 });
+      new Button(this, W - 200, y, 'Try again', () => this.playAgain(), { width: 300, height: 58, size: 22, stroke: 0xe0e0e0 });
     }
     GameState.clear();
   }
@@ -147,11 +148,11 @@ export class AccuseScene extends Phaser.Scene {
   private showLessons() {
     this.clear();
     overlayBackground(this, 0.985);
-    txt(this, W / 2, 20, 'What each clue teaches', 30, '#ffe9b8', { fontStyle: 'bold' }).setOrigin(0.5, 0);
+    txt(this, W / 2, 20, 'What each clue teaches', 30, '#f2f2f2', { fontStyle: 'bold' }).setOrigin(0.5, 0);
     CLUES.forEach((c, k) => {
       const y = 70 + k * 84;
-      txt(this, 40, y, `${k + 1}. ${c.title}: ${c.trap}`, 18, '#ffe2a0', { fontStyle: 'bold' });
-      txt(this, 40, y + 24, c.lesson, 14, '#dfe6ff', { wordWrap: { width: 1200 } });
+      txt(this, 40, y, `${k + 1}. ${c.title}: ${c.trap}`, 18, '#e0e0e0', { fontStyle: 'bold' });
+      txt(this, 40, y + 24, c.lesson, 14, '#e8e8e8', { wordWrap: { width: 1200 } });
     });
     new Button(this, W - 160, H - 34, 'Back', () => this.showResults(), { width: 200, height: 48, size: 20 });
   }
@@ -184,7 +185,7 @@ export class AccuseScene extends Phaser.Scene {
     const after = update(before, lik);
     const r = lik.map((l) => RATING_OF[String(l)] ?? 3);
 
-    txt(this, W / 2, 20, `See the math · Clue ${k + 1} of ${n}: ${c.title}`, 28, '#ffe9b8', { fontStyle: 'bold' }).setOrigin(0.5, 0);
+    txt(this, W / 2, 20, `See the math · Clue ${k + 1} of ${n}: ${c.title}`, 28, '#f2f2f2', { fontStyle: 'bold' }).setOrigin(0.5, 0);
     const colors = SUSPECTS.map((s) => s.color);
     const names = SUSPECTS.map((s) => s.name);
     txt(this, 210, 92, 'Every world, shared by suspicion; shaded where the clue turns up', 15, DIM, { align: 'center', wordWrap: { width: 380 } }).setOrigin(0.5, 0);
@@ -210,9 +211,9 @@ export class AccuseScene extends Phaser.Scene {
       `(${odds(ratio)}), makes ${odds(o0 * ratio)}. That is ${Math.round(after[0] * 100)}% ${A.name}, ${Math.round(after[1] * 100)}% ${short(B)}.`;
     let y = 100;
     const add = (t: Phaser.GameObjects.Text, gap = 22) => (y += t.height + gap);
-    add(txt(this, 440, y, `Your ratings: ${A.name} ${r[0]}, ${short(B)} ${r[1]}.`, 22, '#9ff0b0'));
+    add(txt(this, 440, y, `Your ratings: ${A.name} ${r[0]}, ${short(B)} ${r[1]}.`, 22, '#f0f0f0'));
     add(txt(this, 440, y, worlds, 21, INK, { wordWrap: { width: 790 }, lineSpacing: 6 }));
-    add(txt(this, 440, y, oddsLine, 20, '#cfe6ff', { wordWrap: { width: 790 }, lineSpacing: 6 }));
+    add(txt(this, 440, y, oddsLine, 20, '#dcdcdc', { wordWrap: { width: 790 }, lineSpacing: 6 }));
     add(
       txt(this, 440, y, Math.abs(ratio - 1) < 1e-9 ? 'Equal ratings: a ratio of 1 changes nothing.' : `Only the ratio matters: any two ratings ${ratio > 1 ? 'favouring' : 'against'} ${A.name} by ${odds(ratio)} would move the board exactly as far.`, 18, DIM, {
         wordWrap: { width: 790 },
@@ -224,7 +225,7 @@ export class AccuseScene extends Phaser.Scene {
     const data = GameState.data;
     const liks = CLUES.map((c, k) => data.history[k]?.playerLik ?? c.likelihoods);
     const from = (p: number) => liks.reduce((b, l) => update(b, l), [p, 1 - p])[0];
-    txt(this, W / 2, 20, 'See the math · the whole case', 28, '#ffe9b8', { fontStyle: 'bold' }).setOrigin(0.5, 0);
+    txt(this, W / 2, 20, 'See the math · the whole case', 28, '#f2f2f2', { fontStyle: 'bold' }).setOrigin(0.5, 0);
     txt(this, 60, 80, 'The seven lessons', 20, DIM);
     CONCEPTS.forEach((c, k) => txt(this, 60, 112 + k * 34, `${k + 1}. ${c.title}`, 21, INK));
     const A = SUSPECTS[0].name;
@@ -237,7 +238,7 @@ export class AccuseScene extends Phaser.Scene {
       `Where you start matters less than you might think. With your seven ratings, starting ${A} at ` +
         `${ends.join(', ')} ${A} at the end. A different starting point changes the final board only a little, provided the ratings stay the same.`,
       21,
-      '#cfe6ff',
+      '#dcdcdc',
       { wordWrap: { width: 580 }, lineSpacing: 6 },
     );
     txt(

@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { txt } from './widgets';
+import { txt, viewOf } from './widgets';
 
 const MAX_W = 420;
 const PAD_X = 22;
@@ -41,10 +41,10 @@ export class ThoughtBubble {
       lineSpacing: 2,
     }).setOrigin(0.5);
     // generous hit areas: these are tapped with thumbs
-    this.prevBtn = txt(scene, 0, 0, '‹', 34, '#9fd8ff', { padding: { x: 18, y: 2 } })
+    this.prevBtn = txt(scene, 0, 0, '‹', 34, '#e6e6e6', { padding: { x: 18, y: 2 } })
       .setOrigin(0.5)
       .setInteractive({ useHandCursor: true });
-    this.nextBtn = txt(scene, 0, 0, '›', 34, '#9fd8ff', { padding: { x: 18, y: 2 } })
+    this.nextBtn = txt(scene, 0, 0, '›', 34, '#e6e6e6', { padding: { x: 18, y: 2 } })
       .setOrigin(0.5)
       .setInteractive({ useHandCursor: true });
     this.prevBtn.on('pointerup', () => this.back());
@@ -113,7 +113,7 @@ export class ThoughtBubble {
 
   update() {
     if (this.box.alpha <= 0) return;
-    const view = this.scene.cameras.main.worldView;
+    const view = viewOf(this.scene.cameras.main);
     const half = this.bw / 2 + 12;
     const x = Phaser.Math.Clamp(this.target.x, view.x + half, view.right - half);
     const y = Math.max(this.target.y - 84 - this.bh / 2, view.y + this.bh / 2 + 10);
@@ -167,8 +167,8 @@ export class ThoughtBubble {
     const g = this.bg;
     const halfH = this.bh / 2;
     g.clear();
-    g.fillStyle(0x0b1222, 0.88);
-    g.lineStyle(2, 0x9fd8ff, 0.45);
+    g.fillStyle(0x101010, 0.88);
+    g.lineStyle(2, 0xd0d0d0, 0.45);
     g.fillRoundedRect(-this.bw / 2, -halfH, this.bw, this.bh, 18);
     g.strokeRoundedRect(-this.bw / 2, -halfH, this.bw, this.bh, 18);
     // thought-bubble puffs leading down toward the ghost

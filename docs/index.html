@@ -2,24 +2,17 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
-    <meta name="theme-color" content="#05060a" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="mobile-web-app-capable" content="yes" />
-    <link rel="manifest" href="manifest.webmanifest" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#050505" />
     <title>Ghost Mystery</title>
     <style>
-      html, body { margin: 0; padding: 0; height: 100%; background: #05060a; overflow: hidden; touch-action: none; }
-      #game { width: 100vw; height: 100vh; height: 100dvh; }
-      #rotate { display: none; position: fixed; inset: 0; color: #cfd8ff; font: 18px Georgia, serif;
-        align-items: center; justify-content: center; text-align: center; background: #05060a; z-index: 10; padding: 16px; }
-      @media (orientation: portrait) and (max-width: 700px) { #rotate { display: flex; } }
+      html, body { margin: 0; padding: 0; height: 100%; background: #050505; overflow: hidden; }
+      #game { width: 100vw; height: 100vh; }
     </style>
-    <script type="module" crossorigin src="./assets/index-CCUPrgOL.js"></script>
+    <script type="module" crossorigin src="./assets/index-DcmKHKSO.js"></script>
   </head>
   <body>
     <div id="game"></div>
-    <div id="rotate">Turn your phone sideways to haunt properly.</div>
     <script>
       // GitHub Pages "Deploy from a branch" serves this raw source page, which cannot run
       // TypeScript. In that case jump to the pre-built copy of the game in docs/.
@@ -33,7 +26,7 @@
         if (document.querySelector('#game canvas')) return;
         var m = document.createElement('div');
         m.style.cssText = 'position:fixed;inset:0;display:flex;align-items:center;justify-content:center;' +
-          'text-align:center;padding:24px;color:#cfd8ff;font:18px Georgia,serif;background:#05060a;z-index:5';
+          'text-align:center;padding:24px;color:#dddddd;font:18px Georgia,serif;background:#050505;z-index:5';
         m.textContent = 'The ghost could not wake up: the game failed to load. Try reloading the page.';
         document.body.appendChild(m);
       }, 10000);

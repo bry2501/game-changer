@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { BarRow, Button, DIM, W, hex, overlayBackground, txt } from '../ui/widgets';
+import { BarRow, Button, DIM, fitCamera, hex, overlayBackground, txt, W } from '../ui/widgets';
 import { CLUES, SUSPECTS } from '../data/case1';
 import { GameState } from '../state/GameState';
 
@@ -15,7 +15,7 @@ export function beliefChart(
   opts: { dashed?: boolean; alpha?: number } = {},
 ) {
   const g = scene.add.graphics();
-  g.lineStyle(1, 0x2c3a5e, 1);
+  g.lineStyle(1, 0x3a3a3a, 1);
   g.strokeRect(x, y, w, h);
   [0.25, 0.5, 0.75].forEach((v) => g.lineBetween(x, y + h * (1 - v), x + w, y + h * (1 - v)));
   const sx = (k: number) => x + (w * k) / Math.max(1, totalSteps);
@@ -45,9 +45,10 @@ export class BoardScene extends Phaser.Scene {
   }
 
   create() {
+    fitCamera(this.cameras.main);
     overlayBackground(this);
     const data = GameState.data;
-    txt(this, W / 2, 30, 'Suspicion Board', 36, '#ffe9b8', { fontStyle: 'bold' }).setOrigin(0.5, 0);
+    txt(this, W / 2, 30, 'Suspicion Board', 36, '#f2f2f2', { fontStyle: 'bold' }).setOrigin(0.5, 0);
     txt(this, W / 2, 80, `${data.found} of ${CLUES.length} clues weighed`, 20, DIM).setOrigin(0.5, 0);
 
     SUSPECTS.forEach((s, i) => {
@@ -65,7 +66,7 @@ export class BoardScene extends Phaser.Scene {
 
     const found = CLUES.slice(0, Math.max(0, data.found)).map((c, i) => `${i + 1}. ${c.title}`);
     txt(this, 50, 500, 'Evidence:', 20, DIM);
-    txt(this, 50, 530, found.join('     ') || '(none yet)', 18, '#dfe6ff', { wordWrap: { width: 900 }, lineSpacing: 6 });
+    txt(this, 50, 530, found.join('     ') || '(none yet)', 18, '#e8e8e8', { wordWrap: { width: 900 }, lineSpacing: 6 });
 
     new Button(this, W - 165, 668, 'Back ▸', () => this.close(), { width: 240, height: 60 });
     this.input.keyboard?.on('keydown-B', () => this.close());

@@ -11,8 +11,8 @@ export const SIL = 0x1a2640;
 export const FLOOR_Y = 610;
 
 export function drawBody(g: Phaser.GameObjects.Graphics, x: number, y: number) {
-  // a maroon rug with a pale border
-  g.fillStyle(PAL.maroon, 1);
+  // a deep red rug with a pale border (the one splash of red in the study)
+  g.fillStyle(0x8e1c24, 1);
   g.fillEllipse(x, y + 8, 310, 44);
   g.lineStyle(3, 0xc79a6a, 0.6);
   g.strokeEllipse(x, y + 8, 290, 36);

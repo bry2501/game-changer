@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { H, W } from '../ui/widgets';
+import { fitCamera, H, W } from '../ui/widgets';
 import { makePaintTextures } from '../ui/paint';
 
 /** Generates every texture procedurally: no binary assets. */
@@ -9,6 +9,7 @@ export class BootScene extends Phaser.Scene {
   }
 
   create() {
+    fitCamera(this.cameras.main);
     this.radial('glow', 128, [
       [0, 'rgba(190,225,255,0.9)'],
       [0.35, 'rgba(140,190,255,0.35)'],
@@ -88,7 +89,7 @@ export class BootScene extends Phaser.Scene {
     const ctx = tex.getContext();
     const g = ctx.createRadialGradient(W / 2, H / 2, H * 0.3, W / 2, H / 2, W * 0.65);
     g.addColorStop(0, 'rgba(0,0,0,0)');
-    g.addColorStop(1, 'rgba(0,0,0,0.7)');
+    g.addColorStop(1, 'rgba(0,0,0,0.88)');
     ctx.fillStyle = g;
     ctx.fillRect(0, 0, W, H);
     tex.refresh();

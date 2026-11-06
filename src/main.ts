@@ -10,17 +10,17 @@ import { EvidenceScene } from './scenes/EvidenceScene';
 import { BoardScene } from './scenes/BoardScene';
 import { AccuseScene } from './scenes/AccuseScene';
 import { EndingScene } from './scenes/EndingScene';
-import { H, W } from './ui/widgets';
+import { VIEW_H, VIEW_W } from './ui/widgets';
 
 const game = new Phaser.Game({
   type: Phaser.AUTO,
   parent: 'game',
-  backgroundColor: '#05060a',
+  backgroundColor: '#050505',
   scale: {
     mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH,
-    width: W,
-    height: H,
+    width: VIEW_W,
+    height: VIEW_H,
   },
   input: { activePointers: 3 },
   render: { antialias: true },
@@ -31,6 +31,10 @@ const game = new Phaser.Game({
 const unlockAudio = () => Sound.unlock();
 window.addEventListener('pointerdown', unlockAudio);
 window.addEventListener('keydown', unlockAudio);
+// F toggles full screen anywhere in the game (a key press counts as the user gesture browsers require)
+window.addEventListener('keydown', (e) => {
+  if (e.code === 'KeyF' && !e.repeat) game.scale.toggleFullscreen();
+});
 
 // handy for automated testing / debugging
 (window as unknown as { __game: Phaser.Game; __gs: typeof GameState }).__game = game;

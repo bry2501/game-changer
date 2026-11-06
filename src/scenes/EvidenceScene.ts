@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { Button, DIM, INK, W, fadeThen, hex, overlayBackground, stackedBar, txt } from '../ui/widgets';
+import { Button, DIM, fadeThen, fitCamera, hex, INK, overlayBackground, stackedBar, txt, W } from '../ui/widgets';
 import { CLUES, Evidence, LOG_ROWS, PRIOR_SHEET, SUSPECTS } from '../data/case1';
 import { GameState, StepRecord, truePrior } from '../state/GameState';
 import { update } from '../bayes/engine';
@@ -17,7 +17,7 @@ interface Step {
   build: () => void;
 }
 
-const GOLD = '#ffe9b8';
+const GOLD = '#f2f2f2';
 const CONTENT_Y = 128;
 const NAV_Y = 668;
 
@@ -86,6 +86,7 @@ export class EvidenceScene extends Phaser.Scene {
   }
 
   create() {
+    fitCamera(this.cameras.main);
     overlayBackground(this);
     this.page = this.add.container();
     this.backBtn = new Button(this, 130, NAV_Y, '‹ Back', () => this.onBack(), { width: 180, height: 56, size: 22 });
@@ -147,7 +148,7 @@ export class EvidenceScene extends Phaser.Scene {
     if (this.index === this.steps.length - 1 && this.nextBtn.label.text.startsWith('Next')) {
       this.setNext('Continue ›', this.nextBtn.alpha === 1);
     }
-    this.crumbs.forEach((c, i) => c.setColor(i === this.index ? GOLD : i < this.index ? '#9fb0d6' : '#4a5677'));
+    this.crumbs.forEach((c, i) => c.setColor(i === this.index ? GOLD : i < this.index ? '#aaaaaa' : '#555555'));
     this.tweens.add({ targets: this.page, alpha: 1, duration: 250 });
   }
 
@@ -164,10 +165,10 @@ export class EvidenceScene extends Phaser.Scene {
     let x = W / 2 - probe.width / 2;
     probe.destroy();
     labels.forEach((l, i) => {
-      const t = txt(this, x, 82, l, 16, '#4a5677');
+      const t = txt(this, x, 82, l, 16, '#555555');
       this.crumbs.push(t);
       x += t.width;
-      if (i < labels.length - 1) x += txt(this, x, 82, sep, 16, '#33405e').width;
+      if (i < labels.length - 1) x += txt(this, x, 82, sep, 16, '#3a3a3a').width;
     });
   }
 
@@ -202,29 +203,29 @@ export class EvidenceScene extends Phaser.Scene {
     const pad = 30;
     const x0 = W / 2 - w / 2;
     if (found) {
-      const cap = this.put(txt(this, x0 + 4, y, `Found: ${found}`, 18, '#8f9ab8', { fontStyle: 'italic', wordWrap: { width: w } }));
+      const cap = this.put(txt(this, x0 + 4, y, `Found: ${found}`, 18, '#9a9a9a', { fontStyle: 'italic', wordWrap: { width: w } }));
       y += cap.height + 12;
     }
     const card = this.put(this.add.container(0, 0));
     const bg = this.add.graphics();
     card.add(bg);
-    card.add(txt(this, x0 + pad, y + 16, `EVIDENCE  \u00B7  ${heading.toUpperCase()}`, 15, '#8a6a44', { fontStyle: 'bold' }));
+    card.add(txt(this, x0 + pad, y + 16, `EVIDENCE  \u00B7  ${heading.toUpperCase()}`, 15, '#6a6a6a', { fontStyle: 'bold' }));
     let cy = y + 46;
-    const ink = '#2a2118';
+    const ink = '#111111';
     const add = (t: Phaser.GameObjects.Text, gap = 6) => {
       card.add(t);
       cy += t.height + gap;
       return t;
     };
     if (doc.kind === 'letter') {
-      add(txt(this, x0 + w - pad, cy, doc.date, 19, '#4a3a2a', { fontStyle: 'italic' }).setOrigin(1, 0), 2);
+      add(txt(this, x0 + w - pad, cy, doc.date, 19, '#333333', { fontStyle: 'italic' }).setOrigin(1, 0), 2);
       doc.lines.forEach((l, k) =>
         add(txt(this, x0 + pad + (k ? 30 : 0), cy, l, k ? 27 : 23, ink, { fontStyle: 'italic', wordWrap: { width: w - pad * 2 - 30 } }), 8),
       );
       add(txt(this, x0 + w - pad - 40, cy, doc.sign, 25, ink, { fontStyle: 'italic' }).setOrigin(1, 0), 4);
     } else if (doc.kind === 'facts') {
       // the key column fits its longest label
-      const keys = doc.rows.map(([k]) => txt(this, x0 + pad, cy, k, 20, '#6b5236', { fontStyle: 'bold' }));
+      const keys = doc.rows.map(([k]) => txt(this, x0 + pad, cy, k, 20, '#3a3a3a', { fontStyle: 'bold' }));
       const kw = Math.max(190, ...keys.map((t) => t.width + 24));
       doc.rows.forEach(([, v], r) => {
         card.add(keys[r].setY(cy));
@@ -236,9 +237,9 @@ export class EvidenceScene extends Phaser.Scene {
       const total = weights.reduce((a, b) => a + b, 0);
       const colX: number[] = [];
       weights.reduce((acc, wt, k) => ((colX[k] = x0 + pad + ((w - pad * 2) * acc) / total), acc + wt), 0);
-      doc.columns.forEach((c, k) => card.add(txt(this, colX[k], cy, c, 17, '#6b5236', { fontStyle: 'bold' })));
+      doc.columns.forEach((c, k) => card.add(txt(this, colX[k], cy, c, 17, '#3a3a3a', { fontStyle: 'bold' })));
       cy += 26;
-      bg.lineStyle(1, 0xb9a882, 1);
+      bg.lineStyle(1, 0xb8b8b0, 1);
       bg.lineBetween(x0 + pad, cy - 4, x0 + w - pad, cy - 4);
       for (const r of doc.rows) {
         let h = 0;
@@ -249,16 +250,16 @@ export class EvidenceScene extends Phaser.Scene {
         });
         cy += h + 4;
       }
-      if (doc.foot) add(txt(this, x0 + pad, cy + 4, doc.foot, 18, '#4a3a2a', { fontStyle: 'italic', wordWrap: { width: w - pad * 2 } }), 6);
+      if (doc.foot) add(txt(this, x0 + pad, cy + 4, doc.foot, 18, '#333333', { fontStyle: 'italic', wordWrap: { width: w - pad * 2 } }), 6);
     }
     const h = cy - y + pad - 12;
     bg.fillStyle(0x000000, 0.35);
     bg.fillRoundedRect(x0 + 6, y + 8, w, h, 6);
-    bg.fillStyle(0xe9dfc7, 0.97);
+    bg.fillStyle(0xeeeeea, 0.97);
     bg.fillRoundedRect(x0, y, w, h, 6);
-    bg.fillStyle(0xd3c5a5, 1);
+    bg.fillStyle(0xd6d6d0, 1);
     bg.fillTriangle(x0 + w - 34, y, x0 + w, y, x0 + w, y + 34);
-    bg.lineStyle(1, 0xb9a882, 1);
+    bg.lineStyle(1, 0xb8b8b0, 1);
     bg.strokeRoundedRect(x0, y, w, h, 6);
     card.sendToBack(bg);
     return y + h;
@@ -301,7 +302,7 @@ export class EvidenceScene extends Phaser.Scene {
     // shrink long thoughts to fit above the buttons
     const room = NAV_Y - 44 - y - top - 16;
     let size = 22;
-    const t = txt(this, x0 + 24, y + top, text.replace(/\*/g, ''), size, memory ? '#f3e2c4' : '#cfe6ff', {
+    const t = txt(this, x0 + 24, y + top, text.replace(/\*/g, ''), size, memory ? '#f3e2c4' : '#dcdcdc', {
       fontStyle: 'italic',
       wordWrap: { width: w - 48 },
       lineSpacing: 5,
@@ -312,8 +313,8 @@ export class EvidenceScene extends Phaser.Scene {
     }
     note.add(t);
     const h = t.height + top + 16;
-    bg.fillStyle(memory ? 0x2a1d10 : 0x0b1222, 0.92);
-    bg.lineStyle(2, memory ? 0xd9b98a : 0x9fd8ff, memory ? 0.7 : 0.45);
+    bg.fillStyle(memory ? 0x2a1d10 : 0x101010, 0.92);
+    bg.lineStyle(2, memory ? 0xd9b98a : 0xd0d0d0, memory ? 0.7 : 0.45);
     bg.fillRoundedRect(x0, y, w, h, 18);
     bg.strokeRoundedRect(x0, y, w, h, 18);
     const glow = this.add.image(x0 - 52, y + h / 2, 'glow').setScale(0.9).setBlendMode(Phaser.BlendModes.ADD).setAlpha(0.7);
@@ -330,11 +331,11 @@ export class EvidenceScene extends Phaser.Scene {
     const note = this.put(this.add.container(0, 0));
     const bg = this.add.graphics();
     note.add(bg);
-    const t = txt(this, x + 56, y + 12, text, 19, '#cfe6ff', { fontStyle: 'italic', wordWrap: { width: w - 76 }, lineSpacing: 4 });
+    const t = txt(this, x + 56, y + 12, text, 19, '#dcdcdc', { fontStyle: 'italic', wordWrap: { width: w - 76 }, lineSpacing: 4 });
     note.add(t);
     const h = Math.max(t.height + 24, 56);
-    bg.fillStyle(0x0b1222, 0.9);
-    bg.lineStyle(2, 0x9fd8ff, 0.4);
+    bg.fillStyle(0x101010, 0.9);
+    bg.lineStyle(2, 0xd0d0d0, 0.4);
     bg.fillRoundedRect(x, y, w, h, 14);
     bg.strokeRoundedRect(x, y, w, h, 14);
     note.add(this.add.image(x + 28, y + h / 2, 'ghost').setScale(0.3));
@@ -392,7 +393,7 @@ export class EvidenceScene extends Phaser.Scene {
           this.hourBlocks(470, CONTENT_Y + 160, i);
           this.para(470, CONTENT_Y + 270, `The lit blocks are ${s.name}’s share of all the time anyone spent inside.`, 24, INK, 760);
           if (i === 0)
-            this.para(470, CONTENT_Y + 340, 'More time inside means more chances to reach my tea, so a bigger starting share of suspicion.', 21, '#cfe6ff', 760);
+            this.para(470, CONTENT_Y + 340, 'More time inside means more chances to reach my tea, so a bigger starting share of suspicion.', 21, '#dcdcdc', 760);
         },
       }),
     );
@@ -400,7 +401,7 @@ export class EvidenceScene extends Phaser.Scene {
       crumb: 'Start',
       build: () => {
         this.title('Where my suspicion starts');
-        this.para(W / 2, CONTENT_Y + 20, 'Each person’s share of the time inside becomes their starting share of suspicion.', 23, '#cfe6ff', 1000, 0.5);
+        this.para(W / 2, CONTENT_Y + 20, 'Each person’s share of the time inside becomes their starting share of suspicion.', 23, '#dcdcdc', 1000, 0.5);
         this.beliefStrip(CONTENT_Y + 120, truth, 'Before any clue:', 820);
         this.commitPrior(truth);
       },
@@ -500,7 +501,7 @@ export class EvidenceScene extends Phaser.Scene {
           this.picks[i] = r.v;
           Sound.blip();
           this.show();
-        }, { width: 146, height: 78, size: 17, stroke: chosen === r.v ? 0xffe2a0 : 0x5a6a90 }),
+        }, { width: 146, height: 78, size: 17, stroke: chosen === r.v ? 0xd8d8d8 : 0x5a5a5a }),
       );
       b.label.setAlign('center').setLineSpacing(4);
       if (chosen !== undefined && chosen !== r.v) b.setAlpha(0.5);
@@ -511,7 +512,7 @@ export class EvidenceScene extends Phaser.Scene {
       return;
     }
     const r = ratingOf(chosen);
-    this.para(470, by + 56, `You rated it ${r.n}: ${r.word.toLowerCase()}.`, 20, '#9ff0b0', 760);
+    this.para(470, by + 56, `You rated it ${r.n}: ${r.word.toLowerCase()}.`, 20, '#f0f0f0', 760);
   }
 
   private get lik(): number[] {
@@ -543,7 +544,7 @@ export class EvidenceScene extends Phaser.Scene {
 
     const [stepName, caption, key] = UPDATE_STEPS[ph].map((t) => t.replace('{n}', numberWord(n)));
     this.put(txt(this, W / 2, CONTENT_Y + 2, stepName, 22, GOLD, { fontStyle: 'bold' }).setOrigin(0.5, 0));
-    this.para(W / 2, CONTENT_Y + 34, caption, 19, '#cfe6ff', 1080, 0.5);
+    this.para(W / 2, CONTENT_Y + 34, caption, 19, '#dcdcdc', 1080, 0.5);
 
     // the square, built at the previous step and slid into this one
     const S = 330;
@@ -566,7 +567,7 @@ export class EvidenceScene extends Phaser.Scene {
         const d = after[i] - this.prior[i];
         what = same || Math.abs(d) < 0.005 ? '= unchanged' : d > 0 ? (d > 0.15 ? '▲ grew a lot' : '▲ grew') : d < -0.15 ? '▼ shrank a lot' : '▼ shrank';
       }
-      const t = this.put(txt(this, x + 160, y + 2, what, 20, ph === 3 ? (what.startsWith('▲') ? '#9ff0b0' : what.startsWith('▼') ? '#ff9f9f' : INK) : INK));
+      const t = this.put(txt(this, x + 160, y + 2, what, 20, ph === 3 ? (what.startsWith('▲') ? '#f0f0f0' : what.startsWith('▼') ? '#d84a52' : INK) : INK));
       if (ph === 3) {
         t.setAlpha(0);
         this.time.delayedCall(1200, () => this.tweens.add({ targets: t, alpha: 1, duration: 400 }));

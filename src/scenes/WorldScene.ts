@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { H, W, fadeThen, soundToggle, txt } from '../ui/widgets';
+import { fadeThen, fitCamera, H, soundToggle, txt, viewOf, W, ZOOM } from '../ui/widgets';
 import {
   drawBody,
   drawBookshelf,
@@ -42,7 +42,8 @@ import {
   roomAt,
 } from '../data/house';
 import { GameState } from '../state/GameState';
-import { TouchControls } from '../ui/TouchControls';
+import { Controls } from '../ui/Controls';
+import { AccentCamera, Noir, filmGrain } from '../ui/noir';
 import { ThoughtBubble } from '../ui/ThoughtBubble';
 import { Sound } from '../audio/Sound';
 
@@ -60,7 +61,6 @@ const ROOM_TINT: Record<string, number> = {
   library: 0x4d7a72,
   boxroom: 0x6a6a80,
 };
-const WORLD_H = FLOOR_H * 2;
 const SPEED = 340;
 const REACH = 110;
 const F = LOCAL_FLOOR_Y; // local y of the floorboards (same as the art helpers' FLOOR_Y)
@@ -78,7 +78,13 @@ interface Prop {
 export class WorldScene extends Phaser.Scene {
   private ghost!: Phaser.GameObjects.Image;
   private glow!: Phaser.GameObjects.Image;
-  private controls!: TouchControls;
+  private controls!: Controls;
+  private cursor = 'default';
+  /** The camera follows the ghost horizontally (floors change by a deliberate move). */
+  private following = true;
+  /** Black and white, except for what the accent camera keeps in colour. */
+  private noir!: Noir;
+  private accent!: AccentCamera;
   private bubble!: ThoughtBubble;
   private props = new Map<string, Prop>();
   private bodyMarker!: Phaser.GameObjects.Container;
@@ -105,6 +111,7 @@ export class WorldScene extends Phaser.Scene {
   // ================================================================== setup
 
   create() {
+    fitCamera(this.cameras.main);
     this.props = new Map();
     this.roomGfx = [];
     this.seenRooms = new Set(['study']);
@@ -117,16 +124,18 @@ export class WorldScene extends Phaser.Scene {
     this.bodyVisible = !GameState.awakening;
 
     const cam = this.cameras.main;
-    cam.setBackgroundColor('#05060a');
-    cam.setBounds(0, 0, WORLD_W, WORLD_H);
+    cam.setBackgroundColor('#050505');
 
+    this.noir = new Noir(this, cam, 0);
+    this.accent = new AccentCamera(this);
     this.buildFloor(0);
     this.buildFloor(1);
     this.buildProps();
 
     this.glow = this.add.image(0, 0, 'glow').setScale(2.4).setBlendMode(Phaser.BlendModes.ADD).setDepth(50);
     this.ghost = this.add.image(GameState.data.ghostX, this.baseY, 'ghost').setDepth(51).setScale(0.85);
-    this.add
+    this.accent.keep(this.glow, this.ghost);
+    const trail = this.add
       .particles(0, 0, 'spark', {
         follow: this.ghost,
         followOffset: { x: 0, y: 40 },
@@ -139,6 +148,7 @@ export class WorldScene extends Phaser.Scene {
         blendMode: 'ADD',
       })
       .setDepth(49);
+    this.accent.keep(trail);
     this.add
       .particles(0, 0, 'fog', {
         x: { min: -100, max: W + 100 },
@@ -153,22 +163,27 @@ export class WorldScene extends Phaser.Scene {
       .setScrollFactor(0);
     this.buildForeground();
     this.add.image(W / 2, H / 2, 'vignette').setScrollFactor(0).setDepth(900);
+    filmGrain(this);
 
     // follow horizontally only; changing floors is a deliberate camera move
-    cam.startFollow(this.ghost, true, 0.08, 0);
-    cam.setScroll(Phaser.Math.Clamp(this.ghost.x - W / 2, 0, WORLD_W - W), floorTop(this.floor));
+    this.following = true;
+    cam.setScroll(this.followX(), floorTop(this.floor));
 
     // HUD
-    this.roomLabel = txt(this, 30, 24, '', 26, '#dfe6ff', { fontStyle: 'italic' }).setScrollFactor(0).setDepth(1000);
-    this.counter = txt(this, 30, 60, '', 20, '#8f9ab8').setScrollFactor(0).setDepth(1000);
-    this.label = txt(this, 0, 0, '', 21, '#ffe9b8', { backgroundColor: '#05070dcc', padding: { x: 10, y: 4 } })
+    this.roomLabel = txt(this, 30, 24, '', 26, '#e8e8e8', { fontStyle: 'italic' }).setScrollFactor(0).setDepth(1000);
+    this.counter = txt(this, 30, 60, '', 20, '#9a9a9a').setScrollFactor(0).setDepth(1000);
+    txt(this, W / 2, H - 22, 'A / D or ← → drift   ·   click to drift there   ·   Space search   ·   W / S stairs   ·   B suspects   ·   F full screen', 15, '#a0a0a0')
+      .setOrigin(0.5)
+      .setScrollFactor(0)
+      .setDepth(1000);
+    this.label = txt(this, 0, 0, '', 21, '#f2f2f2', { backgroundColor: '#060606cc', padding: { x: 10, y: 4 } })
       .setOrigin(0.5)
       .setDepth(940)
       .setVisible(false);
     soundToggle(this, W - 222, 52);
 
     this.bubble = new ThoughtBubble(this, this.ghost);
-    this.controls = new TouchControls(
+    this.controls = new Controls(
       this,
       (x, y) => this.pickAt(x, y),
       () => this.interactNearest(),
@@ -205,9 +220,18 @@ export class WorldScene extends Phaser.Scene {
 
   // ================================================================== frame
 
+  /** Where the camera's left edge should be to keep the ghost centred, within the house. */
+  private followX() {
+    return Phaser.Math.Clamp(this.ghost.x - W / 2, 0, WORLD_W - W);
+  }
+
   update(_time: number, delta: number) {
     const dt = delta / 1000;
     this.t += dt;
+    if (this.following) {
+      const cam = this.cameras.main;
+      cam.scrollX += (this.followX() - cam.scrollX) * Math.min(1, 0.08 * dt * 60);
+    }
     this.controls.update();
 
     let want = this.controls.keyDir;
@@ -234,7 +258,14 @@ export class WorldScene extends Phaser.Scene {
     const room = roomAt(this.floor, this.ghost.x);
     if (room.id !== this.roomId) this.enterRoom(room.id);
 
-    const near = this.cutscene ? undefined : this.nearest();
+    // the mouse: hovering over something searchable names it and shows a hand
+    const ptr = this.input.activePointer;
+    const at = this.cutscene ? undefined : this.cameras.main.getWorldPoint(ptr.x, ptr.y);
+    const hoverId = at && this.findAt(at.x, at.y);
+    const hover = hoverId === 'body' ? this.nearest() : hoverId ? this.props.get(hoverId) : undefined;
+    const cursor = hoverId ? 'pointer' : 'default';
+    if (cursor !== this.cursor) this.input.setDefaultCursor((this.cursor = cursor));
+    const near = this.cutscene ? undefined : (hover ?? this.nearest());
     if (near) this.label.setText(this.labelFor(near)).setPosition(near.def.x, near.hotY - 46).setVisible(true);
     else this.label.setVisible(false);
 
@@ -330,13 +361,23 @@ export class WorldScene extends Phaser.Scene {
   /** The ghost drifts over the figure on the rug... and recognises it. Slowly. */
   private discoverBody() {
     this.lock();
+    // colour seeps back in as he recognises himself
+    this.noir.fade(1, 5200, 600);
     this.bodyMarker.setVisible(false);
     this.bubble.hideNow();
     Sound.setMood('silent');
     const cam = this.cameras.main;
-    cam.stopFollow();
-    cam.pan(BODY_X + 140, floorTop(0) + 340, 3200, 'Sine.easeInOut');
-    cam.zoomTo(1.35, 3200, 'Sine.easeInOut');
+    this.following = false;
+    // close in on the body: zoom, keeping (BODY_X + 140, 340) at the centre of the view
+    const z = 1.35 * ZOOM;
+    this.tweens.add({
+      targets: cam,
+      zoom: z,
+      scrollX: BODY_X + 140 - cam.width / z / 2,
+      scrollY: floorTop(0) + 340 - cam.height / z / 2,
+      duration: 3200,
+      ease: 'Sine.easeInOut',
+    });
     this.tweens.add({ targets: this.ghost, x: BODY_X + 150, duration: 3200, ease: 'Sine.easeInOut' });
     this.tweens.add({ targets: this, baseY: this.baseY + 40, duration: 3200, ease: 'Sine.easeInOut' });
     const meIndex = BODY_LINES.findIndex((l) => l.includes('it’s me'));
@@ -356,10 +397,10 @@ export class WorldScene extends Phaser.Scene {
                 this.lock();
                 cam.flash(900, 255, 225, 180);
                 this.time.delayedCall(1000, () => {
-                  cam.zoomTo(1, 10);
+                  cam.setZoom(ZOOM);
                   this.baseY = floorTop(0) + LOCAL_GHOST_Y;
-                  cam.startFollow(this.ghost, true, 0.08, 0);
-                  cam.setScroll(cam.scrollX, floorTop(0));
+                  this.following = true;
+                  cam.setScroll(this.followX(), floorTop(0));
                   this.scene.pause();
                   this.scene.launch('Memory');
                 });
@@ -383,6 +424,7 @@ export class WorldScene extends Phaser.Scene {
   private onResume(from?: string) {
     this.controls.reset();
     if (from === 'memory') {
+      this.noir.fade(0, 2600, 400); // and drains away again: back to the night
       GameState.rememberSuspects();
       this.unlock();
       Sound.setMood('explore');
@@ -504,7 +546,15 @@ export class WorldScene extends Phaser.Scene {
 
   /** A tap on (or near) something searchable: drift over and search it on arrival. */
   private pickAt(x: number, y: number): boolean {
-    if (y < floorTop(this.floor) || y > floorTop(this.floor) + FLOOR_H) return false;
+    const best = this.findAt(x, y);
+    this.tapTarget = best;
+    if (best) this.controls.targetX = best === 'body' ? BODY_X : this.props.get(best)!.def.x;
+    return !!best;
+  }
+
+  /** What searchable thing (or the body) is at this world point, if any. */
+  private findAt(x: number, y: number): string | undefined {
+    if (y < floorTop(this.floor) || y > floorTop(this.floor) + FLOOR_H) return undefined;
     let best: string | undefined;
     let bd = 95;
     for (const p of this.props.values()) {
@@ -516,9 +566,7 @@ export class WorldScene extends Phaser.Scene {
       }
     }
     if (!best && GameState.allFound && this.floor === 0 && Math.abs(x - BODY_X) < 120) best = 'body';
-    this.tapTarget = best;
-    if (best) this.controls.targetX = best === 'body' ? BODY_X : this.props.get(best)!.def.x;
-    return !!best;
+    return best;
   }
 
   private interactNearest() {
@@ -676,7 +724,7 @@ export class WorldScene extends Phaser.Scene {
 
   /** Only draw the rooms near the camera. */
   private cullRooms() {
-    const v = this.cameras.main.worldView;
+    const v = viewOf(this.cameras.main);
     for (const r of this.roomGfx) {
       const top = floorTop(r.floor);
       r.g.setVisible(r.x1 > v.x - 300 && r.x0 < v.right + 300 && top < v.bottom && top + FLOOR_H > v.y);
@@ -702,10 +750,15 @@ export class WorldScene extends Phaser.Scene {
     drawChandelier(g, 640);
     drawChandelier(g, 1150);
     drawGrandfatherClock(this, CLOCK_X, layer);
-    const body = this.add.graphics();
-    drawBody(body, BODY_X, F - 4);
-    layer.add(body);
-    g.fillStyle(0xe9dfc7, 0.9);
+    // the body on its red rug, and the spilled tea: kept in colour
+    const body = this.add.graphics().setDepth(16);
+    drawBody(body, BODY_X, floorTop(0) + F - 4);
+    const tea = this.add.graphics().setDepth(16);
+    tea.fillStyle(0x6e1a14, 0.9);
+    tea.fillEllipse(960, floorTop(0) + F - 121, 46, 7);
+    tea.fillCircle(985, floorTop(0) + F - 119, 3);
+    this.accent.keep(body, tea);
+    g.fillStyle(0xeeeeea, 0.9);
     g.fillRect(598, F - 116, 44, 10); // the household log
     g.fillStyle(0xdfe8ff, 0.95);
     g.fillEllipse(930, F - 128, 26, 12); // the teacup (blue willow)
@@ -882,7 +935,8 @@ export class WorldScene extends Phaser.Scene {
 
       // a faint shimmer marks things worth a look; clues and dead ends look exactly the same
       if (def.kind !== 'stairs') {
-        p.spark = this.add.image(def.x, p.hotY, 'spark').setBlendMode(Phaser.BlendModes.ADD).setDepth(30).setAlpha(0.25);
+        p.spark = this.add.image(def.x, p.hotY, 'spark').setBlendMode(Phaser.BlendModes.ADD).setDepth(30).setAlpha(0.25).setTint(0xffcf6a);
+        this.accent.keep(p.spark);
         this.tweens.add({
           targets: p.spark,
           alpha: 0.6,
@@ -902,6 +956,7 @@ export class WorldScene extends Phaser.Scene {
     const mg = this.add.image(0, 0, 'glow').setScale(1.3).setBlendMode(Phaser.BlendModes.ADD);
     this.bodyMarker.add(mg);
     this.tweens.add({ targets: mg, scale: 1.7, alpha: 0.5, duration: 1100, yoyo: true, repeat: -1 });
+    this.accent.keep(this.bodyMarker);
   }
 
   /** Silhouettes for things the ghost can push aside, with whatever hides beneath drawn first. */

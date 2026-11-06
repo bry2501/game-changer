@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { Button, H, W, fadeThen, hex, txt } from '../ui/widgets';
+import { Button, fadeThen, fitCamera, H, hex, txt, W } from '../ui/widgets';
 import { MEMORY_INTRO, MEMORY_OUTRO, SUSPECTS } from '../data/case1';
 import { Sound } from '../audio/Sound';
 
@@ -55,6 +55,7 @@ export class MemoryScene extends Phaser.Scene {
   }
 
   create() {
+    fitCamera(this.cameras.main);
     this.page = 0;
     this.busy = false;
     this.pages = [{ kind: 'intro' }];
@@ -163,7 +164,7 @@ export class MemoryScene extends Phaser.Scene {
         // the memory sharpens into voices, then what they did tonight
         y = 120;
         for (const [who, words] of s.voices!.lines) {
-          const color = who === 'John' ? '#cfe6ff' : hex(s.color);
+          const color = who === 'John' ? '#dcdcdc' : hex(s.color);
           add(txt(this, col, y, who, 18, color, { fontStyle: 'bold' }), 2);
           add(txt(this, col, y, `\u201C${words.replace(/\*/g, '')}\u201D`, 28, '#f3e2c4', { fontStyle: 'italic', wordWrap: { width } }), 20);
         }
@@ -175,7 +176,7 @@ export class MemoryScene extends Phaser.Scene {
       // the memory ends: what it gave, and the resolve. "One of them did this." stands out.
       const lines = MEMORY_OUTRO.map((line) => {
         const key = line === 'One of them did this.';
-        return txt(this, W / 2, 0, line, key ? 38 : 23, key ? '#ffe9b8' : '#f3e2c4', {
+        return txt(this, W / 2, 0, line, key ? 38 : 23, key ? '#f2f2f2' : '#f3e2c4', {
           fontStyle: key ? 'bold' : 'italic',
           align: 'center',
           wordWrap: { width: 1000 },
