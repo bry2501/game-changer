@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { Button, DIM, H, W, hex, overlayBackground, stackedBar, txt } from '../ui/widgets';
-import { CLUES, CULPRIT_INDEX, EPILOGUE_CORRECT, EPILOGUE_WRONG, SUSPECTS } from '../data/case1';
+import { ACCUSE_LINES, CLUES, CULPRIT_INDEX, EPILOGUE_CORRECT, EPILOGUE_WRONG, SUSPECTS } from '../data/case1';
 import { GameState, LEVELS, levelOf, unlockLevel } from '../state/GameState';
 import { argmax, pct } from '../bayes/engine';
 import { beliefChart } from './BoardScene';
@@ -34,8 +34,8 @@ export class AccuseScene extends Phaser.Scene {
 
   private showChoice() {
     const belief = GameState.data.belief;
-    txt(this, W / 2, 60, 'Back beside my body. It is time to name the culprit.', 30, '#ffe9b8').setOrigin(0.5);
-    txt(this, W / 2, 110, 'Your board shows these beliefs. Who did it?', 22, DIM).setOrigin(0.5);
+    txt(this, W / 2, 64, ACCUSE_LINES[0], 26, '#ffe9b8', { align: 'center', wordWrap: { width: 1100 } }).setOrigin(0.5);
+    txt(this, W / 2, 124, ACCUSE_LINES[1], 22, DIM).setOrigin(0.5);
     SUSPECTS.forEach((s, i) => {
       const x = W / 2 + (i - (SUSPECTS.length - 1) / 2) * 300;
       const b = new Button(this, x, 330, `${s.name}`, () => this.accuse(i), {
@@ -54,7 +54,8 @@ export class AccuseScene extends Phaser.Scene {
         b.add(txt(this, 0, 55, `board: ${pct(belief[i])}`, 22, '#dfe6ff').setOrigin(0.5));
       }
     });
-    txt(this, W / 2, 520, 'Choose carefully. A ghost only gets one accusation.', 20, DIM, { fontStyle: 'italic' }).setOrigin(0.5);
+    txt(this, W / 2, 500, ACCUSE_LINES[2], 19, '#cfe6ff', { align: 'center', wordWrap: { width: 1000 }, lineSpacing: 4 }).setOrigin(0.5);
+    txt(this, W / 2, 570, ACCUSE_LINES[3], 20, DIM, { fontStyle: 'italic' }).setOrigin(0.5);
   }
 
   private accuse(i: number) {
@@ -111,8 +112,7 @@ export class AccuseScene extends Phaser.Scene {
     const finalTop = argmax(data.belief);
     const verdict = correct
       ? `You named ${SUSPECTS[this.accused].name}, and you were right.`
-      : `You named ${SUSPECTS[this.accused].name}. It was not them.` +
-        (finalTop !== this.accused ? ` Your own board ended with ${SUSPECTS[finalTop].name} on top.` : '');
+      : `You named ${SUSPECTS[this.accused].name}. It was not them.`;
     txt(this, W / 2, 72, verdict, 20, '#dfe6ff').setOrigin(0.5, 0);
 
     // how the player's board moved, clue by clue
@@ -141,10 +141,22 @@ export class AccuseScene extends Phaser.Scene {
     } else if (big >= 0) {
       summary = `Your board moved most at clue ${big + 1}, ${CLUES[big].title}. `;
       summary += correct
-        ? 'Every rating you made was yours, and the evidence added up.'
+        ? finalTop === this.accused
+          ? 'Every rating you made was yours, and the evidence added up.'
+          : ''
         : 'Look again at how strongly each clue fitted each story: a vivid clue can feel stronger than it is, and a quiet one can matter more than it seems.';
     }
-    txt(this, 40, 495, summary, 19, '#cfe6ff', { wordWrap: { width: 1200 }, lineSpacing: 4 });
+    // whom the player named, against whom their own board favoured
+    const top = SUSPECTS[finalTop];
+    const them = top.pronoun === 'she' ? 'her' : 'him';
+    if (correct && finalTop !== this.accused) {
+      summary += ` Right, but not by your own evidence. Your board still leaned toward ${top.name}. Which of your ratings kept ${them} there?`;
+    } else if (!correct && finalTop === this.accused) {
+      summary += ` Your board pointed to ${top.name}, so some of your ratings put it there. A sound process can still end wrong when a rating is off; go back to the ratings, not to a hunch.`;
+    } else if (!correct) {
+      summary += ` Your own board favoured ${top.name}, and you accused ${SUSPECTS[this.accused].name} anyway. That was the gut feeling I warned you about.`;
+    }
+    txt(this, 40, 495, summary.replace(/\s+/g, ' ').trim(), 19, '#cfe6ff', { wordWrap: { width: 1200 }, lineSpacing: 4 });
 
     new Button(this, 200, H - 60, 'Read all lessons', () => this.showLessons(), { width: 300, height: 58, size: 22 });
     const next = LEVELS.find((l) => l.n === level + 1);

@@ -38,12 +38,15 @@ export function drawSuspect(scene: Phaser.Scene, x: number, y: number, i: number
   return c;
 }
 
+type MemoryPage = { kind: 'intro' } | { kind: 'face'; i: number } | { kind: 'voices'; i: number } | { kind: 'outro' };
+
 /**
  * Memories returning: an amber, softly blurred overlay, visually distinct from notes.
- * Page 0 = intro, pages 1..4 = suspects, final page = resolve.
+ * The ghost's opening thought, then each face (and, for some, the voices that come with it), then the resolve.
  */
 export class MemoryScene extends Phaser.Scene {
   private page = 0;
+  private pages: MemoryPage[] = [];
   private layer!: Phaser.GameObjects.Container;
   private busy = false;
 
@@ -54,6 +57,12 @@ export class MemoryScene extends Phaser.Scene {
   create() {
     this.page = 0;
     this.busy = false;
+    this.pages = [{ kind: 'intro' }];
+    SUSPECTS.forEach((s, i) => {
+      this.pages.push({ kind: 'face', i });
+      if (s.voices) this.pages.push({ kind: 'voices', i });
+    });
+    this.pages.push({ kind: 'outro' });
     Sound.setMood('memory');
     const bg = this.add.graphics();
     bg.fillGradientStyle(0x2a1d10, 0x2a1d10, 0x0b0805, 0x0b0805, 0.97);
@@ -95,7 +104,7 @@ export class MemoryScene extends Phaser.Scene {
     if (this.busy) return;
     this.page++;
     Sound.blip();
-    if (this.page > SUSPECTS.length + 1) {
+    if (this.page >= this.pages.length) {
       this.busy = true;
       fadeThen(this, 700, () => {
         this.scene.stop();
@@ -118,8 +127,8 @@ export class MemoryScene extends Phaser.Scene {
   private show() {
     this.layer.removeAll(true);
     this.layer.setAlpha(0);
-    const p = this.page;
-    if (p === 0) {
+    const p = this.pages[this.page];
+    if (p.kind === 'intro') {
       this.layer.add(
         txt(this, W / 2, H / 2 - 40, MEMORY_INTRO, 32, '#f3e2c4', {
           fontStyle: 'italic',
@@ -131,12 +140,11 @@ export class MemoryScene extends Phaser.Scene {
         const fig = drawSuspect(this, W / 2 + (i - (SUSPECTS.length - 1) / 2) * 190, H / 2 + 170, i, 0.55).setAlpha(0.35);
         this.layer.add(fig);
       });
-    } else if (p <= SUSPECTS.length) {
-      const i = p - 1;
+    } else if (p.kind === 'face' || p.kind === 'voices') {
+      const i = p.i;
       const s = SUSPECTS[i];
       this.layer.add(drawSuspect(this, 300, 400, i));
-      this.layer.add(txt(this, 300, 612, `${p} of ${SUSPECTS.length}`, 17, '#8a7558').setOrigin(0.5, 0));
-      // stack: name, role, the remembered line, their story, and what they did tonight
+      this.layer.add(txt(this, 300, 612, `${s.name}, ${s.role}`, 19, '#8a7558', { fontStyle: 'italic' }).setOrigin(0.5, 0));
       let y = 92;
       const add = (t: Phaser.GameObjects.Text, gap: number) => {
         this.layer.add(t);
@@ -144,23 +152,50 @@ export class MemoryScene extends Phaser.Scene {
       };
       const col = 560;
       const width = 660;
-      add(txt(this, col, y, s.name, 46, hex(s.color), { fontStyle: 'bold' }), 2);
-      add(txt(this, col, y, s.role, 22, '#d9b98a', { fontStyle: 'italic' }), 18);
-      add(txt(this, col, y, `\u201C${s.memory}\u201D`, 23, '#f3e2c4', { fontStyle: 'italic', wordWrap: { width }, lineSpacing: 5 }), 16);
-      add(txt(this, col, y, s.backstory, 20, '#e2d2b4', { wordWrap: { width }, lineSpacing: 5 }), 16);
-      add(txt(this, col, y, 'Tonight', 16, '#c9a46a', { fontStyle: 'bold' }), 4);
-      add(txt(this, col, y, s.tonight, 20, '#ffd9a0', { wordWrap: { width }, lineSpacing: 5 }), 0);
+      if (p.kind === 'face') {
+        // name, role, the remembered line and their story
+        add(txt(this, col, y, s.name, 46, hex(s.color), { fontStyle: 'bold' }), 2);
+        add(txt(this, col, y, s.role, 22, '#d9b98a', { fontStyle: 'italic' }), 18);
+        add(txt(this, col, y, `\u201C${s.memory}\u201D`, 23, '#f3e2c4', { fontStyle: 'italic', wordWrap: { width }, lineSpacing: 5 }), 16);
+        add(txt(this, col, y, s.backstory, 20, '#e2d2b4', { wordWrap: { width }, lineSpacing: 5 }), 16);
+        if (!s.voices) this.tonight(col, y, width, s.tonight, add);
+      } else {
+        // the memory sharpens into voices, then what they did tonight
+        y = 120;
+        for (const [who, words] of s.voices!.lines) {
+          const color = who === 'Alistair' ? '#cfe6ff' : hex(s.color);
+          add(txt(this, col, y, who, 18, color, { fontStyle: 'bold' }), 2);
+          add(txt(this, col, y, `\u201C${words.replace(/\*/g, '')}\u201D`, 28, '#f3e2c4', { fontStyle: 'italic', wordWrap: { width } }), 20);
+        }
+        if (s.voices!.after) add(txt(this, col, y, s.voices!.after, 21, '#e2d2b4', { fontStyle: 'italic', wordWrap: { width } }), 26);
+        else y += 6;
+        this.tonight(col, y, width, s.tonight, add);
+      }
     } else {
-      MEMORY_OUTRO.forEach((line, k) => {
-        this.layer.add(
-          txt(this, W / 2, 210 + k * 90, line, k === 0 ? 40 : 26, k === 0 ? '#ffe9b8' : '#f3e2c4', {
-            fontStyle: k === 0 ? 'bold' : 'italic',
-            align: 'center',
-            wordWrap: { width: 1000 },
-          }).setOrigin(0.5),
-        );
+      // the memory ends: what it gave, and the resolve. "One of them did this." stands out.
+      const lines = MEMORY_OUTRO.map((line) => {
+        const key = line === 'One of them did this.';
+        return txt(this, W / 2, 0, line, key ? 38 : 23, key ? '#ffe9b8' : '#f3e2c4', {
+          fontStyle: key ? 'bold' : 'italic',
+          align: 'center',
+          wordWrap: { width: 1000 },
+          lineSpacing: 4,
+        }).setOrigin(0.5, 0);
       });
+      const gap = 22;
+      const total = lines.reduce((a, t) => a + t.height, 0) + gap * (lines.length - 1);
+      let y = Math.max(80, (H - total) / 2 - 20);
+      for (const t of lines) {
+        t.setY(y);
+        this.layer.add(t);
+        y += t.height + gap;
+      }
     }
     this.tweens.add({ targets: this.layer, alpha: 1, duration: 600 });
+  }
+
+  private tonight(col: number, y: number, width: number, text: string, add: (t: Phaser.GameObjects.Text, gap: number) => void) {
+    add(txt(this, col, y, 'Tonight', 16, '#c9a46a', { fontStyle: 'bold' }), 4);
+    add(txt(this, col, y + 24, text, 20, '#ffd9a0', { wordWrap: { width }, lineSpacing: 5 }), 0);
   }
 }

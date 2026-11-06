@@ -139,7 +139,7 @@ export class ThoughtBubble {
     this.timer?.remove();
     const line = this.lines[this.index];
     this.onLine?.(this.index);
-    this.label.setText(line);
+    this.label.setText(line.replace(/\*/g, '')); // *emphasis* marks are for the screenplay
     const seq = this.sequence;
     this.bw = Math.max(seq ? 200 : 0, Math.min(MAX_W, this.label.width + PAD_X * 2));
     this.bh = this.label.height + PAD_Y * 2 + (seq ? NAV_H : 0);

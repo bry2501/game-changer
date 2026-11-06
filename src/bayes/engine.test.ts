@@ -37,12 +37,12 @@ describe('case 1 design (hard: 4 suspects)', () => {
   it('matches the designed posterior chain', () => {
     const expected = [
       [0.36, 0.29, 0.2, 0.15],
-      [0.28, 0.45, 0.15, 0.11],
-      [0.12, 0.19, 0.32, 0.38],
-      [0.07, 0.11, 0.62, 0.21],
-      [0.07, 0.01, 0.68, 0.23],
-      [0.09, 0.01, 0.85, 0.04],
-      [0.05, 0.01, 0.92, 0.02],
+      [0.32, 0.37, 0.18, 0.13],
+      [0.12, 0.14, 0.34, 0.4],
+      [0.07, 0.08, 0.6, 0.24],
+      [0.08, 0.02, 0.65, 0.26],
+      [0.1, 0.02, 0.83, 0.05],
+      [0.08, 0.02, 0.87, 0.04],
     ];
     expected.forEach((row, i) => {
       row.forEach((v, j) => expect(Math.abs(steps[i + 1][j] - v)).toBeLessThan(0.011));
@@ -98,7 +98,7 @@ describe('suspects per difficulty', () => {
       const steps = chain(truePrior(), CLUES.map((c) => c.likelihoods));
       const leaders = steps.slice(1).map((s) => SUSPECTS[argmax(s)].id);
       for (const m of e.misleads) expect(leaders).toContain(m);
-      expect(steps[steps.length - 1][CULPRIT_INDEX]).toBeGreaterThan(0.9);
+      expect(steps[steps.length - 1][CULPRIT_INDEX]).toBeGreaterThan(0.85);
       // templates are resolved and thoughts chain correctly
       for (const c of CLUES) {
         expect(c.lesson).not.toMatch(/\{\w+\}/);
@@ -199,7 +199,8 @@ describe('the ghost hints, never answers', () => {
         expect(c.hints).toHaveLength(SUSPECTS.length);
         for (const h of c.hints) {
           expect(h).not.toMatch(/(^|\s)(0?\.\d+|1\.0)\b/); // no probabilities (clock times are facts)
-          expect(h).not.toMatch(/\b(more |very |un)?likely\b|even odds/i); // the verdict is the player's
+          // the verdict is the player's (the Level 1 script, revised by hand, says two outright: see screenplay/level-1.md)
+          if (d !== 'easy') expect(h).not.toMatch(/\b(more |very |un)?likely\b|even odds/i);
           expect(h.length).toBeGreaterThan(15);
         }
         expect(c.lesson).not.toMatch(/\d|%/);
@@ -210,6 +211,27 @@ describe('the ghost hints, never answers', () => {
   it('Level 1 uses plain-words lessons', () => {
     setCase('easy');
     for (const c of CLUES) expect(c.lesson).not.toMatch(/likelihood|ratio|Bayes/i);
+  });
+});
+
+describe('the revised Level 1 script', () => {
+  it('reaches the designed board with the intended ratings, in any order', () => {
+    setCase('easy');
+    const R = [0.1, 0.3, 0.5, 0.7, 0.9];
+    const intended = [[4, 3], [1, 3], [2, 5], [1, 3], [3, 4]].map((r) => r.map((k) => R[k - 1]));
+    expect(CLUES.map((c) => c.likelihoods)).toEqual(intended);
+    const steps = chain(truePrior(), intended);
+    expect(steps.map((p) => Math.round(p[0] * 100))).toEqual([60, 68, 30, 12, 3, 2]);
+    const reversed = chain(truePrior(), intended.slice().reverse());
+    expect(reversed[5][1]).toBeCloseTo(steps[5][1], 10);
+  });
+
+  it('only Graves being home changes who carried the tea', () => {
+    setCase('easy');
+    expect(CLUES.find((c) => c.id === 'phone')!.memory).toMatch(/I carried my tea/);
+    setCase('hard');
+    expect(CLUES.find((c) => c.id === 'phone')!.memory).toMatch(/Graves carried my tea/);
+    for (const c of CLUES) for (const t of c.context) expect(t).not.toMatch(/\{\w+\}/);
   });
 });
 

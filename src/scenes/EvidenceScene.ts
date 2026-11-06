@@ -4,7 +4,7 @@ import { CLUES, Evidence, PRIOR_SHEET, SUSPECTS, allSuspects } from '../data/cas
 import { GameState, StepRecord, levelOf, truePrior } from '../state/GameState';
 import { joint, normalize, pct, update } from '../bayes/engine';
 import { drawSuspect } from './MemoryScene';
-import { CONCEPTS } from '../data/lessons';
+import { CONCEPTS, conceptBody, numberWord } from '../data/lessons';
 import { Sound } from '../audio/Sound';
 
 type Kind = 'prior' | 'clue';
@@ -27,7 +27,7 @@ const NAV_Y = 668;
 const RATINGS = [
   { n: 1, word: 'Very unlikely', v: 0.1 },
   { n: 2, word: 'Unlikely', v: 0.3 },
-  { n: 3, word: 'Not sure', v: 0.5 },
+  { n: 3, word: 'As likely as not', v: 0.5 },
   { n: 4, word: 'Likely', v: 0.7 },
   { n: 5, word: 'Very likely', v: 0.9 },
 ];
@@ -61,6 +61,11 @@ export class EvidenceScene extends Phaser.Scene {
   private nextBtn!: Button;
   private backBtn!: Button;
   private nextOverride?: () => void;
+  private backOverride?: () => void;
+  /** Which of the ghost's thoughts is showing on a page that has several. */
+  private noteIdx = 0;
+  /** A remembered moment chimes once per visit to its page. */
+  private chimed = false;
   private closing = false;
   /** Once the update is applied to the board, earlier pages can no longer be revisited. */
   private committed = false;
@@ -90,6 +95,9 @@ export class EvidenceScene extends Phaser.Scene {
     this.guessLocked = false;
     this.rec = undefined;
     this.nextOverride = undefined;
+    this.backOverride = undefined;
+    this.noteIdx = 0;
+    this.chimed = false;
     this.phase = 0;
   }
 
@@ -98,10 +106,10 @@ export class EvidenceScene extends Phaser.Scene {
     overlayBackground(this);
     txt(this, W - 40, 30, `LEVEL ${this.level}`, 15, DIM).setOrigin(1, 0);
     this.page = this.add.container();
-    this.backBtn = new Button(this, 130, NAV_Y, '‹ Back', () => this.go(-1), { width: 180, height: 56, size: 22 });
+    this.backBtn = new Button(this, 130, NAV_Y, '‹ Back', () => this.onBack(), { width: 180, height: 56, size: 22 });
     this.nextBtn = new Button(this, W - 150, NAV_Y, 'Next ›', () => this.onNext(), { width: 240, height: 60, size: 24 });
     this.input.keyboard?.on('keydown-RIGHT', () => this.nextBtn.alpha === 1 && this.onNext());
-    this.input.keyboard?.on('keydown-LEFT', () => this.backBtn.visible && this.go(-1));
+    this.input.keyboard?.on('keydown-LEFT', () => this.backBtn.visible && this.onBack());
 
     this.steps = this.kind === 'prior' ? this.priorSteps() : this.clueSteps();
     this.buildCrumbs();
@@ -116,8 +124,23 @@ export class EvidenceScene extends Phaser.Scene {
     if (delta > 0 && this.index === this.steps.length - 1) return this.close();
     const next = Phaser.Math.Clamp(this.index + delta, 0, this.steps.length - 1);
     if (next !== this.index && !this.committed) this.phase = 0;
+    if (next !== this.index) {
+      // arriving from behind shows a page's last thought; arriving fresh shows its first
+      this.noteIdx = delta < 0 ? Number.MAX_SAFE_INTEGER : 0;
+      this.chimed = false;
+    }
     this.index = next;
     this.show();
+  }
+
+  /** Back steps through a page's thoughts first, then to the previous page. */
+  private onBack() {
+    if (this.backOverride) {
+      const f = this.backOverride;
+      this.backOverride = undefined;
+      Sound.blip();
+      f();
+    } else this.go(-1);
   }
 
   /** The main button: a page-specific action if one is set, otherwise the next page. */
@@ -136,8 +159,9 @@ export class EvidenceScene extends Phaser.Scene {
     this.page.removeAll(true);
     this.page.setAlpha(0);
     this.setNext('Next ›', true);
+    this.backOverride = undefined;
     this.steps[this.index].build();
-    this.backBtn.setVisible(this.index > 0 && !this.committed);
+    this.backBtn.setVisible((this.index > 0 || !!this.backOverride) && !this.committed);
     if (this.index === this.steps.length - 1 && this.nextBtn.label.text.startsWith('Next')) {
       this.setNext('Continue ›', this.nextBtn.alpha === 1);
     }
@@ -196,8 +220,8 @@ export class EvidenceScene extends Phaser.Scene {
     const pad = 30;
     const x0 = W / 2 - w / 2;
     if (found) {
-      this.put(txt(this, x0 + 4, y, `Found: ${found}`, 18, '#8f9ab8', { fontStyle: 'italic', wordWrap: { width: w } }));
-      y += 34;
+      const cap = this.put(txt(this, x0 + 4, y, `Found: ${found}`, 18, '#8f9ab8', { fontStyle: 'italic', wordWrap: { width: w } }));
+      y += cap.height + 12;
     }
     const card = this.put(this.add.container(0, 0));
     const bg = this.add.graphics();
@@ -255,17 +279,56 @@ export class EvidenceScene extends Phaser.Scene {
     return y + h;
   }
 
-  private ghostNote(y: number, text: string): number {
+  /**
+   * The ghost's thoughts about a document, one at a time: Next shows the following thought
+   * before moving on, Back the one before. A remembered moment is drawn in amber.
+   */
+  private ghostNotes(y: number, notes: { text: string; memory?: boolean }[]) {
+    if (!notes.length) return;
+    const k = Math.min(this.noteIdx, notes.length - 1);
+    this.noteIdx = k;
+    const n = notes[k];
+    this.ghostNote(y, n.text, n.memory);
+    if (n.memory && !this.chimed) {
+      this.chimed = true;
+      Sound.toll();
+    }
+    if (k < notes.length - 1)
+      this.setNext('Next ›', true, () => {
+        this.noteIdx = k + 1;
+        this.show();
+      });
+    if (k > 0)
+      this.backOverride = () => {
+        this.noteIdx = k - 1;
+        this.show();
+      };
+  }
+
+  private ghostNote(y: number, text: string, memory = false): number {
     const w = 900;
     const x0 = W / 2 - w / 2 + 50;
     const note = this.put(this.add.container(0, 0));
     const bg = this.add.graphics();
     note.add(bg);
-    const t = txt(this, x0 + 24, y + 16, text, 22, '#cfe6ff', { fontStyle: 'italic', wordWrap: { width: w - 48 }, lineSpacing: 5 });
+    const top = memory ? 30 : 16;
+    if (memory) note.add(txt(this, x0 + 24, y + 10, '\u2014 a memory returns \u2014', 15, '#d9b98a', { fontStyle: 'italic' }));
+    // shrink long thoughts to fit above the buttons
+    const room = NAV_Y - 44 - y - top - 16;
+    let size = 22;
+    const t = txt(this, x0 + 24, y + top, text.replace(/\*/g, ''), size, memory ? '#f3e2c4' : '#cfe6ff', {
+      fontStyle: 'italic',
+      wordWrap: { width: w - 48 },
+      lineSpacing: 5,
+    });
+    while (t.height > room && size > 16) {
+      size -= 1;
+      t.setFontSize(size);
+    }
     note.add(t);
-    const h = t.height + 32;
-    bg.fillStyle(0x0b1222, 0.9);
-    bg.lineStyle(2, 0x9fd8ff, 0.45);
+    const h = t.height + top + 16;
+    bg.fillStyle(memory ? 0x2a1d10 : 0x0b1222, 0.92);
+    bg.lineStyle(2, memory ? 0xd9b98a : 0x9fd8ff, memory ? 0.7 : 0.45);
     bg.fillRoundedRect(x0, y, w, h, 18);
     bg.strokeRoundedRect(x0, y, w, h, 18);
     const glow = this.add.image(x0 - 52, y + h / 2, 'glow').setScale(0.9).setBlendMode(Phaser.BlendModes.ADD).setAlpha(0.7);
@@ -332,10 +395,10 @@ export class EvidenceScene extends Phaser.Scene {
           const bottom = this.evidenceCard(
             CONTENT_Y + 6,
             'the household log, tonight (6 – 10 pm)',
-            { kind: 'table', columns: ['Name', 'Signed in', 'Signed out', 'Inside'], rows, widths: [2, 2, 3.6, 1.2] },
+            { kind: 'table', columns: ['Name', 'Signed in', 'Signed out', 'Inside, 6\u201310 pm'], rows, widths: [1.7, 2.7, 3.1, 1.7] },
             'on the side table in the study.',
           );
-          this.ghostNote(bottom + 26, `${PRIOR_SHEET.text} ${PRIOR_SHEET.context}`);
+          this.ghostNotes(bottom + 22, [{ text: PRIOR_SHEET.text }, { text: PRIOR_SHEET.context }]);
         },
       },
     ];
@@ -442,7 +505,10 @@ export class EvidenceScene extends Phaser.Scene {
         build: () => {
           this.title(head);
           const bottom = this.evidenceCard(CONTENT_Y + 4, clue.title, clue.evidence, clue.found);
-          this.ghostNote(bottom + 24, clue.context);
+          this.ghostNotes(bottom + 22, [
+            ...(clue.memory ? [{ text: clue.memory, memory: true }] : []),
+            ...clue.context.map((text) => ({ text })),
+          ]);
         },
       },
       { crumb: 'Lesson', build: () => this.conceptPage(head) },
@@ -470,7 +536,7 @@ export class EvidenceScene extends Phaser.Scene {
       y += t.height + gap;
       return t;
     };
-    add(this.para(W / 2, y, c.body, 23, INK, 1000, 0.5), 18);
+    add(this.para(W / 2, y, conceptBody(c, CLUES.length, L), 23, INK, 1000, 0.5), 18);
     if (L >= 2) add(this.para(W / 2, y, `In numbers: ${c.numbers}`, 20, '#cfe6ff', 1000, 0.5), 14);
     if (L === 3) add(this.para(W / 2, y, `In the formula: ${c.formula}`, 20, ACCENT, 1000, 0.5), 14);
     this.beliefStrip(Math.max(y + 10, CONTENT_Y + 330), this.prior, 'Before this clue, your suspicion is shared like this:');
@@ -484,10 +550,17 @@ export class EvidenceScene extends Phaser.Scene {
     this.suspectPortrait(i);
     this.para(470, CONTENT_Y + 6, `Suppose ${s.name} did it.`, 31, hex(s.color), 760);
     this.para(470, CONTENT_Y + 54, `How likely would I be to find ${clue.short}?`, 24, INK, 760);
-    this.para(470, CONTENT_Y + 92, 'Rate it from 1 (very unlikely) to 5 (very likely). 3 means you are not sure.', 17, DIM, 760);
+    const prompt = this.para(
+      470,
+      CONTENT_Y + 92,
+      'Rate it from 1 (very unlikely) to 5 (very likely). 3 means as likely as not. Judge this clue on its own, assuming this person did it.',
+      17,
+      DIM,
+      760,
+    );
 
-    // the ghost thinks out loud about this story, without giving a verdict
-    const hintBottom = this.ghostHint(470, CONTENT_Y + 124, clue.hints[i]);
+    // the ghost thinks out loud about this story
+    const hintBottom = this.ghostHint(470, prompt.y + prompt.height + 10, clue.hints[i]);
     const chosen = this.picks[i];
     const by = hintBottom + 56;
     RATINGS.forEach((r, k) => {
@@ -503,7 +576,7 @@ export class EvidenceScene extends Phaser.Scene {
       if (chosen !== undefined && chosen !== r.v) b.setAlpha(0.5);
     });
     if (chosen === undefined) {
-      this.para(470, by + 56, 'There is no right answer to match. Choose what makes sense to you.', 18, DIM, 760);
+      this.para(470, by + 56, 'There is no answer key for a rating. Say what you honestly think; your ratings are what move the board.', 18, DIM, 760);
       this.setNext('Next ›', false);
       return;
     }
@@ -564,12 +637,12 @@ export class EvidenceScene extends Phaser.Scene {
           ? 'Multiply: each share keeps its rating\u2019s percentage. A 4 keeps 70%, a 2 keeps 30%. The faded part is what the clue took away.'
           : 'Multiply each prior by its likelihood: P(H) \u00D7 P(clue | H). The faded part is what the clue took away.',
       L === 1
-        ? 'Put what\u2019s left side by side. It no longer fills the whole line, because the clue took a piece of every share.'
+        ? 'Put what\u2019s left side by side. It no longer fills the whole line, because the clue took a piece of every share. The shorter what\u2019s left, the more surprising this clue was overall.'
         : L === 2
           ? `Add up what\u2019s left: ${kept.map((x) => pct(x)).join(' + ')} = ${pct(total)}. It no longer fills 100%.`
           : `Add up the products: ${kept.map((x) => x.toFixed(3)).join(' + ')} = ${total.toFixed(3)}. That total is P(clue).`,
       L === 1
-        ? 'Stretch what\u2019s left back to the full line, keeping the proportions. Whoever kept more than the others grows; whoever kept less shrinks.'
+        ? `Stretch what\u2019s left back to the full line, keeping the proportions. Whoever kept more than the others grows; whoever kept less shrinks. This is only fair because these ${numberWord(n)} stories cover every possibility between them.`
         : L === 2
           ? `Rescale: divide each by their total, ${pct(total)}, so they fill 100% again. Whoever kept more than average grows; whoever kept less shrinks.`
           : `Divide each product by P(clue) = ${total.toFixed(3)}. The result is the posterior, P(H | clue).`,

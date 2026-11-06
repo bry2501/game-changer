@@ -17,6 +17,7 @@ import { PAL, cobweb, crack, paintRect } from '../ui/paint';
 import {
   AFTER_MEMORY_THOUGHTS,
   AWAKEN_LINES,
+  BODY_AFTER,
   BODY_LINES,
   CLOCK_AFTER,
   CLOCK_LINES,
@@ -345,7 +346,7 @@ export class WorldScene extends Phaser.Scene {
             this.unlock();
             this.bodyVisible = true;
             this.bodyMarker.setVisible(true);
-            this.bubble.say([DRIFT_HINT]);
+            this.bubble.say(DRIFT_HINT);
           },
           true,
           (i) => i === 2 && this.flickerWindow(),
@@ -378,14 +379,26 @@ export class WorldScene extends Phaser.Scene {
           this.lock();
           cam.flash(1400, 255, 225, 180);
           Sound.toll();
-          this.time.delayedCall(1600, () => {
-            cam.zoomTo(1, 10);
-            this.baseY = floorTop(0) + LOCAL_GHOST_Y;
-            cam.startFollow(this.ghost, true, 0.08, 0);
-            cam.setScroll(cam.scrollX, floorTop(0));
-            this.scene.pause();
-            this.scene.launch('Memory');
-          });
+          cam.shake(600, 0.003);
+          // the memory starts to surface before it takes over
+          this.time.delayedCall(1600, () =>
+            this.think(
+              BODY_AFTER,
+              () => {
+                this.lock();
+                cam.flash(900, 255, 225, 180);
+                this.time.delayedCall(1000, () => {
+                  cam.zoomTo(1, 10);
+                  this.baseY = floorTop(0) + LOCAL_GHOST_Y;
+                  cam.startFollow(this.ghost, true, 0.08, 0);
+                  cam.setScroll(cam.scrollX, floorTop(0));
+                  this.scene.pause();
+                  this.scene.launch('Memory');
+                });
+              },
+              true,
+            ),
+          );
         },
         true,
         (i) => {
