@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { Sound } from './audio/Sound';
+import { GameState } from './state/GameState';
 import { BootScene } from './scenes/BootScene';
 import { TitleScene } from './scenes/TitleScene';
 import { MemoryScene } from './scenes/MemoryScene';
@@ -30,4 +31,5 @@ window.addEventListener('pointerdown', unlockAudio);
 window.addEventListener('keydown', unlockAudio);
 
 // handy for automated testing / debugging
-(window as unknown as { __game: Phaser.Game }).__game = game;
+(window as unknown as { __game: Phaser.Game; __gs: typeof GameState }).__game = game;
+(window as unknown as { __gs: typeof GameState }).__gs = GameState;
