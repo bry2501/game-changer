@@ -87,11 +87,18 @@ export class BootScene extends Phaser.Scene {
   private makeVignette() {
     const tex = this.textures.createCanvas('vignette', W, H)!;
     const ctx = tex.getContext();
-    const g = ctx.createRadialGradient(W / 2, H / 2, H * 0.3, W / 2, H / 2, W * 0.65);
+    // an oval of light, the edges sinking into black
+    ctx.save();
+    ctx.translate(W / 2, H * 0.45);
+    ctx.scale(1, 0.62);
+    const g = ctx.createRadialGradient(0, 0, W * 0.2, 0, 0, W * 0.62);
     g.addColorStop(0, 'rgba(0,0,0,0)');
-    g.addColorStop(1, 'rgba(0,0,0,0.88)');
+    g.addColorStop(0.5, 'rgba(0,0,0,0.5)');
+    g.addColorStop(0.85, 'rgba(0,0,0,0.92)');
+    g.addColorStop(1, 'rgba(0,0,0,1)');
     ctx.fillStyle = g;
-    ctx.fillRect(0, 0, W, H);
+    ctx.fillRect(-W, -W, W * 2, W * 2);
+    ctx.restore();
     tex.refresh();
   }
 }

@@ -15,7 +15,9 @@ export class Noir {
   colour = 0;
 
   constructor(private scene: Phaser.Scene, cam: Phaser.Cameras.Scene2D.Camera, colour = 0) {
-    if (scene.game.renderer.type === Phaser.WEBGL) this.fx = cam.postFX.addColorMatrix();
+    if (scene.game.renderer.type === Phaser.WEBGL) {
+      this.fx = cam.postFX.addColorMatrix();
+    }
     this.set(colour);
   }
 
@@ -26,8 +28,8 @@ export class Noir {
     const n = 1 - colour; // how much noir
     fx.reset();
     fx.saturate(-n); // -1 is fully grey
-    fx.contrast(0.6 * n, true); // deep shadows, hard highlights
-    fx.brightness(1 - 0.06 * n, true);
+    fx.contrast(1.45 * n, true); // crushed blacks, hard highlights
+    fx.brightness(1 - 0.14 * n, true);
   }
 
   /** Tween into colour (to = 1) or back to black and white (to = 0). */
@@ -95,4 +97,42 @@ export function filmGrain(scene: Phaser.Scene, depth = 950, alpha = 0.07) {
   scene.events.on(Phaser.Scenes.Events.UPDATE, step);
   scene.events.once(Phaser.Scenes.Events.SHUTDOWN, () => scene.events.off(Phaser.Scenes.Events.UPDATE, step));
   return grain;
+}
+
+/** ?lowfx in the address turns off the costly effects (blur), for slow machines. */
+export const LOW_FX = typeof location !== 'undefined' && new URLSearchParams(location.search).has('lowfx');
+const webgl = (scene: Phaser.Scene) => scene.game.renderer.type === Phaser.WEBGL && !LOW_FX;
+
+/** Soften something into the distance (depth of field). Needs WebGL. */
+export function blurBack(obj: Phaser.GameObjects.Container | Phaser.GameObjects.Graphics, strength = 1.2) {
+  if (webgl(obj.scene)) obj.postFX.addBlur(0, 1, 1, strength);
+  return obj;
+}
+
+/** The pool of light behind the fog, fixed to the screen, brightest a little above centre. */
+export function haze(scene: Phaser.Scene, depth: number, alpha = 0.5) {
+  return scene.add
+    .image(W / 2, H * 0.42, 'haze')
+    .setDisplaySize(W * 1.25, H * 1.15)
+    .setScrollFactor(0)
+    .setDepth(depth)
+    .setBlendMode(Phaser.BlendModes.SCREEN)
+    .setAlpha(alpha);
+}
+
+/**
+ * A band of fog drifting across the screen. `parallax` is how much it slides with the camera
+ * (lower = further away); it also drifts on its own.
+ */
+export function fogBand(scene: Phaser.Scene, depth: number, opts: { y: number; h: number; alpha: number; parallax: number; speed: number }) {
+  const band = scene.add.tileSprite(0, opts.y, W, opts.h, 'fogband').setOrigin(0).setScrollFactor(0).setDepth(depth).setAlpha(opts.alpha);
+  band.setTileScale(1.6, opts.h / 256);
+  let drift = Math.random() * 500;
+  const step = (_t: number, dt: number) => {
+    drift += (opts.speed * dt) / 1000;
+    band.tilePositionX = (scene.cameras.main.scrollX * opts.parallax) / 1.6 + drift;
+  };
+  scene.events.on(Phaser.Scenes.Events.UPDATE, step);
+  scene.events.once(Phaser.Scenes.Events.SHUTDOWN, () => scene.events.off(Phaser.Scenes.Events.UPDATE, step));
+  return band;
 }

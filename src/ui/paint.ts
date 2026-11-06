@@ -8,9 +8,9 @@ import Phaser from 'phaser';
 export const PAL = {
   ink: 0x0d1524, // dark outline
   edge: 0x9cbfe0, // pale highlight edge, like a lit brush line
-  wood: 0x2f4466, // painted blue furniture
-  woodDark: 0x22324e,
-  plumWood: 0x4a2f45,
+  wood: 0x151d2c, // furniture: near-black silhouettes in the noir light
+  woodDark: 0x0b101a,
+  plumWood: 0x1f1219,
   maroon: 0x7a2f45,
   plum: 0x5a3a6e,
   brass: 0xb8953e,
@@ -39,7 +39,7 @@ export function paintRect(
   g.fillStyle(fill, 1);
   if (r) g.fillRoundedRect(x, y, w, h, r);
   else g.fillRect(x, y, w, h);
-  g.lineStyle(2, opts.edge ?? PAL.edge, opts.edgeAlpha ?? 0.45);
+  g.lineStyle(2, opts.edge ?? PAL.edge, opts.edgeAlpha ?? 0.2);
   g.lineBetween(x + 2, y + 2, x + w - 2, y + 2); // lit top edge
   g.lineBetween(x + 2, y + 2, x + 2, y + h - 2); // lit left edge
   g.lineStyle(2, PAL.ink, 0.85);
@@ -171,6 +171,38 @@ export function makePaintTextures(scene: Phaser.Scene) {
       ctx.lineTo(w * t0, h);
       ctx.closePath();
       ctx.fill();
+    }
+  });
+
+  // a wide soft pool of light, like a lamp behind fog: bright in the middle, gone at the edges
+  canvas(scene, 'haze', 512, 288, (ctx, w, h) => {
+    ctx.save();
+    ctx.translate(w / 2, h * 0.42);
+    ctx.scale(1, h / w);
+    const g = ctx.createRadialGradient(0, 0, 0, 0, 0, w * 0.5);
+    g.addColorStop(0, 'rgba(255,255,255,0.9)');
+    g.addColorStop(0.45, 'rgba(255,255,255,0.45)');
+    g.addColorStop(1, 'rgba(255,255,255,0)');
+    ctx.fillStyle = g;
+    ctx.fillRect(-w / 2, -w / 2, w, w);
+    ctx.restore();
+  });
+
+  // drifting fog: big soft blobs, tileable left to right, thicker toward the bottom
+  canvas(scene, 'fogband', 512, 256, (ctx, w, h) => {
+    const rnd = mulberry(31);
+    for (let i = 0; i < 70; i++) {
+      const x = rnd() * w;
+      const y = h * (0.25 + rnd() * 0.75);
+      const r = 30 + rnd() * 80;
+      const a = 0.05 + rnd() * 0.09;
+      for (const ox of [-w, 0, w]) {
+        const g = ctx.createRadialGradient(x + ox, y, 0, x + ox, y, r);
+        g.addColorStop(0, `rgba(235,235,235,${a})`);
+        g.addColorStop(1, 'rgba(235,235,235,0)');
+        ctx.fillStyle = g;
+        ctx.fillRect(x + ox - r, y - r, r * 2, r * 2);
+      }
     }
   });
 

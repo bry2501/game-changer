@@ -43,7 +43,7 @@ import {
 } from '../data/house';
 import { GameState } from '../state/GameState';
 import { Controls } from '../ui/Controls';
-import { AccentCamera, Noir, filmGrain } from '../ui/noir';
+import { AccentCamera, Noir, blurBack, filmGrain, fogBand } from '../ui/noir';
 import { ThoughtBubble } from '../ui/ThoughtBubble';
 import { Sound } from '../audio/Sound';
 
@@ -82,6 +82,8 @@ export class WorldScene extends Phaser.Scene {
   private cursor = 'default';
   /** The camera follows the ghost horizontally (floors change by a deliberate move). */
   private following = true;
+  private layers = new Map<number, Phaser.GameObjects.Container>();
+  private mists: Phaser.GameObjects.TileSprite[] = [];
   /** Black and white, except for what the accent camera keeps in colour. */
   private noir!: Noir;
   private accent!: AccentCamera;
@@ -128,6 +130,8 @@ export class WorldScene extends Phaser.Scene {
 
     this.noir = new Noir(this, cam, 0);
     this.accent = new AccentCamera(this);
+    this.layers.clear();
+    this.mists = [];
     this.buildFloor(0);
     this.buildFloor(1);
     this.buildProps();
@@ -162,6 +166,8 @@ export class WorldScene extends Phaser.Scene {
       .setDepth(60)
       .setScrollFactor(0);
     this.buildForeground();
+    // Limbo-style air: a glow behind the fog, fog at two depths, a dark oval vignette, grain
+    fogBand(this, 85, { y: 520, h: 200, alpha: 0.22, parallax: 1.3, speed: -10 });
     this.add.image(W / 2, H / 2, 'vignette').setScrollFactor(0).setDepth(900);
     filmGrain(this);
 
@@ -228,6 +234,7 @@ export class WorldScene extends Phaser.Scene {
   update(_time: number, delta: number) {
     const dt = delta / 1000;
     this.t += dt;
+    for (const m of this.mists) m.tilePositionX += dt * 9;
     if (this.following) {
       const cam = this.cameras.main;
       cam.scrollX += (this.followX() - cam.scrollX) * Math.min(1, 0.08 * dt * 60);
@@ -690,6 +697,8 @@ export class WorldScene extends Phaser.Scene {
    */
   private buildFloor(floor: number) {
     const layer = this.add.container(0, floorTop(floor)).setDepth(10);
+    this.layers.set(floor, layer);
+    blurBack(layer); // the room recedes; the ghost and what he can touch stay sharp
     const rooms = ROOMS.filter((r) => r.floor === floor);
     const b = floorBounds(floor);
     const R: Record<string, Phaser.GameObjects.Graphics> = {};
@@ -718,6 +727,20 @@ export class WorldScene extends Phaser.Scene {
       if (i % 2 === 0) layer.add(cobweb(this, r.x0 + (i > 0 ? 62 : 0) + (i === 0 ? b.min - 60 - r.x0 : 0), 40, 0.9));
       if (i % 3 !== 1) layer.add(cobweb(this, r.x1 - (i < rooms.length - 1 ? 62 : 0) - (i === rooms.length - 1 ? r.x1 - b.max - 60 : 0), 40, 0.8, true));
     });
+    // Limbo-style depth: the walls at the back, then a pool of light and drifting mist,
+    // then the furniture in front as dark silhouettes
+    const backs = layer.list.filter((o) => o instanceof Phaser.GameObjects.TileSprite);
+    backs.forEach((o) => layer.sendToBack(o));
+    let at = backs.length;
+    rooms.forEach((r) => {
+      const w = r.x1 - r.x0;
+      const glow = this.add.image(r.x0 + w / 2, 250, 'haze').setDisplaySize(w * 1.15, 560).setBlendMode(Phaser.BlendModes.SCREEN).setAlpha(0.5);
+      layer.addAt(glow, at++);
+      this.roomGfx.push({ g: glow, floor, x0: r.x0, x1: r.x1 });
+    });
+    const mist = this.add.tileSprite(b.min - 100, 140, b.max - b.min + 260, F - 40, 'fogband').setOrigin(0).setAlpha(0.75).setTileScale(1.6, (F - 40) / 256);
+    layer.addAt(mist, at);
+    this.mists.push(mist);
     if (floor === 0) this.decorGround(R, layer);
     else this.decorUpstairs(R, layer);
   }
@@ -725,6 +748,11 @@ export class WorldScene extends Phaser.Scene {
   /** Only draw the rooms near the camera. */
   private cullRooms() {
     const v = viewOf(this.cameras.main);
+    // a whole floor out of view is skipped, so its blur costs nothing
+    for (const [floor, layer] of this.layers) {
+      const top = floorTop(floor);
+      layer.setVisible(top < v.bottom && top + FLOOR_H > v.y);
+    }
     for (const r of this.roomGfx) {
       const top = floorTop(r.floor);
       r.g.setVisible(r.x1 > v.x - 300 && r.x0 < v.right + 300 && top < v.bottom && top + FLOOR_H > v.y);
@@ -1054,10 +1082,11 @@ export class WorldScene extends Phaser.Scene {
   private buildForeground() {
     // near layer (fast horizontal parallax): heavy velvet curtains and blurred furniture passing in front
     const fg = this.add.graphics().setScrollFactor(1.25, 1).setDepth(80);
+    blurBack(fg, 2.2); // out of focus, close to the lens
     for (let x = 0; x < WORLD_W * 1.25 + W; x += 1100) {
       for (const top of [0, FLOOR_H]) {
         // a curtain gathered at the top, folds picked out with lighter strokes
-        fg.fillStyle(0x141c34, 0.82);
+        fg.fillStyle(0x020202, 0.96);
         fg.beginPath();
         fg.moveTo(x - 40, top);
         fg.lineTo(x + 150, top);
