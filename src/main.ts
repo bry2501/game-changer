@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { Sound } from './audio/Sound';
 import { GameState } from './state/GameState';
+import { CLUES } from './data/case1';
 import { BootScene } from './scenes/BootScene';
 import { TitleScene } from './scenes/TitleScene';
 import { MemoryScene } from './scenes/MemoryScene';
@@ -8,6 +9,7 @@ import { WorldScene } from './scenes/WorldScene';
 import { EvidenceScene } from './scenes/EvidenceScene';
 import { BoardScene } from './scenes/BoardScene';
 import { AccuseScene } from './scenes/AccuseScene';
+import { EndingScene } from './scenes/EndingScene';
 import { H, W } from './ui/widgets';
 
 const game = new Phaser.Game({
@@ -22,7 +24,7 @@ const game = new Phaser.Game({
   },
   input: { activePointers: 3 },
   render: { antialias: true },
-  scene: [BootScene, TitleScene, WorldScene, MemoryScene, EvidenceScene, BoardScene, AccuseScene],
+  scene: [BootScene, TitleScene, WorldScene, MemoryScene, EvidenceScene, BoardScene, AccuseScene, EndingScene],
 });
 
 // Audio may only start after a user gesture.
@@ -33,3 +35,4 @@ window.addEventListener('keydown', unlockAudio);
 // handy for automated testing / debugging
 (window as unknown as { __game: Phaser.Game; __gs: typeof GameState }).__game = game;
 (window as unknown as { __gs: typeof GameState }).__gs = GameState;
+(window as unknown as { __clues: typeof CLUES }).__clues = CLUES;

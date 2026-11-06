@@ -1,12 +1,12 @@
 /**
- * Generates a readable screenplay of Level 1 from the game's own data, so the
- * script can never drift from what the game says. Run:  npm run screenplay
+ * Generates the whole game's screenplay from its own data, so the script can never
+ * drift from what the game says. Run:  npm run screenplay
  *
- * Story text, evidence, hints, lessons and the house all come from src/data.
- * A few fixed UI lines live inside the Phaser scenes (which can't run outside a
- * browser); those are mirrored below in UI and marked as such.
+ * Story text, evidence, hints, lessons, the house and the endings come from src/data.
+ * Designer's notes that are not in the data live below, in NOTES; every number in them
+ * is computed, not typed.
  */
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import {
   ACCUSE_LINES,
   AFTER_MEMORY_THOUGHTS,
@@ -19,72 +19,61 @@ import {
   CLUES,
   CULPRIT_INDEX,
   DRIFT_HINT,
-  EPILOGUE_CORRECT,
-  EPILOGUE_WRONG,
+  ENDING_CORRECT,
+  ENDING_WRONG,
+  EndLine,
   Evidence,
+  HOW_IT_WORKS,
+  LOG_ROWS,
   MEMORY_INTRO,
   MEMORY_OUTRO,
   PRIOR_SHEET,
   SUSPECTS,
+  TITLE_TAGLINE,
   WINDOW_LINES,
-  allSuspects,
-  setCase,
 } from '../src/data/case1';
-import { CONCEPTS, conceptBody, numberWord } from '../src/data/lessons';
+import { CONCEPTS, numberWord } from '../src/data/lessons';
+import { KEEP_WORDS, RATE_FOOTER, RATE_PROMPT, RATING_VALUES, RATING_WORDS, UNCHANGED, UPDATE_STEPS } from '../src/data/ui';
 import { ROOMS, SEARCHABLES, roomAt } from '../src/data/house';
-import { LEVELS } from '../src/state/GameState';
-import { update } from '../src/bayes/engine';
-
-setCase('easy');
-
-/** UI copy mirrored from the scenes (TitleScene, EvidenceScene, AccuseScene). */
-const UI = {
-  titleTagline: 'The same night, three times. Solve a level to unlock the next.',
-  ratePrompt: 'Rate it from 1 (very unlikely) to 5 (very likely). 3 means as likely as not. Judge this clue on its own, assuming this person did it.',
-  rateFooter: 'There is no answer key for a rating. Say what you honestly think; your ratings are what move the board.',
-  ratings: ['1 Very unlikely', '2 Unlikely', '3 As likely as not', '4 Likely', '5 Very likely'],
-  ratingValues: [0.1, 0.3, 0.5, 0.7, 0.9],
-  keepWords: ['keeps very little', 'keeps less than half', 'keeps half', 'keeps most', 'keeps almost all'],
-  steps: [
-    ['Before', 'Before the clue. Each bar is one person’s share of my suspicion. Together they fill the whole line.'],
-    ['Step 1 of 3: shrink', 'Each share shrinks by how well the clue fits that person’s story. A good fit keeps most of it; a poor fit keeps little. The faded part is what the clue took away.'],
-    ['Step 2 of 3: together', 'Put what’s left side by side. It no longer fills the whole line, because the clue took a piece of every share. The shorter what’s left, the more surprising this clue was overall.'],
-    ['Step 3 of 3: stretch', `Stretch what’s left back to the full line, keeping the proportions. Whoever kept more than the others grows; whoever kept less shrinks. This is only fair because these ${numberWord(SUSPECTS.length)} stories cover every possibility between them.`],
-  ],
-};
-
-/** How each clue's hiding place gives way when searched (stage directions). */
-const SEARCH_ACTION: Record<string, string> = {
-  letter: 'The drawer sticks, then slides out with a small wooden cry',
-  boot: 'The fronds part around the ghost’s hand and settle again, trembling',
-  ledger: 'The bottom drawer is stiff with disuse; it gives all at once, and the blank invoices slide against each other',
-  phone: 'The drawer runs out on its runners with a long, dry rasp',
-  cufflink: 'The ghost sinks to the rug where the chair has crushed the fringe; something small winks in the moonlight',
-};
+import { chain, update } from '../src/bayes/engine';
 
 /** Designer's notes per clue, beyond what is computed (not shown in the game). */
-const NOTES: Record<string, { ratio?: string; trap?: string; extra?: string[] }> = {
+const NOTES: Record<string, { ratio?: string; trapLabel?: string; trap?: string; extra?: string[] }> = {
   letter: {
     ratio: ', barely worth mentioning',
-    trap: '. A player who rates 5 / 1 jumps to about {swing} Clara on a draft that was never sent.',
+    trap: '. A player who rates 5 / 1 jumps to about {swing51} Clara on a draft that was never sent.',
+  },
+  will: {
+    trapLabel: 'Double counting (old news)',
+    trap: '. A player who rates 5 / 2 jumps to about {swing52} Clara on a fact the board already carried.',
+    extra: [
+      'Symmetry: both suspects have a Monday appointment (Mr. Penrose at ten, the books at eleven), so the schedule favours neither. The ghost says so.',
+      'Independence: the draft’s existence depends on John, not on the culprit, so it is rated on its own.',
+    ],
   },
   boot: {
     extra: [
-      'Background fact “Voss parks by the garden gate” is now stated in Scene 3, before the clue, so the likelihood is judged against known background, not invented after the fact.',
+      'Background fact “Voss parks by the garden gate” is stated in Scene 3, before the clue, so the likelihood is judged against known background, not invented after the fact.',
     ],
   },
   ledger: { trap: ', plus the real prosecutor’s fallacy (rating ≠ board), taught in the ghost’s line after the recap.' },
+  slip: {
+    trapLabel: 'Myside bias: evidence that cuts against your favourite',
+    trap: '. A player who stops searching after the ledger never finds this clue. A player who dismisses it (3 / 3) ends the game with Clara at {dismiss} instead of {final}.',
+    extra: [
+      'The innocent explanation is planted, not invented afterwards: Scene 3 says Clara has nagged John about his sleep since the spring. The ending reveals the slip was a peace offering. A rating of 2 (unlikely, not impossible) is the model answer for what the ghost knows at this point.',
+    ],
+  },
   phone: {
     extra: [
-      'Timeline: the call covers the whole window the cup stood on the desk (9:30 to a little before 10). The original 9:35–9:50 call left ten minutes uncovered, so it could not support the alibi the ghost claimed.',
-      'The 7:48 call for Voss is deliberately unmodelled (likelihood ratio 1). Either keep it as a Level 2 hook or remove it from the card.',
+      'Timeline: the call covers the whole window the cup stood on the desk (9:30 to a little before 10).',
+      'The 7:48 call for Voss is deliberately unmodelled (likelihood ratio 1). The ending closes it on purpose: some scraps stay unexplained, and the verdict does not need them.',
     ],
   },
   cufflink: {
-    trap:
-      ' (renamed). The old label “Prosecutor’s fallacy” was a misnomer: that fallacy is confusing P(evidence | guilt) with P(guilt | evidence). It is now taught where it actually occurs, at the ledger and at the accusation.',
+    trap: '. The old label “Prosecutor’s fallacy” was a misnomer: that fallacy is confusing P(evidence | guilt) with P(guilt | evidence). It is taught where it actually occurs, at the ledger and at the accusation.',
     extra: [
-      'Independence check: the old Voss page leaned on “he came back in a hurry”, the same story the boot print used, which would make the two clues dependent given Voss did it. The page now rests only on his two chances to lose the cufflink.',
+      'Independence check: the Voss page rests only on his two chances to lose the cufflink, not on “he came back in a hurry”, which the boot print already used.',
     ],
   },
 };
@@ -97,14 +86,12 @@ const thoughts = (lines: string[], who = 'GHOST', how = 'thought') => {
   w();
 };
 const pct = (x: number) => `${Math.round(x * 100)}%`;
-const nearest = (v: number) => {
-  // the 1-5 rating closest to a model likelihood (ties go up)
-  let best = 0;
-  UI.ratingValues.forEach((r, k) => {
-    if (Math.abs(r - v) <= Math.abs(UI.ratingValues[best] - v) + 1e-9) best = k;
-  });
-  return best;
-};
+const short = (i: number) => SUSPECTS[i].name.replace('Mr. ', '');
+const liks = CLUES.map((c) => c.likelihoods);
+const prior = SUSPECTS.map((s) => s.hoursInside / PRIOR_SHEET.total);
+const rating = (v: number) => RATING_VALUES.findIndex((r) => Math.abs(r - v) < 1e-9) + 1;
+/** Clara's final share if one clue's ratings were swapped for others. */
+const finalWith = (k: number, l: number[]) => chain(prior, liks.map((x, j) => (j === k ? l : x)))[CLUES.length][0];
 
 function evidence(doc: Evidence) {
   if (doc.kind === 'letter') {
@@ -129,13 +116,23 @@ function evidence(doc: Evidence) {
   w();
 }
 
+/** A clue's strength between the two suspects: its likelihood ratio, in whoever's favour. */
+function strength(a: number, b: number) {
+  const r = a / b;
+  const f = (x: number) => String(+x.toFixed(2));
+  if (Math.abs(r - 1) < 1e-9) return { text: '1 : 1', short: '1 : 1', word: 'old news' };
+  const big = r >= 1 ? r : 1 / r;
+  const who = r >= 1 ? short(0) : short(1);
+  const text = r >= 1 ? `${f(r)} : 1 for ${who}` : `${f(r)} : 1, i.e. ${f(big)} : 1 for ${who}`;
+  return { text, short: `${f(big)} : 1 for ${who}`, word: big < 2 ? 'weak' : big < 4 ? 'moderate' : 'strong' };
+}
+
 // ------------------------------------------------------------------ title
-const L1 = LEVELS[0];
-w(`# Ghost Mystery: Level 1 screenplay`);
+w(`# Ghost Mystery: ${CASE_TITLE.replace("'", '’')} (screenplay)`);
 w();
-w(`*${CASE_TITLE}* · Level 1, “${L1.name}” · suspects: ${SUSPECTS.map((s) => s.name).join(' and ')}`);
+w(`*A Bayesian whodunit* · ${numberWord(CLUES.length)} clues · suspects: ${SUSPECTS.map((s) => s.name).join(' and ')}`);
 w();
-w('Generated from the game’s own data by `npm run screenplay`, including the hand revisions for Bayesian soundness and for narrative. Every line below is what the player sees, in play order.');
+w('Generated from the game’s own data by `npm run screenplay`. It is a complete, standalone game: there are no further levels. Every line below is what the player sees, in play order.');
 w('Stage directions are in *italics*. **Designer’s notes** (marked) are not shown in the game.');
 w();
 w('---');
@@ -145,9 +142,11 @@ w();
 w('**GHOST MYSTERY**');
 w(`*${CASE_TITLE}: a Bayesian whodunit*`);
 w();
-w(UI.titleTagline);
+w(TITLE_TAGLINE);
 w();
-w(`**Level 1 · ${L1.name}**: ${L1.desc}`);
+w(`**How it works**: ${HOW_IT_WORKS}`);
+w();
+w('[ Begin ]  *(and Continue, when a saved game exists)*');
 w();
 w('---');
 w();
@@ -178,7 +177,7 @@ dir('The player drifts to the rug. Control is taken away. The music falls silent
 w();
 const me = BODY_LINES.findIndex((l) => l.includes('it’s me'));
 BODY_LINES.forEach((l, i) => {
-  if (i === me) dir('A deep bell tolls. The clocks of the house, one after another, take up the note. The room shudders.');
+  if (i === me) dir('A deep bell tolls. The clocks of the house, one after another, take up the note. Ten strokes. The room shudders.');
   w(`> **GHOST** *(thought)*: ${l}`);
 });
 w();
@@ -201,7 +200,7 @@ SUSPECTS.forEach((s, k) => {
   if (s.voices) {
     dir(s.voices.cue);
     w();
-    for (const [who, words] of s.voices.lines) w(`> **${who === 'Voss' ? 'VOSS' : who.toUpperCase()}** *(memory)*: “${words}”`);
+    for (const [who, words] of s.voices.lines) w(`> **${who.toUpperCase()}** *(memory)*: “${words}”`);
     w();
     if (s.voices.after) {
       w(s.voices.after);
@@ -243,12 +242,13 @@ w('### Every searchable spot');
 w();
 w('| Room | Spot | Holds | What the ghost says if it holds nothing relevant |');
 w('|---|---|---|---|');
-const active = new Set(CLUES.map((c) => c.id));
 for (const s of SEARCHABLES.filter((x) => x.kind !== 'stairs')) {
-  const holds = s.holds === 'prior' ? 'Household log' : s.holds && active.has(s.holds) ? `**Clue: ${CLUES.find((c) => c.id === s.holds)!.title}**` : '';
-  const noise = s.noise ? s.noise.join(' ') : '';
-  w(`| ${roomAt(s.floor, s.x).name} | ${s.label} | ${holds} | ${holds ? '' : noise} |`);
+  const clue = CLUES.find((c) => c.id === s.holds);
+  const holds = s.holds === 'prior' ? 'Household log' : clue ? `**Clue: ${clue.title}**` : '';
+  w(`| ${roomAt(s.floor, s.x).name} | ${s.label} | ${holds} | ${holds ? '' : (s.noise ?? []).join(' ')} |`);
 }
+w();
+w('> **Designer’s note (not shown in game):** the kitchen and morning room are not explorable. Clara spends the whole hour in the kitchen, which is why her room and the landing are empty; the light under the kitchen door is visible in the ending.');
 w();
 w('---');
 w();
@@ -260,32 +260,24 @@ dir('On the side table in the study. The player searches it; the evidence screen
 w();
 w('**Evidence card: the household log, tonight (6 – 10 pm)**');
 w();
-evidence({
-  kind: 'table',
-  columns: ['Name', 'Signed in', 'Signed out', 'Inside, 6–10 pm'],
-  rows: allSuspects().map((s) =>
-    SUSPECTS.some((x) => x.id === s.id) ? [s.name, s.logIn, s.logOut, `${s.hoursInside} h`] : [s.name, s.absentLog[0], s.absentLog[1], '—'],
-  ),
-});
+evidence({ kind: 'table', columns: ['Name', 'Signed in', 'Signed out', 'Inside, 6–10 pm'], rows: LOG_ROWS });
 w(`> **GHOST** *(thought)*: ${PRIOR_SHEET.text}`);
 w('>');
 w(`> **GHOST** *(thought)*: ${PRIOR_SHEET.context}`);
 w();
-for (const s of SUSPECTS) {
-  w(`**${s.name}** · *${s.name} was inside for ${s.hoursInside} hours.* Everyone together: ${PRIOR_SHEET.total} hours (shown as half-hour blocks, ${s.name}’s lit).`);
-  w(`The lit blocks are ${s.name}’s share of all the time anyone spent inside. More time inside means more chances to reach my tea, so a bigger starting share of suspicion.`);
+SUSPECTS.forEach((s, i) => {
+  w(`**${s.name}** · *${s.name} was inside for ${s.hoursInside} hours.* (shown as half-hour blocks, ${s.name}’s lit).`);
+  w(`The lit blocks are ${s.name}’s share of all the time anyone spent inside.${i === 0 ? ' More time inside means more chances to reach my tea, so a bigger starting share of suspicion.' : ''}`);
   w();
-}
+});
 w('**Where my suspicion starts**: Each person’s share of the time inside becomes their starting share of suspicion. *(a single bar, names only)*');
 w();
 w(`**What the starting point means**: ${PRIOR_SHEET.lesson}`);
-w('Every clue I find from now on will shift these shares. How far each one shifts them is the whole art.');
 w();
-const prior = SUSPECTS.map((s) => s.hoursInside / PRIOR_SHEET.total);
 w(`> **Designer’s note (not shown in game):** prior = hours inside ÷ total: ${SUSPECTS.map((s, i) => `${s.name} ${s.hoursInside}/${PRIOR_SHEET.total} = ${pct(prior[i])}`).join(', ')}. Clara starts ahead purely on opportunity.`);
 w('>');
 w('> - The prior is a *subjective* starting point (degree of belief), and hours-inside is a transparent stand-in for it. Any coherent starting point is legitimate; what matters is that the evidence is allowed to move it.');
-w(`> - The log is also what closes the hypothesis set. The stretch step in every update is only valid because ${SUSPECTS.map((s) => `“${s.name}”`).join(' and ')} are mutually exclusive and cover every possibility. The ghost says so out loud; keep that assumption visible in later levels, and give any third suspect a share.`);
+w(`> - The log is also what closes the hypothesis set. The stretch step in every update is only valid because ${SUSPECTS.map((s) => `“${s.name}”`).join(' and ')} are mutually exclusive and cover every possibility. The ghost says so out loud; the ending restates it. If you ever add a third suspect, give them a share.`);
 w('> - Neither share is ever 0% or 100%, and no rating maps to 0 or 1, so no belief can become immune to later evidence.');
 w('> - The hours-inside rule counts time before the tea existed. That is acceptable only because the ghost does not yet know when the tea was tampered with. A stricter alternative would count only the half hour the cup stood on the desk.');
 w();
@@ -295,27 +287,16 @@ w();
 
 // ------------------------------------------------------------------ clues
 let belief = prior.slice();
-const chainRows: string[] = [];
-chainRows.push(`| Start (household log) | — | — | ${SUSPECTS.map((_, i) => pct(belief[i])).join(' | ')} |`);
-/** A clue's strength between the two suspects: its likelihood ratio, in whoever's favour. */
-function strength(a: number, b: number) {
-  const [A, B] = SUSPECTS.map((s) => s.name.replace('Mr. ', ''));
-  const r = a / b;
-  const big = r >= 1 ? r : 1 / r;
-  const who = r >= 1 ? A : B;
-  const f = (x: number) => String(+x.toFixed(2));
-  const text = r >= 1 ? `${f(r)} : 1 for ${who}` : `${f(r)} : 1, i.e. ${f(big)} : 1 for ${who}`;
-  return { text, short: `${f(big)} : 1 for ${who}`, word: big < 2 ? 'weak' : big < 4 ? 'moderate' : 'strong' };
-}
+const chainRows: string[] = [`| Start (household log) | — | — | ${SUSPECTS.map((_, i) => pct(belief[i])).join(' | ')} |`];
 CLUES.forEach((c, k) => {
   const spot = SEARCHABLES.find((s) => s.holds === c.id)!;
-  const concept = CONCEPTS[Math.min(k, CONCEPTS.length - 1)];
+  const concept = CONCEPTS[k];
   w(`## Clue ${k + 1} of ${CLUES.length}: ${c.title}`);
   w();
   const spotName = spot.label.includes('’s ') ? spot.label : `the ${spot.label.toLowerCase()}`;
-  dir(`${roomAt(spot.floor, spot.x).name}${spot.floor === 1 ? ' (upstairs)' : ''}: the player searches ${spotName}. ${SEARCH_ACTION[c.id] ?? 'Something gives way'}; a chime; the evidence screen opens.`);
+  dir(`${roomAt(spot.floor, spot.x).name}${spot.floor === 1 ? ' (upstairs)' : ''}: the player searches ${spotName}. ${c.searchCue}; a chime; the evidence screen opens.`);
   w();
-  w(`### Page: The clue`);
+  w('### Page: The clue');
   w();
   w(`*Found: ${c.found}*`);
   w();
@@ -323,12 +304,12 @@ CLUES.forEach((c, k) => {
   w();
   evidence(c.evidence);
   if (c.memory) {
-    dir('MEMORY. A flicker: a cup set down on a blotter, the saucer chiming against the wood. Somewhere in the house, a clock strikes the half hour. The ghost goes very still, as he did before the amber memory.');
+    dir(c.memoryCue ?? 'MEMORY.');
     thoughts([c.memory, ...c.context]);
   } else thoughts(c.context);
   w(`### Page: Lesson ${k + 1}: ${concept.title}`);
   w();
-  w(conceptBody(concept, CLUES.length, 1));
+  w(concept.body);
   w();
   w('*(Below: the current suspicion bar, names only.)*');
   w();
@@ -336,47 +317,55 @@ CLUES.forEach((c, k) => {
     w(`### Page: Suppose ${s.name} did it.`);
     w();
     w(`**How likely would I be to find ${c.short}?**`);
-    w(`*${UI.ratePrompt}*`);
+    w(`*${RATE_PROMPT}*`);
     w();
     thoughts([c.hints[i]]);
-    w(`[ ${UI.ratings.join(' ] [ ')} ]`);
+    w(`[ ${RATING_WORDS.map((r, n) => `${n + 1} ${r}`).join(' ] [ ')} ]`);
     w();
-    w(`*${UI.rateFooter}* After choosing: “You rated it N: …”`);
+    w(`*${RATE_FOOTER}* After choosing: “You rated it N: …”`);
     w();
   });
-  w('### Page: Update (the player steps through)');
+  w('### Page: Update (the player steps through, on a square of possible worlds)');
   w();
-  for (const [name, cap] of UI.steps) w(`- **${name}**: ${cap}`);
-  w(`- Step 1 labels each bar “rated N: ${UI.keepWords.join(' / ')}”; step 3 marks each bar ▲ grew / ▼ shrank, with the old size outlined, and says in words how each share changed.`);
+  for (const [name, cap, key] of UPDATE_STEPS) w(`- **${name}**: ${cap.replace('{n}', numberWord(SUSPECTS.length))} *(Key: ${key})*`);
+  w(`- Step 1 labels each suspect “rated N: ${KEEP_WORDS.join(' / ')}”; step 3 marks each ▲ grew / ▼ shrank, with the old border dashed, and says in words how each share changed.`);
+  if (Math.abs(c.likelihoods[0] - c.likelihoods[1]) < 1e-9) w(`- When both ratings match, step 3 marks both “unchanged” and says so in words: “${UNCHANGED}”`);
   w();
   w(`### Page: Recap: ${c.trap}`);
   w();
   w(c.lesson);
   w();
-  w('*(Below: your board before this clue, and your board now.)*');
+  w('*(Below: your board before this clue, and your board now, as two squares.)*');
   w();
 
-  // designer's Bayes box: the intended ratings (the story model sits exactly on the 1-5 scale)
-  const ratingIdx = c.likelihoods.map(nearest);
-  const lik = ratingIdx.map((r) => UI.ratingValues[r]);
+  // designer's Bayes box: the intended ratings
+  const lik = c.likelihoods;
   const kept = belief.map((b, i) => b * lik[i]);
   const total = kept.reduce((a, b) => a + b, 0);
   const after = update(belief, lik);
   const note = NOTES[c.id] ?? {};
   const ratio = strength(lik[0], lik[1]);
-  const swing = update(belief, [0.9, 0.1])[0];
+  const same = Math.abs(lik[0] - lik[1]) < 1e-9;
+  const fill = (t: string) =>
+    t
+      .replace('{swing51}', pct(update(belief, [0.9, 0.1])[0]))
+      .replace('{swing52}', pct(update(belief, [0.9, 0.3])[0]))
+      .replace('{dismiss}', pct(finalWith(k, [0.5, 0.5])))
+      .replace('{final}', pct(chain(prior, liks)[CLUES.length][0]));
   w('> **Designer’s note (not shown in game): the intended reasoning**');
   w('>');
   w(
-    `> - Intended ratings${k === 0 ? ` (1–5 map to ${UI.ratingValues.join(', ')})` : ''}: ${SUSPECTS.map((s, i) => `${s.name} **${ratingIdx[i] + 1}** (${lik[i]})`).join(', ')}. ` +
+    `> - Intended ratings${k === 0 ? ` (1–5 map to ${RATING_VALUES.join(', ')})` : ''}: ${SUSPECTS.map((s, i) => `${s.name} **${rating(lik[i])}** (${lik[i]})`).join(', ')}. ` +
       `Likelihood ratio ${ratio.text}${note.ratio ?? ''}.`,
   );
-  w(`> - With those ratings: before ${SUSPECTS.map((s, i) => `${s.name} ${pct(belief[i])}`).join(', ')} → keep ${SUSPECTS.map((s, i) => `${pct(belief[i])} × ${lik[i]} = ${pct(kept[i])}`).join('; ')} → together ${pct(total)} → stretched: ${SUSPECTS.map((s, i) => `**${s.name} ${pct(after[i])}**`).join(', ')}.`);
-  w(`> - Trap: *${c.trap}*${(note.trap ?? '.').replace('{swing}', pct(swing))}`);
+  w(
+    `> - With those ratings: before ${SUSPECTS.map((s, i) => `${s.name} ${pct(belief[i])}`).join(', ')} → keep ${SUSPECTS.map((s, i) => `${pct(belief[i])} × ${lik[i]} = ${pct(kept[i])}`).join('; ')} → together ${pct(total)} → stretched: ${SUSPECTS.map((s, i) => `**${s.name} ${pct(after[i])}**`).join(', ')}${same ? ' (unchanged)' : ''}.`,
+  );
+  w(`> - Trap: *${note.trapLabel ?? c.trap}*${fill(note.trap ?? '.')}`);
   for (const x of note.extra ?? []) w(`> - ${x}`);
   w();
   belief = after;
-  chainRows.push(`| ${k + 1}. ${c.title} | ${ratingIdx.map((r) => r + 1).join(' / ')} | ${ratio.short} (${ratio.word}) | ${SUSPECTS.map((_, i) => pct(belief[i])).join(' | ')} |`);
+  chainRows.push(`| ${k + 1}. ${c.title} | ${lik.map(rating).join(' / ')} | ${ratio.short} (${ratio.word}) | ${SUSPECTS.map((_, i) => pct(belief[i])).join(' | ')} |`);
 
   dir('The overlay closes. Back in the house.');
   w();
@@ -385,46 +374,62 @@ CLUES.forEach((c, k) => {
   w();
 });
 
-// ------------------------------------------------------------------ the accusation
+// ------------------------------------------------------------------ the accusation and the endings
+const ending = (lines: EndLine[]) => {
+  let open = false;
+  for (const l of lines) {
+    if (l.who === 'direction') {
+      if (open) w();
+      dir(l.text);
+      w();
+      open = false;
+      continue;
+    }
+    const who = l.who === 'clara' ? '**CLARA**' : '**GHOST**';
+    const how = l.who === 'imagining' ? ' *(imagining)*' : l.who === 'ghost' ? ' *(thought)*' : l.how ? ` *(${l.how})*` : '';
+    w(`> ${who}${how}: ${l.text}`);
+    open = true;
+  }
+  if (open) w();
+};
+
 w('## The accusation');
 w();
-dir('After the last clue the body glows again, faintly, like a lamp left burning in an empty house. The player drifts to it and chooses “Name the culprit”. Between ticks, the clocks seem to hold their breath.');
+dir('After the last clue the body glows again. The player drifts to it and chooses “Name the culprit”. In the hall, the great clock is about to strike eleven.');
 w();
-for (const l of ACCUSE_LINES) w(l);
+for (const l of ACCUSE_LINES) w(l.replace('{likely}', '[the likelier suspect]').replace('{other}', '[the other]'));
 w();
 w(`[ ${SUSPECTS.map((s) => `${s.name}, ${s.role}`).join(' ] [ ')} ]  *(each with the player’s suspicion as a bar, no numbers)*`);
 w();
+w(`> **Designer’s note (not shown in game):** the bracketed names follow the player’s own board, so the line is never false. On the intended path the likelier suspect is ${short(CULPRIT_INDEX)} and the other is ${SUSPECTS[1 - CULPRIT_INDEX].name}.`);
+w();
 const culprit = SUSPECTS[CULPRIT_INDEX];
-const wrong = SUSPECTS.find((_, i) => i !== CULPRIT_INDEX)!;
+const wrong = SUSPECTS[1 - CULPRIT_INDEX];
 w(`### If the player names ${culprit.name}: **Case Closed**`);
 w();
-dir('A bell tolls: one clear note, and every clock in the house answers it. The music brightens.');
-w();
-thoughts(EPILOGUE_CORRECT);
-dir('The ghost rises and fades.');
-w();
-w(`**Level 1 solved** · You named ${culprit.name}, and you were right.`);
+ending(ENDING_CORRECT);
+w(`**Case closed** · You named ${culprit.name}, and you were right.`);
 w('A chart of how the player’s suspicion moved, clue by clue, and the trap behind each clue. Then:');
 w('“Your board moved most at clue N, (title). Every rating you made was yours, and the evidence added up.”');
 w();
-w('[ Read all lessons ] [ Title ] [ **Play Level 2 ›** ]');
+w('[ **See the math** ] [ Read all lessons ] [ Play again ] [ Title ]');
+w();
+w('> **Designer’s note (not shown in game): the “See the math” screen.** Optional, shown on request after the verdict. For each clue it replays the player’s own ratings as counted worlds, beside the square: column widths are the shares, shaded heights the ratings. Example for the letter, if the player rated Clara 4 and Voss 3: “Picture 60 worlds in which Clara did it and 40 in which Voss did. A 4 means the clue turns up in 70 of every 100 of Clara’s worlds; a 3 means 50 of every 100 of Voss’s. That is 42 worlds with the clue for Clara and 20 for Voss, 62 in all. 42 of those 62 are Clara’s: 68%.” Then the same step as odds (prior odds × ratio = new odds). The last page lists the seven lessons and shows, from the player’s own ratings, that a different starting point would have changed the final board only a little.');
+w();
+w('> **Designer’s note (not shown in game): closing text depends on two things, whom the player named and whom the player’s own board favoured.**');
+w('>');
+w(`> - Named ${short(CULPRIT_INDEX)}, board favoured ${short(CULPRIT_INDEX)} (the intended path): “Every rating you made was yours, and the evidence added up.”`);
+w(`> - Named ${short(CULPRIT_INDEX)}, board favoured ${wrong.name}: “Right, but not by your own evidence. Your board still leaned toward ${wrong.name}. Which of your ratings kept her there?” A right answer reached by hunch should not be praised as good reasoning.`);
+w(`> - Named ${wrong.name}, board favoured ${wrong.name}: Case Reopened, plus: “Your board pointed to ${wrong.name}, so some of your ratings put it there. A sound process can still end wrong when a rating is off; go back to the ratings, not to a hunch.”`);
+w(`> - Named ${wrong.name}, board favoured ${short(CULPRIT_INDEX)}: Case Reopened, plus: “Your own board favoured ${culprit.name}, and you accused ${wrong.name} anyway. That was the gut feeling I warned you about.”`);
 w();
 w(`### If the player names ${wrong.name}: **Case Reopened**`);
 w();
-thoughts([`“${wrong.name}!” ${EPILOGUE_WRONG[0]}`, ...EPILOGUE_WRONG.slice(1)]);
+ending(ENDING_WRONG.map((l) => ({ ...l, text: l.text.replace('{name}', wrong.name) })));
 w(`**Not this time** · You named ${wrong.name}. It was not them.`);
 w('“Look again at how strongly each clue fitted each story: a vivid clue can feel stronger than it is, and a quiet one can matter more than it seems.”');
 w();
-w('[ Read all lessons ] [ Title ] [ Try Level 1 again ]');
-w();
-const short = (x: (typeof SUSPECTS)[number]) => x.name.replace('Mr. ', '');
-const obj = (x: (typeof SUSPECTS)[number]) => (x.pronoun === 'she' ? 'her' : 'him');
-w('> **Designer’s note (not shown in game): the closing text depends on two things, whom the player named and whom the player’s own board favoured.**');
-w('>');
-w(`> - Named ${short(culprit)}, board favoured ${short(culprit)} (the intended path): “Every rating you made was yours, and the evidence added up.”`);
-w(`> - Named ${short(culprit)}, board favoured ${short(wrong)}: “Right, but not by your own evidence. Your board still leaned toward ${wrong.name}. Which of your ratings kept ${obj(wrong)} there?” A right answer reached by hunch should not be praised as good reasoning.`);
-w(`> - Named ${short(wrong)}, board favoured ${short(wrong)}: Case Reopened as written, plus: “Your board pointed to ${wrong.name}, so some of your ratings put it there. A sound process can still end wrong when a rating is off; go back to the ratings, not to a hunch.”`);
-w(`> - Named ${short(wrong)}, board favoured ${short(culprit)}: Case Reopened, plus: “Your own board favoured ${culprit.name}, and you accused ${wrong.name} anyway. That was the gut feeling I warned you about.”`);
+w('[ Read all lessons ] [ Title ] [ Try again ]');
 w();
 w('---');
 w();
@@ -432,7 +437,7 @@ w();
 // ------------------------------------------------------------------ appendix
 w('## Appendix: the intended reasoning chain (designer’s notes)');
 w();
-w(`**How ratings become numbers.** A rating is the likelihood P(clue | this person did it): ${UI.ratingValues.map((v, k) => `${k + 1} → ${v}`).join(', ')}. It never reaches 0 or 1, so no story can be ruled out, or proved, by one clue. Only the *ratio* of the two ratings moves the board, which is why a clue rated the same for both suspects changes nothing.`);
+w(`**How ratings become numbers.** A rating is the likelihood P(clue | this person did it): ${RATING_VALUES.map((v, k) => `${k + 1} → ${v}`).join(', ')}. It never reaches 0 or 1, so no story can be ruled out, or proved, by one clue. Only the *ratio* of the two ratings moves the board, which is why a clue rated the same for both suspects changes nothing.`);
 w();
 w('The board after each clue, if the player’s ratings match the intended ratings (a model answer, not an answer key):');
 w();
@@ -440,30 +445,38 @@ w(`| After | Ratings (${SUSPECTS.map((s) => s.name).join(' / ')}) | Likelihood r
 w(`|---|---|---|${SUSPECTS.map(() => '---').join('|')}|`);
 for (const r of chainRows) w(r);
 w();
-const order = ['weak', 'moderate', 'strong'];
-const strengths = CLUES.map((c) => strength(c.likelihoods[0], c.likelihoods[1]).word).sort((a, b) => order.indexOf(a) - order.indexOf(b)).join(', ');
-w(`The old chain gave the letter (“vivid but weak”), the ledger (“genuinely diagnostic”) and the cufflink (“modest”) the same strength, 2.33 : 1, so the lessons contradicted the numbers. Strength now matches the lesson: ${strengths}. The ledger is deliberately only 3 : 1 because the ghost himself allows an honest supplier.`);
+w('**Arc.** Clara leads, then loses ground to the print and the ledger, then comes back with the slip just when the player thinks it is settled, then is cleared by the alibi. The two clues that move the board least (the will, the cufflink) teach the lessons about old news and about clues that fit both stories. The twist and the alibi are what make the ending earn its relief.');
+w();
+w('**Timeline.** The investigation takes place between ten and eleven. Clara is in the kitchen for the whole hour and comes to the study at eleven, as she does every night. Tea at 9:30; drunk a little before ten; Clara’s call 9:28 to 9:57; Voss signed out at eight; the chemist at 6:40; Clara signed in at seven; the quarrel and the letter on Tuesday; the signing on Monday at ten and the books at eleven.');
 w();
 // checks, computed rather than asserted
-const liks = CLUES.map((c) => c.likelihoods);
-const finalFrom = (p0: number) => liks.reduce((b, l) => update(b, l), [p0, 1 - p0])[0];
-const orders = [liks, liks.slice().reverse(), [liks[2], liks[0], liks[4], liks[1], liks[3]]];
-const sameAnyOrder = orders.every((o) => Math.abs(o.reduce((b, l) => update(b, l), prior)[0] - belief[0]) < 1e-12);
-const fmt1 = (x: number) => `${(x * 100).toFixed(1)}%`;
-const listOf = (xs: string[]) => `${xs.slice(0, -1).join(', ')} and ${xs[xs.length - 1]}`;
+const perms = <T,>(xs: T[]): T[][] => (xs.length < 2 ? [xs] : xs.flatMap((x, i) => perms([...xs.slice(0, i), ...xs.slice(i + 1)]).map((p) => [x, ...p])));
+const orders = perms(liks);
+const end = belief[0];
+const allSame = orders.every((o) => Math.abs(chain(prior, o)[CLUES.length][0] - end) < 1e-12);
+const sweep = [0.1, 0.5, 0.9, 0.99].map((p) => chain([p, 1 - p], liks)[CLUES.length][0]);
+const fmt = (x: number) => (x < 0.1 ? `${(x * 100).toFixed(1)}%` : pct(x));
+const list = (xs: string[]) => `${xs.slice(0, -1).join(', ')} and ${xs[xs.length - 1]}`;
+const idx = (id: string) => CLUES.findIndex((c) => c.id === id);
 w(
-  `**Checks run** (by the generator, every time). Every posterior above is computed from the ratings. The final board is ${sameAnyOrder ? 'the same' : 'NOT the same'} for any order of the ${numberWord(CLUES.length)} clues. ` +
-    `Starting Clara at 10%, 50%, 90% and 99% (same ratings) ends at ${listOf([0.1, 0.5, 0.9, 0.99].map((p) => fmt1(finalFrom(p))))}: priors wash out only when everyone shares the same likelihoods.`,
+  `**Checks run** (by the generator, every time). Every posterior above is computed from the ratings. The final board is ${allSame ? 'the same' : 'NOT the same'} for all ${orders.length.toLocaleString('en-GB')} orderings of the ${numberWord(CLUES.length)} clues. ` +
+    `Starting Clara at 10%, 50%, 90% and 99% (same ratings) ends at ${list(sweep.map(fmt))}: priors wash out only when everyone shares the same likelihoods. ` +
+    `Player-error cases, for the feedback text: rating the letter 5 / 1 ends at ${fmt(finalWith(idx('letter'), [0.9, 0.1]))} Clara; ` +
+    `rating the will 5 / 2 (counting the quarrel twice) ends at ${fmt(finalWith(idx('will'), [0.9, 0.3]))}; ` +
+    `dismissing the slip (3 / 3) ends at ${fmt(finalWith(idx('slip'), [0.5, 0.5]))}; over-reacting to it (5 / 1) ends at ${fmt(finalWith(idx('slip'), [0.9, 0.1]))}.`,
 );
 w();
-w('**Assumptions the game makes (keep them visible in later levels).**');
+w('**Assumptions the game makes.**');
 w();
 w(`1. One culprit, and the ${numberWord(SUSPECTS.length)} suspects cover every possibility, so the stretch step is valid.`);
-w('2. Each clue’s likelihood depends only on who did it, not on other clues found (conditional independence given the culprit). Watch pairs that share a story.');
-w('3. Background facts (Voss parks by the garden gate; Graves and Pip were out) are established before a clue uses them.');
+w('2. Each clue’s likelihood depends only on who did it, not on other clues found (conditional independence given the culprit). The letter and the will concern the same quarrel, so the will is deliberately rated as old news rather than as new motive evidence.');
+w('3. Background facts (Voss parks by the garden gate; Graves and Pip were out; Clara nags about John’s sleep; both appointments fall on Monday) are established before a clue uses them.');
 w('4. Verbal labels map to fixed numbers for every player. People read “likely” differently, so the labels and numbers must stay locked together.');
+w('5. The ghost searches where he already suspects, so clues are not a random sample. Likelihoods should be judged as “would I have found this here whoever did it?” The ledger reaction has the ghost admit he has not looked for evidence against Voss, and the slip is found because he then does.');
+w('6. The ghost’s unmodelled facts (the 7:48 call, where the bottle came from) stay unexplained on purpose. The verdict does not need them.');
 w();
 
 mkdirSync('screenplay', { recursive: true });
-writeFileSync('screenplay/level-1.md', out.join('\n'));
-console.log(`wrote screenplay/level-1.md (${out.length} lines)`);
+rmSync('screenplay/level-1.md', { force: true });
+writeFileSync('screenplay/the-clockmakers-last-hour.md', out.join('\n'));
+console.log(`wrote screenplay/the-clockmakers-last-hour.md (${out.length} lines)`);

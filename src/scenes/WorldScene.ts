@@ -24,7 +24,6 @@ import {
   CLUES,
   DRIFT_HINT,
   PRIOR_SHEET,
-  REPRISE_LINES,
   WINDOW_LINES,
 } from '../data/case1';
 import {
@@ -42,7 +41,7 @@ import {
   floorTop,
   roomAt,
 } from '../data/house';
-import { GameState, levelOf } from '../state/GameState';
+import { GameState } from '../state/GameState';
 import { TouchControls } from '../ui/TouchControls';
 import { ThoughtBubble } from '../ui/ThoughtBubble';
 import { Sound } from '../audio/Sound';
@@ -260,8 +259,6 @@ export class WorldScene extends Phaser.Scene {
 
   /** Thrown into ghostly existence: no memory, only the ticking of clocks. */
   private awaken() {
-    const level = levelOf(GameState.difficulty);
-    if (level > 1) return this.reprise(level as 2 | 3);
     this.lock();
     this.controls.showBoard(false);
     this.bodyMarker.setVisible(false);
@@ -273,35 +270,6 @@ export class WorldScene extends Phaser.Scene {
     this.tweens.add({ targets: this.ghost, alpha: 0.9, scale: 0.85, duration: 4500, ease: 'Sine.easeOut' });
     this.tweens.add({ targets: this.ghost, alpha: 0.4, duration: 160, yoyo: true, repeat: 4, delay: 4600 });
     this.time.delayedCall(4000, () => this.think(AWAKEN_LINES, () => this.beatClock(), true));
-  }
-
-  /** Levels 2–3: the clocks wind back to the same night, and the ghost widens the net. */
-  private reprise(level: 2 | 3) {
-    this.lock();
-    this.controls.showBoard(false);
-    this.bodyMarker.setVisible(false);
-    this.roomLabel.setAlpha(0);
-    this.counter.setAlpha(0);
-    this.ghost.setPosition(BODY_X + 170, this.baseY).setAlpha(0);
-    this.cameras.main.setScroll(0, floorTop(0));
-    Sound.setMood('emerge');
-    this.cameras.main.fadeIn(2500);
-    this.tweens.add({ targets: this.ghost, alpha: 0.9, duration: 2500, ease: 'Sine.easeOut' });
-    this.time.delayedCall(2200, () =>
-      this.think(
-        REPRISE_LINES[level],
-        () => {
-          this.lock();
-          Sound.toll();
-          this.cameras.main.flash(1200, 255, 225, 180);
-          this.time.delayedCall(1300, () => {
-            this.scene.pause();
-            this.scene.launch('Memory');
-          });
-        },
-        true,
-      ),
-    );
   }
 
   /** The ghost drifts to the grandfather clock and reaches for it. */

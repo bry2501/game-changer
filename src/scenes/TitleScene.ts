@@ -2,8 +2,8 @@ import Phaser from 'phaser';
 import { Button, DIM, H, W, fadeThen, soundToggle, txt } from '../ui/widgets';
 import { Sound } from '../audio/Sound';
 import { drawMansion } from '../ui/exterior';
-import { CASE_TITLE } from '../data/case1';
-import { Difficulty, GameState, LEVELS, unlockedLevel } from '../state/GameState';
+import { CASE_TITLE, HOW_IT_WORKS, TITLE_TAGLINE } from '../data/case1';
+import { GameState } from '../state/GameState';
 
 export class TitleScene extends Phaser.Scene {
   constructor() {
@@ -37,21 +37,9 @@ export class TitleScene extends Phaser.Scene {
     txt(this, W / 2, 255, 'GHOST MYSTERY', 64, '#eef3ff', { fontStyle: 'bold' }).setOrigin(0.5);
     txt(this, W / 2, 310, `${CASE_TITLE}: a Bayesian whodunit`, 26, DIM, { fontStyle: 'italic' }).setOrigin(0.5);
 
-    // three levels: the same night, a wider net each time. Each unlocks when the one before is solved.
-    const open = unlockedLevel();
-    txt(this, W / 2, 365, 'The same night, three times. Solve a level to unlock the next.', 22, DIM).setOrigin(0.5);
-    LEVELS.forEach((l, i) => {
-      const x = W / 2 + (i - 1) * 380;
-      const locked = l.n > open;
-      const b = new Button(this, x, 430, locked ? `Level ${l.n} \u00B7 locked` : `Level ${l.n} \u00B7 ${l.name}`, () => !locked && this.begin(l.id), {
-        width: 300,
-        height: 74,
-        size: 26,
-      });
-      if (locked) b.setEnabled(false);
-      const desc = locked ? `Solve Level ${l.n - 1} to unlock.  ${l.desc}` : l.desc;
-      txt(this, x, 480, desc, 19, locked ? '#56627f' : DIM, { align: 'center', wordWrap: { width: 330 } }).setOrigin(0.5, 0);
-    });
+    txt(this, W / 2, 362, TITLE_TAGLINE, 22, '#dfe6ff', { align: 'center', wordWrap: { width: 1080 } }).setOrigin(0.5);
+    txt(this, W / 2, 432, `How it works: ${HOW_IT_WORKS}`, 18, '#cfe6ff', { align: 'center', wordWrap: { width: 1060 }, lineSpacing: 4 }).setOrigin(0.5);
+    new Button(this, W / 2, 520, 'Begin', () => this.begin(), { width: 300, height: 66, size: 28 });
 
     if (GameState.hasSave()) {
       new Button(this, W / 2, 640, 'Continue saved case', () => {
@@ -67,8 +55,8 @@ export class TitleScene extends Phaser.Scene {
     this.cameras.main.fadeIn(600);
   }
 
-  private begin(d: Difficulty) {
-    GameState.newGame(d);
+  private begin() {
+    GameState.newGame();
     if (this.sys.game.device.input.touch && !this.scale.isFullscreen) {
       try {
         this.scale.startFullscreen();

@@ -1,8 +1,7 @@
 import Phaser from 'phaser';
 import { BarRow, Button, DIM, W, hex, overlayBackground, txt } from '../ui/widgets';
 import { CLUES, SUSPECTS } from '../data/case1';
-import { GameState, levelOf } from '../state/GameState';
-import { pct } from '../bayes/engine';
+import { GameState } from '../state/GameState';
 
 /** Draw belief-over-time lines. `series[k]` is the distribution after k steps. */
 export function beliefChart(
@@ -54,8 +53,8 @@ export class BoardScene extends Phaser.Scene {
     SUSPECTS.forEach((s, i) => {
       const y = 160 + i * 80;
       txt(this, 50, y - 30, `${s.name}, ${s.role}`, 22, hex(s.color), { fontStyle: 'bold' });
-      // Level 1 shows suspicion as bars only, without numbers
-      new BarRow(this, 50, y + 10, 380, s.color, data.belief[i], (v) => (levelOf(GameState.difficulty) === 1 ? '' : pct(v, 1)));
+      // suspicion as bars only, without numbers
+      new BarRow(this, 50, y + 10, 380, s.color, data.belief[i], () => '');
     });
 
     const series = [data.prior, ...data.history.map((h) => h.belief)];
@@ -67,9 +66,6 @@ export class BoardScene extends Phaser.Scene {
     const found = CLUES.slice(0, Math.max(0, data.found)).map((c, i) => `${i + 1}. ${c.title}`);
     txt(this, 50, 500, 'Evidence:', 20, DIM);
     txt(this, 50, 530, found.join('     ') || '(none yet)', 18, '#dfe6ff', { wordWrap: { width: 900 }, lineSpacing: 6 });
-
-    const avg = GameState.averageScore();
-    if (avg !== undefined) txt(this, 50, 650, `Average update score: ${avg}/100`, 20, '#9ff0b0');
 
     new Button(this, W - 165, 668, 'Back ▸', () => this.close(), { width: 240, height: 60 });
     this.input.keyboard?.on('keydown-B', () => this.close());

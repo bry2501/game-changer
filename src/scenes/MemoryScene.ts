@@ -163,7 +163,7 @@ export class MemoryScene extends Phaser.Scene {
         // the memory sharpens into voices, then what they did tonight
         y = 120;
         for (const [who, words] of s.voices!.lines) {
-          const color = who === 'Alistair' ? '#cfe6ff' : hex(s.color);
+          const color = who === 'John' ? '#cfe6ff' : hex(s.color);
           add(txt(this, col, y, who, 18, color, { fontStyle: 'bold' }), 2);
           add(txt(this, col, y, `\u201C${words.replace(/\*/g, '')}\u201D`, 28, '#f3e2c4', { fontStyle: 'italic', wordWrap: { width } }), 20);
         }
