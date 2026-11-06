@@ -1,9 +1,8 @@
 import Phaser from 'phaser';
-import { Button, DIM, fadeThen, fitCamera, H, RED, soundToggle, txt, W } from '../ui/widgets';
+import { Button, fadeThen, fitCamera, H, soundToggle, txt, W } from '../ui/widgets';
 import { Sound } from '../audio/Sound';
 import { drawMansion } from '../ui/exterior';
 import { AccentCamera, Noir, filmGrain } from '../ui/noir';
-import { CASE_TITLE, HOW_IT_WORKS, TITLE_TAGLINE } from '../data/case1';
 import { GameState } from '../state/GameState';
 
 export class TitleScene extends Phaser.Scene {
@@ -17,49 +16,46 @@ export class TitleScene extends Phaser.Scene {
     new Noir(this, this.cameras.main, 0);
     const accent = new AccentCamera(this);
     drawMansion(this, W, H);
+    // the house sinks into the dark; only the ghost gives any light
+    this.add.rectangle(0, 0, W, H, 0x000000, 0.45).setOrigin(0);
+    this.add.image(W / 2, 170, 'lantern').setDisplaySize(2300, 2300);
     this.add.particles(0, 0, 'fog', {
       x: { min: -200, max: W + 200 },
-      y: { min: 380, max: H },
+      y: { min: 430, max: H },
       speedX: { min: -12, max: 12 },
-      scale: { min: 1.5, max: 3 },
-      alpha: { start: 0.5, end: 0 },
-      lifespan: 9000,
-      frequency: 300,
+      scale: { min: 2, max: 3.5 },
+      alpha: { start: 0.35, end: 0 },
+      lifespan: 10000,
+      frequency: 260,
     });
 
-    // a soft dark panel so the title and level buttons read over the painting
-    const panel = this.add.graphics();
-    panel.fillStyle(0x050505, 0.86);
-    panel.fillRoundedRect(W / 2 - 590, 225, 1180, 330, 24);
-    panel.lineStyle(2, 0xd0d0d0, 0.25);
-    panel.strokeRoundedRect(W / 2 - 590, 225, 1180, 330, 24);
-
-    const glow = this.add.image(W / 2, 150, 'glow').setScale(2.2).setBlendMode(Phaser.BlendModes.ADD);
-    const ghost = this.add.image(W / 2, 150, 'ghost').setScale(0.9);
-    this.tweens.add({ targets: [ghost, glow], y: '-=14', duration: 1600, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
-    // the ghost keeps its colour, and one red line under the title
-    accent.keep(glow, ghost, this.add.rectangle(W / 2, 290, 420, 3, RED));
-    this.add.image(W / 2, H / 2, 'vignette').setAlpha(0.8);
+    const glow = this.add.image(W / 2, 170, 'glow').setScale(2.2).setBlendMode(Phaser.BlendModes.ADD);
+    const ghost = this.add.image(W / 2, 170, 'ghost').setScale(0.9);
+    this.tweens.add({ targets: [ghost, glow], y: '-=14', duration: 1800, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+    accent.keep(glow, ghost);
+    this.add.image(W / 2, H / 2, 'vignette');
     filmGrain(this);
 
-    txt(this, W / 2, 255, 'GHOST MYSTERY', 64, '#f2f2f2', { fontStyle: 'bold' }).setOrigin(0.5);
-    txt(this, W / 2, 310, `${CASE_TITLE}: a Bayesian whodunit`, 26, DIM, { fontStyle: 'italic' }).setOrigin(0.5);
+    // the title, guttering now and then like a candle
+    const title = txt(this, W / 2, 335, 'GHOST MYSTERY', 78, '#f4f4f4', { fontStyle: 'bold' }).setOrigin(0.5);
+    title.setShadow(0, 0, '#000000', 18, false, true);
+    const flicker = () => {
+      this.tweens.add({ targets: title, alpha: 0.55 + Math.random() * 0.25, duration: 60, yoyo: true, repeat: Math.floor(Math.random() * 3) });
+      this.time.delayedCall(2500 + Math.random() * 4500, flicker);
+    };
+    this.time.delayedCall(2000, flicker);
 
-    txt(this, W / 2, 362, TITLE_TAGLINE, 22, '#e8e8e8', { align: 'center', wordWrap: { width: 1080 } }).setOrigin(0.5);
-    txt(this, W / 2, 432, `How it works: ${HOW_IT_WORKS}`, 18, '#dcdcdc', { align: 'center', wordWrap: { width: 1060 }, lineSpacing: 4 }).setOrigin(0.5);
-    new Button(this, W / 2, 520, 'Begin', () => this.begin(), { width: 300, height: 66, size: 28 });
-
+    new Button(this, W / 2, 470, 'Begin', () => this.begin(), { width: 240, height: 58, size: 26, fill: 0x050505, stroke: 0x8a8a8a });
     if (GameState.hasSave()) {
-      new Button(this, W / 2, 640, 'Continue saved case', () => {
+      new Button(this, W / 2, 545, 'Continue', () => {
         GameState.load();
         this.scene.start('World');
-      }, { width: 360, height: 56, size: 22, fill: 0x0f1a14, stroke: 0xe0e0e0 });
+      }, { width: 240, height: 50, size: 21, fill: 0x050505, stroke: 0x5a5a5a });
     }
 
     soundToggle(this, W - 50, 50);
     Sound.setTicking(false);
     Sound.setMood('explore');
-    txt(this, W / 2, H - 26, 'A / D or ← → to drift  ·  click to drift there  ·  Space to search  ·  W / S for stairs  ·  B for suspects  ·  F for full screen', 15, '#666666', { fontStyle: 'italic' }).setOrigin(0.5);
     this.cameras.main.fadeIn(600);
   }
 
