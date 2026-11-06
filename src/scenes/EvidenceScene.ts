@@ -571,7 +571,7 @@ export class EvidenceScene extends Phaser.Scene {
       L === 1
         ? 'Stretch what\u2019s left back to the full line, keeping the proportions. Whoever kept more than the others grows; whoever kept less shrinks.'
         : L === 2
-          ? `Rescale: divide each by ${pct(total)} so they fill 100% again. Whoever kept more than average grows; whoever kept less shrinks.`
+          ? `Rescale: divide each by their total, ${pct(total)}, so they fill 100% again. Whoever kept more than average grows; whoever kept less shrinks.`
           : `Divide each product by P(clue) = ${total.toFixed(3)}. The result is the posterior, P(H | clue).`,
     ];
     const stepName = ['Before', 'Step 1 of 3: shrink', 'Step 2 of 3: together', 'Step 3 of 3: stretch'][ph];
