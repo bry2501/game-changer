@@ -229,18 +229,26 @@ export function overlayBackground(scene: Phaser.Scene, alpha = 0.94) {
   scene.add.rectangle(W / 2, H / 2, W - 24, H - 24).setStrokeStyle(2, 0x3a3a3a, 0.9);
 }
 
+/** Corner buttons stay faint so they don't pull the eye, and brighten under the mouse. */
+function quietUntilHovered(cont: Phaser.GameObjects.Container, hit: Phaser.GameObjects.Shape) {
+  cont.setAlpha(0.28);
+  hit.on('pointerover', () => cont.setAlpha(1));
+  hit.on('pointerout', () => cont.setAlpha(0.28));
+}
+
 /** A small full-screen toggle (F does the same), fixed to the screen. */
 export function fullscreenToggle(scene: Phaser.Scene, x: number, y: number) {
   const cont = scene.add.container(x, y).setDepth(1001);
-  const bg = scene.add.circle(0, 0, 26, 0x111111, 0.65).setStrokeStyle(2, 0xd0d0d0, 0.5).setInteractive({ useHandCursor: true });
+  const bg = scene.add.circle(0, 0, 18, 0x111111, 0.5).setStrokeStyle(1, 0xd0d0d0, 0.4).setInteractive({ useHandCursor: true });
   const g = scene.add.graphics();
-  g.lineStyle(3, 0xdcdcdc, 1);
+  g.lineStyle(2, 0xdcdcdc, 1);
   for (const [sx, sy] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) {
-    g.lineBetween(sx * 11, sy * 11, sx * 11, sy * 4);
-    g.lineBetween(sx * 11, sy * 11, sx * 4, sy * 11);
+    g.lineBetween(sx * 8, sy * 8, sx * 8, sy * 3);
+    g.lineBetween(sx * 8, sy * 8, sx * 3, sy * 8);
   }
   cont.add([bg, g]);
   cont.setScrollFactor(0, 0, true);
+  quietUntilHovered(cont, bg);
   let pressed = false;
   bg.on('pointerdown', () => (pressed = true));
   bg.on('pointerout', () => (pressed = false));
@@ -254,13 +262,14 @@ export function fullscreenToggle(scene: Phaser.Scene, x: number, y: number) {
 
 /** A small round sound on/off toggle, fixed to the screen, with the full-screen toggle beside it. */
 export function soundToggle(scene: Phaser.Scene, x: number, y: number) {
-  fullscreenToggle(scene, x - 64, y);
+  fullscreenToggle(scene, x - 46, y);
   const cont = scene.add.container(x, y).setDepth(1001);
-  const bg = scene.add.circle(0, 0, 26, 0x111111, 0.65).setStrokeStyle(2, 0xd0d0d0, 0.5).setInteractive({ useHandCursor: true });
-  const icon = txt(scene, 0, 1, '♪', 26, '#dcdcdc').setOrigin(0.5);
-  const slash = scene.add.rectangle(0, 0, 40, 3, 0xd84a52).setAngle(-45);
+  const bg = scene.add.circle(0, 0, 18, 0x111111, 0.5).setStrokeStyle(1, 0xd0d0d0, 0.4).setInteractive({ useHandCursor: true });
+  const icon = txt(scene, 0, 1, '♪', 19, '#dcdcdc').setOrigin(0.5);
+  const slash = scene.add.rectangle(0, 0, 28, 2, 0xd84a52).setAngle(-45);
   cont.add([bg, icon, slash]);
   cont.setScrollFactor(0, 0, true);
+  quietUntilHovered(cont, bg);
   {
     const refresh = () => {
       slash.setVisible(Sound.muted);

@@ -82,6 +82,7 @@ export class WorldScene extends Phaser.Scene {
   private cursor = 'default';
   /** The camera follows the ghost horizontally (floors change by a deliberate move). */
   private following = true;
+  private lantern: Phaser.GameObjects.Image[] = [];
   /** Window frames (drawn over the shared sky) and the panes the sky shows through. */
   private frames!: Phaser.GameObjects.Graphics;
   private windowRects: Phaser.Geom.Rectangle[] = [];
@@ -170,6 +171,14 @@ export class WorldScene extends Phaser.Scene {
       .setDepth(60)
       .setScrollFactor(0);
     this.buildForeground();
+    // the ghost is the light: darkness everywhere except a soft pool around him.
+    // One copy darkens the grey world; a second, on the colour camera, darkens the body and
+    // rug too (but not the clue glints or the ghost, which sit above it).
+    this.lantern = [
+      this.add.image(0, 0, 'lantern').setDisplaySize(2800, 2800).setDepth(890),
+      this.add.image(0, 0, 'lantern').setDisplaySize(2800, 2800).setDepth(25),
+    ];
+    this.accent.keep(this.lantern[1]);
     // a dark oval vignette and fine grain
     this.add.image(W / 2, H / 2, 'vignette').setScrollFactor(0).setDepth(900);
     filmGrain(this);
@@ -181,10 +190,6 @@ export class WorldScene extends Phaser.Scene {
     // HUD
     this.roomLabel = txt(this, 30, 24, '', 26, '#e8e8e8', { fontStyle: 'italic' }).setScrollFactor(0).setDepth(1000);
     this.counter = txt(this, 30, 60, '', 20, '#9a9a9a').setScrollFactor(0).setDepth(1000);
-    txt(this, W / 2, H - 22, 'A / D or ← → drift   ·   click to drift there   ·   Space search   ·   W / S stairs   ·   B suspects   ·   F full screen', 15, '#a0a0a0')
-      .setOrigin(0.5)
-      .setScrollFactor(0)
-      .setDepth(1000);
     this.label = txt(this, 0, 0, '', 21, '#f2f2f2', { backgroundColor: '#060606cc', padding: { x: 10, y: 4 } })
       .setOrigin(0.5)
       .setDepth(940)
@@ -237,6 +242,9 @@ export class WorldScene extends Phaser.Scene {
   update(_time: number, delta: number) {
     const dt = delta / 1000;
     this.t += dt;
+    // the light travels with the ghost, breathing a little like a flame
+    const breathe = 2800 * (1 + Math.sin(this.t * 1.7) * 0.025);
+    for (const l of this.lantern) l.setPosition(this.ghost.x, this.ghost.y + 30).setDisplaySize(breathe, breathe);
     if (this.following) {
       const cam = this.cameras.main;
       cam.scrollX += (this.followX() - cam.scrollX) * Math.min(1, 0.08 * dt * 60);
@@ -828,10 +836,13 @@ export class WorldScene extends Phaser.Scene {
     const body = this.add.graphics().setDepth(16);
     drawBody(body, BODY_X, floorTop(0) + F - 4);
     const tea = this.add.graphics().setDepth(16);
-    tea.fillStyle(0x6e1a14, 0.9);
+    tea.fillStyle(0x3a1612, 0.75);
     tea.fillEllipse(960, floorTop(0) + F - 121, 46, 7);
     tea.fillCircle(985, floorTop(0) + F - 119, 3);
-    this.accent.keep(body, tea);
+    // the body lies half in shadow: a soft darkness over the head end of the rug
+    const shade = this.add.image(BODY_X - 70, floorTop(0) + F - 10, 'glow').setTint(0x000000).setScale(3.2, 1.3).setAlpha(0.75).setDepth(17);
+    body.setAlpha(0.85);
+    this.accent.keep(body, tea, shade);
     g.fillStyle(0xeeeeea, 0.9);
     g.fillRect(598, F - 116, 44, 10); // the household log
     g.fillStyle(0xdfe8ff, 0.95);

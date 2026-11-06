@@ -12,28 +12,28 @@ export const FLOOR_Y = 610;
 
 export function drawBody(g: Phaser.GameObjects.Graphics, x: number, y: number) {
   // a deep red rug with a pale border (the one splash of red in the study)
-  g.fillStyle(0x8e1c24, 1);
+  g.fillStyle(0x3e1418, 1);
   g.fillEllipse(x, y + 8, 310, 44);
-  g.lineStyle(3, 0xc79a6a, 0.6);
+  g.lineStyle(3, 0x4a3328, 0.5);
   g.strokeEllipse(x, y + 8, 290, 36);
   g.lineStyle(2, PAL.ink, 0.8);
   g.strokeEllipse(x, y + 8, 310, 44);
   // the figure lying on its side, peacefully, as if asleep
-  g.fillStyle(0x1d2638, 1);
+  g.fillStyle(0x0c0f15, 1);
   g.fillCircle(x - 100, y - 14, 18); // head
   g.fillRoundedRect(x - 82, y - 30, 120, 32, 12); // coat
   g.fillRoundedRect(x + 30, y - 22, 90, 18, 8); // legs
   g.fillRoundedRect(x + 112, y - 30, 16, 26, 4); // shoes
   g.fillRoundedRect(x - 70, y - 4, 70, 10, 5); // arm
   // moonlight along the top edge of the figure
-  g.lineStyle(2, 0x6f8fb8, 0.7);
+  g.lineStyle(2, 0x3a4658, 0.5);
   g.beginPath();
   g.arc(x - 100, y - 14, 18, Math.PI * 1.1, Math.PI * 1.9);
   g.strokePath();
   g.lineBetween(x - 78, y - 30, x + 34, y - 30);
   g.lineBetween(x + 34, y - 22, x + 118, y - 22);
   // a soft outline (detective chalk, but friendly)
-  g.lineStyle(2, 0xdfe8ff, 0.35);
+  g.lineStyle(2, 0xdfe8ff, 0.08);
   g.strokeRoundedRect(x - 128, y - 40, 268, 54, 24);
 }
 

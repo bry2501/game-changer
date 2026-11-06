@@ -59,7 +59,7 @@ export class TitleScene extends Phaser.Scene {
     soundToggle(this, W - 50, 50);
     Sound.setTicking(false);
     Sound.setMood('explore');
-    txt(this, W / 2, H - 26, 'Best with sound on, in full screen (press F)', 15, '#666666', { fontStyle: 'italic' }).setOrigin(0.5);
+    txt(this, W / 2, H - 26, 'A / D or ← → to drift  ·  click to drift there  ·  Space to search  ·  W / S for stairs  ·  B for suspects  ·  F for full screen', 15, '#666666', { fontStyle: 'italic' }).setOrigin(0.5);
     this.cameras.main.fadeIn(600);
   }
 

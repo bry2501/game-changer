@@ -31,6 +31,7 @@ export class BootScene extends Phaser.Scene {
     ]);
     this.makeGhost();
     this.makeVignette();
+    this.makeLantern();
     makePaintTextures(this);
     this.scene.start('Title');
   }
@@ -81,6 +82,22 @@ export class BootScene extends Phaser.Scene {
     ctx.beginPath();
     ctx.arc(49, 70, 6, Math.PI * 1.15, Math.PI * 1.85);
     ctx.stroke();
+    tex.refresh();
+  }
+
+  /** Darkness with a soft hole in the middle: the ghost's own light, carried through the house. */
+  private makeLantern() {
+    const n = 512;
+    const tex = this.textures.createCanvas('lantern', n, n)!;
+    const ctx = tex.getContext();
+    const g = ctx.createRadialGradient(n / 2, n / 2, 0, n / 2, n / 2, n / 2);
+    g.addColorStop(0, 'rgba(0,0,0,0)');
+    g.addColorStop(0.1, 'rgba(0,0,0,0.05)');
+    g.addColorStop(0.24, 'rgba(0,0,0,0.5)');
+    g.addColorStop(0.42, 'rgba(0,0,0,0.8)');
+    g.addColorStop(1, 'rgba(0,0,0,0.86)');
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, n, n);
     tex.refresh();
   }
 
