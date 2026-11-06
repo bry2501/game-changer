@@ -85,7 +85,7 @@ export class BootScene extends Phaser.Scene {
       const dx = x - 48;
       const dy = y - 62;
       const len = Math.hypot(dx, dy) || 1;
-      const off = Math.sin(i * 0.85) * 1.7 + Math.sin(i * 2.1 + 1.3) * 1.1 + Math.sin(i * 0.31 + 2) * 1.2;
+      const off = Math.sin(i * 0.42) * 0.9 + Math.sin(i * 0.19 + 2) * 0.8; // slow, shallow swells
       return [x + (dx / len) * off, y + (dy / len) * off] as [number, number];
     });
     ctx.beginPath();
