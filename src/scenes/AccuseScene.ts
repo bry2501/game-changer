@@ -134,7 +134,11 @@ export class AccuseScene extends Phaser.Scene {
     const moves = data.history.map((h, k) => Math.max(...h.belief.map((b, i) => Math.abs(b - journey[k][i]))));
     const big = moves.indexOf(Math.max(...moves));
     let summary = '';
-    if (big >= 0) {
+    if (big >= 0 && moves[big] < 0.02) {
+      summary =
+        'Your board hardly moved: when a clue gets the same rating for everyone, it leaves suspicion where it was. ' +
+        'Try deciding, for each clue, whose story it fits better.';
+    } else if (big >= 0) {
       summary = `Your board moved most at clue ${big + 1}, ${CLUES[big].title}. `;
       summary += correct
         ? 'Every rating you made was yours, and the evidence added up.'
