@@ -28,9 +28,14 @@ jobs:
       - run: npm run build
       - name: Check the committed docs/ copy is up to date
         run: npm run build:pages && git diff --exit-code -- docs || (echo '::error::docs/ is stale. Run npm run build:pages and commit.' && exit 1)
+      # GitHub's branch deployment serves the repo, where the game lives under docs/.
+      # Publish the same paths here too (the game at the root and under docs/), so
+      # every link works whichever deployment finishes last.
+      - name: Lay out the site
+        run: mkdir -p site && cp -r dist/. site/ && cp -r dist site/docs
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: dist
+          path: site
 
   deploy:
     needs: build
