@@ -231,7 +231,7 @@ const PRIOR_SOURCE = {
     '{top} starts as the most likely suspect, but only because of the time spent in the house.',
   reaction: [
     '{top} was here the longest, so starts as the likeliest. That is opportunity, not guilt.',
-    'Every clue from now on should shift these numbers. By how much is the whole question.',
+    'Every clue from now on should shift these shares. By how much is the whole question.',
   ],
 };
 

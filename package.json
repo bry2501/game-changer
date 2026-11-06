@@ -8,7 +8,8 @@
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview --host",
     "test": "vitest run",
-    "build:pages": "tsc --noEmit && vite build --outDir docs --emptyOutDir"
+    "build:pages": "tsc --noEmit && vite build --outDir docs --emptyOutDir",
+    "screenplay": "vite-node scripts/screenplay.ts"
   },
   "dependencies": {
     "phaser": "^3.80.1"
