@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 import { BarRow, Button, DIM, W, hex, overlayBackground, txt } from '../ui/widgets';
 import { CLUES, SUSPECTS } from '../data/case1';
-import { GameState } from '../state/GameState';
+import { GameState, levelOf } from '../state/GameState';
 import { pct } from '../bayes/engine';
 
 /** Draw belief-over-time lines. `series[k]` is the distribution after k steps. */
@@ -54,7 +54,8 @@ export class BoardScene extends Phaser.Scene {
     SUSPECTS.forEach((s, i) => {
       const y = 160 + i * 80;
       txt(this, 50, y - 30, `${s.name}, ${s.role}`, 22, hex(s.color), { fontStyle: 'bold' });
-      new BarRow(this, 50, y + 10, 380, s.color, data.belief[i], (v) => pct(v, 1));
+      // Level 1 shows suspicion as bars only, without numbers
+      new BarRow(this, 50, y + 10, 380, s.color, data.belief[i], (v) => (levelOf(GameState.difficulty) === 1 ? '' : pct(v, 1)));
     });
 
     const series = [data.prior, ...data.history.map((h) => h.belief)];

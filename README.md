@@ -33,19 +33,19 @@ There is a procedural 80s-synth soundtrack (WebAudio, no audio files) that start
 
 There are no on-screen arrows. The ghost's own thoughts appear in a bubble beside it. A sequence of thoughts waits for you: tap, Space or → for the next one, ← or the ‹ on the bubble to go back. Notes and memories open as full overlays.
 
-## Difficulty
+## Levels
 
-Each mode plays the same mystery with a different number of suspects and clues, and a different amount of help.
+The same night, three times, with a wider net and a little more math each time. Solving a level (naming the right culprit) unlocks the next.
 
-| Mode | Suspects | What you do |
+| Level | Suspects | What you do |
 |---|---|---|
-| Easy | Clara, Voss (5 clues) | For each suspect you pick a likelihood (Very unlikely 0.05 … Very likely 0.9) after a hint from the ghost; the ghost then offers its own estimate, which you can adopt. Every step of the math is shown with your numbers, then compared with the ghost's. |
-| Medium | Clara, Voss, Pip (6 clues) | You pick the likelihoods, guess where the bars will land (scored), then compare your numbers with the ghost's. |
-| Hard | Graves, Clara, Voss, Pip (7 clues) | You set your own prior and likelihoods from the ghost's words alone. No comparison until you accuse. |
+| 1 · Feel it | Clara, Voss (5 clues) | For each suspect, rate how well the clue would fit if they did it, from 1 (very unlikely) to 5 (very likely). Then watch each share of suspicion shrink by how well the clue fits, and stretch back to fill the line. No numbers, no formulas. |
+| 2 · Count it | + Pip (6 clues) | Same ratings, now with percentages: multiply, guess where the bars will land, add up and rescale. |
+| 3 · Prove it | + Graves (7 clues) | Bayes' formula with every number in place, and you choose your own starting suspicion. |
 
-In every mode **your likelihoods drive your board**, so a gut call that ignores the base rates or the ratios really can lead you to the wrong person. The ghost's estimates (the table below) are the reference the breakdown compares you against.
+The game follows **only your choices**: the ghost thinks out loud about each story but never gives an answer. Your ratings drive your board, so a gut feeling that ignores how well a clue fits *every* story really can lead you to the wrong person. Behind the scenes a rating of 1–5 counts as a likelihood of 0.1, 0.3, 0.5, 0.7 or 0.9; only how the ratings compare matters.
 
-## The case, "The Clockmaker's Last Hour" (Hard mode)
+## The case, "The Clockmaker's Last Hour" (the story's own reading, Level 3)
 
 The prior is opportunity: each person's hours inside the house divided by 10. That gives Graves 35%, Clara 30%, Voss 20% and Pip 15%.
 

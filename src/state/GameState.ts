@@ -160,3 +160,33 @@ class GameStateImpl {
 }
 
 export const GameState = new GameStateImpl();
+
+// ---------------------------------------------------------------- levels and progress
+
+/** The three levels: the same night, a wider net each time, and a little more math. */
+export const LEVELS: { id: Difficulty; n: 1 | 2 | 3; name: string; desc: string }[] = [
+  { id: 'easy', n: 1, name: 'Feel it', desc: 'Clara and Voss. Rate each clue from 1 to 5 and watch suspicion shift. No numbers, no formulas.' },
+  { id: 'medium', n: 2, name: 'Count it', desc: 'Pip joins them. Percentages, and the multiply-then-rescale steps in plain words.' },
+  { id: 'hard', n: 3, name: 'Prove it', desc: 'Graves too. Bayes’ formula, and you choose your own starting suspicion.' },
+];
+
+export const levelOf = (d: Difficulty): 1 | 2 | 3 => LEVELS.find((l) => l.id === d)!.n;
+
+const PROGRESS_KEY = 'ghost-mystery-progress';
+
+/** Highest level the player may start (1 until Level 1 is solved). */
+export function unlockedLevel(): number {
+  try {
+    return Math.max(1, Math.min(3, Number(localStorage.getItem(PROGRESS_KEY)) || 1));
+  } catch {
+    return 1;
+  }
+}
+
+export function unlockLevel(n: number) {
+  try {
+    if (n > unlockedLevel()) localStorage.setItem(PROGRESS_KEY, String(Math.min(3, n)));
+  } catch {
+    /* storage unavailable */
+  }
+}

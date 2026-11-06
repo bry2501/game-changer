@@ -1,16 +1,10 @@
 import Phaser from 'phaser';
 import { Button, DIM, H, W, hex, overlayBackground, stackedBar, txt } from '../ui/widgets';
 import { CLUES, CULPRIT_INDEX, EPILOGUE_CORRECT, EPILOGUE_WRONG, SUSPECTS } from '../data/case1';
-import { GameState, trueChain } from '../state/GameState';
-import { argmax, pct, totalVariation, update } from '../bayes/engine';
+import { GameState, LEVELS, levelOf, unlockLevel } from '../state/GameState';
+import { argmax, pct } from '../bayes/engine';
 import { beliefChart } from './BoardScene';
 import { Sound } from '../audio/Sound';
-
-/** Likelihoods as ratios to the smallest, e.g. 4.5 : 1 : 1. */
-function ratio(lik: number[]) {
-  const m = Math.min(...lik);
-  return lik.map((l) => +(l / m).toFixed(2)).join(' : ');
-}
 
 export class AccuseScene extends Phaser.Scene {
   private layer!: Phaser.GameObjects.Container;
@@ -52,7 +46,13 @@ export class AccuseScene extends Phaser.Scene {
       });
       b.label.setColor(hex(s.color)).setY(-30);
       b.add(txt(this, 0, 20, s.role, 18, DIM).setOrigin(0.5));
-      b.add(txt(this, 0, 55, `board: ${pct(belief[i])}`, 22, '#dfe6ff').setOrigin(0.5));
+      // Level 1 shows suspicion as a bar, not a number
+      if (levelOf(GameState.difficulty) === 1) {
+        b.add(this.add.rectangle(-100, 55, 200, 14, 0x0c1120).setOrigin(0, 0.5).setStrokeStyle(1, 0x3a4566));
+        b.add(this.add.rectangle(-100, 55, 200 * belief[i], 14, s.color, 0.9).setOrigin(0, 0.5));
+      } else {
+        b.add(txt(this, 0, 55, `board: ${pct(belief[i])}`, 22, '#dfe6ff').setOrigin(0.5));
+      }
     });
     txt(this, W / 2, 520, 'Choose carefully. A ghost only gets one accusation.', 20, DIM, { fontStyle: 'italic' }).setOrigin(0.5);
   }
@@ -98,67 +98,72 @@ export class AccuseScene extends Phaser.Scene {
 
   private showBreakdown() {
     overlayBackground(this, 0.97);
-    const d = GameState.difficulty;
+    const level = levelOf(GameState.difficulty);
     const data = GameState.data;
-    const truth = trueChain();
+    const correct = this.accused === CULPRIT_INDEX;
+    if (correct) unlockLevel(level + 1);
     const colors = SUSPECTS.map((s) => s.color);
+    const journey = [data.prior, ...data.history.map((h) => h.belief)];
 
-    txt(this, W / 2, 28, 'The Bayesian Breakdown', 34, '#ffe9b8', { fontStyle: 'bold' }).setOrigin(0.5, 0);
-    const verdict =
-      this.accused === CULPRIT_INDEX
-        ? `You accused ${SUSPECTS[this.accused].name}: correct.`
-        : `You accused ${SUSPECTS[this.accused].name}. The evidence pointed to ${SUSPECTS[CULPRIT_INDEX].name} at ${pct(truth[truth.length - 1][CULPRIT_INDEX])}.`;
-    txt(this, W / 2, 72, verdict, 20, this.accused === CULPRIT_INDEX ? '#9ff0b0' : '#ff9f9f').setOrigin(0.5, 0);
+    txt(this, W / 2, 26, correct ? `Level ${level} solved` : 'Not this time', 34, correct ? '#9ff0b0' : '#ff9f9f', {
+      fontStyle: 'bold',
+    }).setOrigin(0.5, 0);
+    const finalTop = argmax(data.belief);
+    const verdict = correct
+      ? `You named ${SUSPECTS[this.accused].name}, and you were right.`
+      : `You named ${SUSPECTS[this.accused].name}. It was not them.` +
+        (finalTop !== this.accused ? ` Your own board ended with ${SUSPECTS[finalTop].name} on top.` : '');
+    txt(this, W / 2, 72, verdict, 20, '#dfe6ff').setOrigin(0.5, 0);
 
-    // chart: the ghost's chain (solid) vs. the player's own board (dashed)
-    txt(this, 40, 112, 'The ghost\u2019s estimates (solid) vs. your board (dashed)', 17, DIM);
-    beliefChart(this, 40, 140, 520, 300, truth, CLUES.length);
-    beliefChart(this, 40, 140, 520, 300, [data.prior, ...data.history.map((h) => h.belief)], CLUES.length, {
-      dashed: true,
-      alpha: 0.8,
-    });
+    // how the player's board moved, clue by clue
+    txt(this, 40, 112, 'How your suspicion moved, clue by clue', 17, DIM);
+    beliefChart(this, 40, 140, 520, 300, journey, CLUES.length);
     SUSPECTS.forEach((s, i) => txt(this, 40 + i * 130, 452, s.name, 17, hex(s.color)));
 
-    // per-clue table
     const x0 = 600;
-    txt(this, x0, 112, 'Clue \u2192 trap', 17, DIM);
-    txt(this, x0 + 410, 112, 'ghost', 17, DIM);
-    txt(this, x0 + 530, 112, 'you', 17, DIM);
-    const stepErr: number[] = [];
+    txt(this, x0, 112, 'Clue \u2192 what it teaches', 17, DIM);
+    txt(this, x0 + 470, 112, 'your board after', 17, DIM);
     CLUES.forEach((c, k) => {
       const y = 152 + k * 44;
-      txt(this, x0, y - 11, `${k + 1}. ${c.trap}`, 16, '#dfe6ff', { wordWrap: { width: 400 } });
-      stackedBar(this, x0 + 410, y, 110, 18, truth[k + 1], colors);
+      txt(this, x0, y - 11, `${k + 1}. ${c.trap}`, 16, '#dfe6ff', { wordWrap: { width: 450 } });
       const h = data.history[k];
-      if (!h) return;
-      stackedBar(this, x0 + 530, y, 110, 18, h.belief, colors);
-      // isolate this one step: apply the player's likelihoods to the ghost's previous belief
-      if (h.playerLik) stepErr.push(totalVariation(update(truth[k], h.playerLik), truth[k + 1]));
+      if (h) stackedBar(this, x0 + 470, y, 150, 18, h.belief, colors);
     });
 
-    // takeaway
+    // a reflection in the player's own terms: where did their board change most?
+    const moves = data.history.map((h, k) => Math.max(...h.belief.map((b, i) => Math.abs(b - journey[k][i]))));
+    const big = moves.indexOf(Math.max(...moves));
     let summary = '';
-    const leaders = truth.slice(1).map(argmax);
-    const wrongLead = leaders.map((l, k) => (l !== CULPRIT_INDEX ? `${SUSPECTS[l].name} after clue ${k + 1}` : '')).filter(Boolean);
-    if (stepErr.length) {
-      const worst = stepErr.indexOf(Math.max(...stepErr));
-      const c = CLUES[worst];
-      const avg = Math.round(100 * (1 - stepErr.reduce((a, b) => a + b, 0) / stepErr.length));
-      summary = `How closely your likelihoods matched the ghost\u2019s: ${avg}/100. The biggest difference was clue ${worst + 1} (${c.title}): ${c.trap}. `;
-      const lik = data.history[worst].playerLik!;
-      summary += `Your likelihoods there, as ratios: ${ratio(lik)}; the ghost\u2019s: ${ratio(c.likelihoods)}.`;
-    }
-    if (d === 'easy' && wrongLead.length) {
-      summary += `  On the ghost\u2019s reckoning the lead changed hands: ${wrongLead.join(', ')}. Loud clues created false leaders; the quiet, diagnostic ones decided the case.`;
+    if (big >= 0) {
+      summary = `Your board moved most at clue ${big + 1}, ${CLUES[big].title}. `;
+      summary += correct
+        ? 'Every rating you made was yours, and the evidence added up.'
+        : 'Look again at how strongly each clue fitted each story: a vivid clue can feel stronger than it is, and a quiet one can matter more than it seems.';
     }
     txt(this, 40, 495, summary, 19, '#cfe6ff', { wordWrap: { width: 1200 }, lineSpacing: 4 });
 
     new Button(this, 200, H - 60, 'Read all lessons', () => this.showLessons(), { width: 300, height: 58, size: 22 });
-    new Button(this, W - 200, H - 60, 'Back to title', () => {
-      GameState.clear();
-      this.scene.start('Title');
-    }, { width: 300, height: 58, size: 22 });
+    const next = LEVELS.find((l) => l.n === level + 1);
+    if (correct && next) {
+      new Button(this, W - 200, H - 60, `Play Level ${next.n} \u203A`, () => this.startLevel(next.id), { width: 300, height: 58, size: 22, stroke: 0x9ff0b0 });
+    } else if (correct) {
+      txt(this, W / 2, H - 120, 'Every level solved. The clocks can stop at last.', 20, '#9ff0b0', { fontStyle: 'italic' }).setOrigin(0.5);
+      new Button(this, W - 200, H - 60, 'Back to title', () => this.toTitle(), { width: 300, height: 58, size: 22 });
+    } else {
+      new Button(this, W - 200, H - 60, `Try Level ${level} again`, () => this.startLevel(GameState.difficulty), { width: 300, height: 58, size: 22 });
+    }
+    new Button(this, W / 2, H - 60, 'Title', () => this.toTitle(), { width: 160, height: 58, size: 20 });
     GameState.clear();
+  }
+
+  private startLevel(id: (typeof LEVELS)[number]['id']) {
+    GameState.newGame(id);
+    this.scene.start('World');
+  }
+
+  private toTitle() {
+    GameState.clear();
+    this.scene.start('Title');
   }
 
   private showLessons() {
@@ -169,6 +174,6 @@ export class AccuseScene extends Phaser.Scene {
       txt(this, 40, y, `${k + 1}. ${c.title}: ${c.trap}`, 18, '#ffe2a0', { fontStyle: 'bold' });
       txt(this, 40, y + 24, c.lesson, 15, '#dfe6ff', { wordWrap: { width: 1200 } });
     });
-    new Button(this, W - 200, H - 40, 'Back to title', () => this.scene.start('Title'), { width: 280, height: 50, size: 20 });
+    new Button(this, W - 200, H - 40, 'Back', () => this.showBreakdown(), { width: 200, height: 50, size: 20 });
   }
 }

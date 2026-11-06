@@ -2,13 +2,7 @@ import Phaser from 'phaser';
 import { Button, DIM, H, W, fadeThen, soundToggle, txt } from '../ui/widgets';
 import { Sound } from '../audio/Sound';
 import { CASE_TITLE } from '../data/case1';
-import { Difficulty, GameState } from '../state/GameState';
-
-const MODES: { id: Difficulty; label: string; desc: string }[] = [
-  { id: 'easy', label: 'Easy', desc: '2 suspects. You choose each likelihood; the ghost offers its own estimate and shows every step of the math.' },
-  { id: 'medium', label: 'Medium', desc: '3 suspects. You choose each likelihood and guess where the bars will land, then compare with the ghost.' },
-  { id: 'hard', label: 'Hard', desc: '4 suspects. Your own prior and likelihoods, from the ghost\u2019s words alone. No help until you accuse.' },
-];
+import { Difficulty, GameState, LEVELS, unlockedLevel } from '../state/GameState';
 
 export class TitleScene extends Phaser.Scene {
   constructor() {
@@ -35,11 +29,20 @@ export class TitleScene extends Phaser.Scene {
     txt(this, W / 2, 255, 'GHOST MYSTERY', 64, '#eef3ff', { fontStyle: 'bold' }).setOrigin(0.5);
     txt(this, W / 2, 310, `${CASE_TITLE}: a Bayesian whodunit`, 26, DIM, { fontStyle: 'italic' }).setOrigin(0.5);
 
-    txt(this, W / 2, 365, 'Choose how much help the ghost gets:', 22, DIM).setOrigin(0.5);
-    MODES.forEach((m, i) => {
+    // three levels: the same night, a wider net each time. Each unlocks when the one before is solved.
+    const open = unlockedLevel();
+    txt(this, W / 2, 365, 'The same night, three times. Solve a level to unlock the next.', 22, DIM).setOrigin(0.5);
+    LEVELS.forEach((l, i) => {
       const x = W / 2 + (i - 1) * 380;
-      new Button(this, x, 430, m.label, () => this.begin(m.id), { width: 280, height: 74, size: 30 });
-      txt(this, x, 480, m.desc, 19, DIM, { align: 'center', wordWrap: { width: 330 } }).setOrigin(0.5, 0);
+      const locked = l.n > open;
+      const b = new Button(this, x, 430, locked ? `Level ${l.n} \u00B7 locked` : `Level ${l.n} \u00B7 ${l.name}`, () => !locked && this.begin(l.id), {
+        width: 300,
+        height: 74,
+        size: 26,
+      });
+      if (locked) b.setEnabled(false);
+      const desc = locked ? `Solve Level ${l.n - 1} to unlock.  ${l.desc}` : l.desc;
+      txt(this, x, 480, desc, 19, locked ? '#56627f' : DIM, { align: 'center', wordWrap: { width: 330 } }).setOrigin(0.5, 0);
     });
 
     if (GameState.hasSave()) {

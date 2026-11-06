@@ -59,10 +59,10 @@ export interface Clue {
   reasons: string[];
   /** Name of the reasoning trap this clue is built around. */
   trap: string;
-  /** Explanation shown after the update (numbers filled from the ghost's own chain). */
+  /** What the clue teaches (no numbers: the player's own board is shown alongside). */
   lesson: string;
-  /** The same lesson with {butler} {niece} {partner} {gardener} placeholders, to fill with any posterior. */
-  lessonTemplate: string;
+  /** The ghost's thought about each story, without a verdict (no number, no "likely"). */
+  hints: string[];
   /** The ghost's inner voice right after the clue: first the gut, then the reflective voice. */
   reaction: string[];
   /** The ghost's thought pointing toward the next clue (or back to the body). */
@@ -71,11 +71,12 @@ export interface Clue {
 
 /** Authoring form of a clue. Lessons may contain {butler} {niece} {partner} {gardener},
  *  replaced by that suspect's true posterior after this clue in the active case. */
-interface ClueSource extends Omit<Clue, 'nextThought' | 'lessonTemplate'> {
+interface ClueSource extends Omit<Clue, 'nextThought' | 'hints'> {
   /** The ghost's thought that points toward THIS clue. */
   leadIn: string;
   /** Overrides for Easy, where only Clara and Voss are suspects. */
-  lessonEasy?: string;
+  /** Plain-words lesson for Level 1. */
+  lessonSimple?: string;
   trapEasy?: string;
   reactionEasy?: string[];
 }
@@ -180,6 +181,22 @@ export const BODY_LINES: string[] = [
   'Someone in this house did this to me.',
 ];
 
+/** Levels 2 and 3 return to the same night, with a wider net. */
+export const REPRISE_LINES: Record<2 | 3, string[]> = {
+  2: [
+    'The clocks are turning backwards...',
+    'My study again. The same night. My body on the rug.',
+    'I named Voss, and the clocks did not stop. Perhaps I was right for the wrong reasons.',
+    'I only remembered two faces. There was someone else here that night.',
+  ],
+  3: [
+    'The clocks wind back once more.',
+    'Right again, and still they tick. I am still leaving someone out.',
+    'Graves. How could I forget Graves? He was in the house all evening.',
+    'This time I weigh everyone, and I decide for myself where suspicion starts.',
+  ],
+};
+
 export const MEMORY_INTRO =
   'Faces rise out of the fog, one by one. The people who were in the house tonight.';
 
@@ -204,6 +221,9 @@ const PRIOR_SOURCE = {
   context:
     'Before I weigh a single clue, I need a starting point. The longer someone was inside, the more chances they had to reach my tea. ' +
     'That starting belief is called the PRIOR.',
+  lessonSimple:
+    'Before any clue, suspicion starts where the opportunity was: whoever spent longest in the house starts highest. ' +
+    'It is only a starting point. Every clue from here will shift it.',
   lesson:
     'Prior = opportunity. Divide each person\u2019s hours inside by the total ({total} hours). ' +
     '{top} starts as the most likely suspect, but only because of the time spent in the house.',
@@ -231,15 +251,14 @@ const ALL_CLUES: ClueSource[] = [
     ] },
     likelihoods: [0.95, 0.9, 0.9, 0.9],
     reasons: [
-      'Graves serves my tea every night. His prints would be there almost no matter what: very likely.',
+      'Graves serves my tea every night, and he carried this cup tonight as always: very likely.',
       'If Clara did it, Graves still brought the tea: his prints are still very likely.',
       'If Voss did it, Graves still brought the tea: his prints are still very likely.',
       'If Pip did it, Graves still brought the tea: his prints are still very likely.',
     ],
     trap: 'Non-diagnostic evidence',
     lesson:
-      'It FEELS damning, but evidence that is almost equally likely whatever happened barely moves anything. ' +
-      'The likelihood ratio is about 1.06. Graves barely moves.',
+      'It FEELS damning, but Graves handles that cup every night, so his prints are almost as likely whoever did it. A clue that fits every story about equally well barely moves the board, however dramatic it looks.',
     reaction: [
       'Graves\u2019s prints! It must be Graves.',
       '...But he carries that cup every single night. Of course his prints are on it.',
@@ -257,14 +276,15 @@ const ALL_CLUES: ClueSource[] = [
     likelihoods: [0.3, 0.6, 0.3, 0.3],
     reasons: [
       'If Graves did it, the quarrel with Clara happened anyway, and the letter could still turn up: 0.3.',
-      'If Clara were the culprit, an angry letter fits: twice as likely as otherwise, 0.6.',
+      'If Clara did it, the quarrel over my will would be her reason, and this letter is that anger on paper: twice as likely as otherwise, 0.6.',
       'If Voss did it, the quarrel with Clara happened anyway, and the letter could still turn up: 0.3.',
       'If Pip did it, the quarrel with Clara happened anyway, and the letter could still turn up: 0.3.',
     ],
     trap: 'Vivid but weak evidence',
     lesson:
-      'Angry words are dramatic, but plenty of people write angry letters and harm no one. ' +
-      'The likelihood ratio is only 2: it only doubles Clara’s odds. By the ghost’s estimates she would now be at {niece}. That is not a confession.',
+      'Vivid is not the same as strong. If the letter is only somewhat more likely under \u201CClara did it\u201D than under the other stories, it should only nudge her share, however dramatic it sounds.',
+    lessonSimple:
+      'An angry letter feels like a confession. But people write angry letters all the time and hurt no one. A clue only shifts suspicion as much as it fits one story better than the others.',
     reaction: [
       'Clara. She was so angry with me...',
       'Anger makes a vivid story. But a vivid story isn\u2019t the same as a likely one.',
@@ -293,13 +313,11 @@ const ALL_CLUES: ClueSource[] = [
       'Pip’s boots are ALWAYS muddy and he walks through here: likely, 0.8.',
     ],
     trap: 'Representativeness ("mud means gardener")',
+    trapEasy: 'One lopsided clue can swing the board',
     lesson:
-      'Mud screams "gardener!", but Voss would also leave prints, and Pip started with the lowest prior. ' +
-      'By the ghost’s estimates: Pip {gardener}, Voss {partner}. The clue points to the GARDEN, not one person.',
-    trapEasy: 'A large likelihood ratio flips the lead',
-    lessonEasy:
-      'Clara\u2019s room is upstairs, while Voss parks by the garden gate. Mud is 5\u00D7 more likely if Voss did it, ' +
-      'so this one clue can flip the lead: by the ghost’s estimates Voss would now be at {partner}. A large likelihood ratio moves belief a lot.',
+      'Mud says \u201Cgardener!\u201D But Voss crosses the same garden beds, and Pip spent the least time inside. What matters is not who a clue reminds you of, but how likely it is under each story, starting from where suspicion already was.',
+    lessonSimple:
+      'Only someone coming through the garden would leave this. Clara\u2019s room is upstairs; Voss parks by the garden gate. When a clue fits one story far better than another, a single clue can swing the whole board.',
     reactionEasy: [
       'Garden mud, under the open window. Who walks through the garden at night?',
       'Not Clara: her room is upstairs. But Voss parks by the garden gate...',
@@ -328,13 +346,14 @@ const ALL_CLUES: ClueSource[] = [
     reasons: [
       'If Graves did it, missing money in the books is an unrelated mess: 0.2.',
       'If Clara did it, the ledger is unrelated: 0.2.',
-      'If Voss did it, hiding theft is a strong reason, and the ledger would likely look like this: 0.7.',
+      'If Voss did it, hiding his theft would be the reason, and this ledger is exactly what he would need to hide: 0.7.',
       'If Pip did it, the ledger is unrelated: 0.2.',
     ],
     trap: 'Motive evidence (genuinely diagnostic)',
     lesson:
-      'THIS clue is diagnostic: it is 3.5× more likely if Voss is guilty than if anyone else is. ' +
-      'By the ghost’s estimates Voss would now be at {partner}. Notice that it took a strong likelihood ratio, not a vivid story.',
+      'This clue is lopsided: far more likely under one story than under all the others. The more lopsided the fit, the further the board moves, whether or not the clue is dramatic.',
+    lessonSimple:
+      'This clue fits one person far better than anyone else. That is what strong evidence looks like: not loud, just lopsided.',
     reaction: [
       'Voss. My partner. Stealing from me?',
       'This clue fits one person far better than anyone else. That is what strong evidence feels like.',
@@ -362,8 +381,9 @@ const ALL_CLUES: ClueSource[] = [
     ],
     trap: 'Exculpatory evidence',
     lesson:
-      'Evidence can clear people too. An alibi makes the clue 10× LESS likely under "Clara did it". ' +
-      'By the ghost’s estimates she would fall to {niece}, and the others share what she loses.',
+      'Evidence can clear people too. An alibi makes the clue very unlikely under one story, so that suspect\u2019s share shrinks, and what they lose is shared out among everyone else.',
+    lessonSimple:
+      'Evidence can clear people too. If Clara was on the telephone when the tea was drugged, the clue hardly fits her story, so her share shrinks and everyone else\u2019s grows.',
     reaction: [
       'Clara was on the telephone when my tea was poured.',
       'I am almost relieved. An alibi is evidence too: it pushes belief away from someone.',
@@ -392,8 +412,7 @@ const ALL_CLUES: ClueSource[] = [
     ],
     trap: 'Exculpatory evidence (weighing against the earlier clue)',
     lesson:
-      'Remember the boot print that pointed at Pip? This alibi cancels most of it. ' +
-      'Bayesian updating lets evidence add up AND cancel out. By the ghost’s estimates Pip would drop to {gardener}.',
+      'Remember the boot print that pointed at Pip? This alibi pushes the other way. Bayesian updating lets clues add up, and it lets them cancel out.',
     reaction: [
       'Dear Pip, counting temperatures while I fell asleep for good.',
       'The mud pointed at him; this points away. Evidence can cancel out evidence.',
@@ -416,13 +435,14 @@ const ALL_CLUES: ClueSource[] = [
     reasons: [
       'If Graves did it, Voss could still have lost it at our meeting or at supper: 0.3.',
       'If Clara did it, Voss could still have lost it at our meeting or at supper: 0.3.',
-      'If Voss came back tonight, a dropped cufflink is more likely: 0.6.',
+      'If Voss did it, he came back tonight in a hurry and could have dropped it then, as well as at the meeting: 0.6.',
       'If Pip did it, Voss could still have lost it at our meeting or at supper: 0.3.',
     ],
     trap: "Prosecutor's fallacy",
     lesson:
-      'P(cufflink | Voss guilty) = 0.6, but that is NOT P(Voss guilty | cufflink). ' +
-      'On its own this clue is weak (likelihood ratio 2). What convicts Voss is ALL the evidence together: by the ghost’s estimates, {partner}.',
+      'Don\u2019t confuse \u201Chow likely is this clue if Voss did it?\u201D with \u201Chow likely is it that Voss did it, given this clue?\u201D On its own the cufflink is modest. What convicts is the whole chain of evidence.',
+    lessonSimple:
+      'Voss\u2019s cufflink sounds like proof, but he sat at this desk this afternoon. On its own it is a modest clue. What decides a case is everything together.',
     reaction: [
       'Voss\u2019s cufflink. But he sat at this desk this afternoon...',
       'On its own it proves little. Together with everything else, the picture is clear.',
@@ -470,6 +490,16 @@ export let PRIOR_SHEET = { ...PRIOR_SOURCE, nextThought: '', total: 0 };
 export const allSuspects = () => ALL_SUSPECTS;
 
 /** Fill a lesson template's {suspect} placeholders from any distribution over the active suspects. */
+/**
+ * The ghost's hint for a story: its reasoning, with the verdict removed. Reasons read
+ * "situation: verdict, number." and the hint keeps only the situation.
+ */
+export function hintOf(reason: string): string {
+  const cut = reason.lastIndexOf(':');
+  const base = cut > 0 ? reason.slice(0, cut) : reason.replace(/[:,]?\s*\d+(\.\d+)?\.$/, '');
+  return base.replace(/[\s,;]+$/, '') + '.';
+}
+
 export function fillLesson(template: string, dist: number[]): string {
   return template.replace(/\{(butler|niece|partner|gardener)\}/g, (_m, id: string) => {
     const k = SUSPECTS.findIndex((s) => s.id === id);
@@ -481,7 +511,7 @@ function fmtPct(x: number) {
   return `${Math.round(x * 100)}%`;
 }
 
-/** Select the suspects and clues for a difficulty and resolve every text template. */
+/** Select the suspects and clues for a level (easy = Level 1, medium = Level 2, hard = Level 3). */
 export function setCase(difficulty: Difficulty) {
   const setup = CASE_SETUP[difficulty];
   const idx = setup.suspects.map((id) => ALL_SUSPECTS.findIndex((s) => s.id === id));
@@ -489,20 +519,10 @@ export function setCase(difficulty: Difficulty) {
   CULPRIT_INDEX = SUSPECTS.findIndex((s) => s.id === 'partner');
   const sources = setup.clues.map((id) => ALL_CLUES.find((c) => c.id === id)!);
 
-  // true prior and posterior chain, to fill the {suspect} placeholders
   const total = SUSPECTS.reduce((a, s) => a + s.hoursInside, 0);
-  let belief = SUSPECTS.map((s) => s.hoursInside / total);
-  const fill = (t: string, dist: number[]) =>
-    t.replace(/\{(butler|niece|partner|gardener)\}/g, (_m, id: string) => {
-      const k = SUSPECTS.findIndex((s) => s.id === id);
-      return k < 0 ? '' : fmtPct(dist[k]);
-    });
 
   CLUES = sources.map((src, n) => {
     const likelihoods = idx.map((i) => src.likelihoods[i]);
-    const joint = belief.map((p, k) => p * likelihoods[k]);
-    const z = joint.reduce((a, b) => a + b, 0);
-    belief = joint.map((j) => j / z);
     const easy = difficulty === 'easy';
     return {
       id: src.id,
@@ -514,8 +534,8 @@ export function setCase(difficulty: Difficulty) {
       likelihoods,
       reasons: idx.map((i) => src.reasons[i]),
       trap: (easy && src.trapEasy) || src.trap,
-      lesson: fill((easy && src.lessonEasy) || src.lesson, belief),
-      lessonTemplate: (easy && src.lessonEasy) || src.lesson,
+      lesson: (easy && src.lessonSimple) || src.lesson,
+      hints: idx.map((i) => hintOf(src.reasons[i])),
       reaction: (easy && src.reactionEasy) || src.reaction,
       nextThought: n + 1 < sources.length ? sources[n + 1].leadIn : FINAL_THOUGHT,
     };
@@ -532,7 +552,7 @@ export function setCase(difficulty: Difficulty) {
     ...PRIOR_SOURCE,
     text: fillPrior(PRIOR_SOURCE.text),
     total,
-    lesson: fillPrior(PRIOR_SOURCE.lesson),
+    lesson: difficulty === 'easy' ? PRIOR_SOURCE.lessonSimple : fillPrior(PRIOR_SOURCE.lesson),
     reaction: PRIOR_SOURCE.reaction.map(fillPrior),
     nextThought: sources[0].leadIn,
   };

@@ -190,3 +190,43 @@ describe('the player drives the board', () => {
     expect(rec.score).toBe(100);
   });
 });
+
+describe('the ghost hints, never answers', () => {
+  it('hints carry no numbers and no verdict; lessons carry no numbers', () => {
+    for (const d of ['easy', 'medium', 'hard'] as const) {
+      setCase(d);
+      for (const c of CLUES) {
+        expect(c.hints).toHaveLength(SUSPECTS.length);
+        for (const h of c.hints) {
+          expect(h).not.toMatch(/(^|\s)(0?\.\d+|1\.0)\b/); // no probabilities (clock times are facts)
+          expect(h).not.toMatch(/\b(more |very |un)?likely\b|even odds/i); // the verdict is the player's
+          expect(h.length).toBeGreaterThan(15);
+        }
+        expect(c.lesson).not.toMatch(/\d|%/);
+      }
+    }
+  });
+
+  it('Level 1 uses plain-words lessons', () => {
+    setCase('easy');
+    for (const c of CLUES) expect(c.lesson).not.toMatch(/likelihood|ratio|Bayes/i);
+  });
+});
+
+describe('levels', () => {
+  it('unlock one at a time, starting from Level 1', async () => {
+    const store: Record<string, string> = {};
+    (globalThis as unknown as { localStorage: Storage }).localStorage = {
+      getItem: (k: string) => store[k] ?? null,
+      setItem: (k: string, v: string) => void (store[k] = v),
+      removeItem: (k: string) => void delete store[k],
+    } as Storage;
+    const { unlockedLevel, unlockLevel, LEVELS, levelOf } = await import('../state/GameState');
+    expect(unlockedLevel()).toBe(1);
+    unlockLevel(2);
+    expect(unlockedLevel()).toBe(2);
+    unlockLevel(1); // never goes backwards
+    expect(unlockedLevel()).toBe(2);
+    expect(LEVELS.map((l) => levelOf(l.id))).toEqual([1, 2, 3]);
+  });
+});
