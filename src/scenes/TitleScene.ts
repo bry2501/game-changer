@@ -2,7 +2,7 @@ import Phaser from 'phaser';
 import { Button, DIM, fadeThen, fitCamera, H, RED, soundToggle, txt, W } from '../ui/widgets';
 import { Sound } from '../audio/Sound';
 import { drawMansion } from '../ui/exterior';
-import { AccentCamera, Noir, filmGrain, fogBand, haze } from '../ui/noir';
+import { AccentCamera, Noir, filmGrain } from '../ui/noir';
 import { CASE_TITLE, HOW_IT_WORKS, TITLE_TAGLINE } from '../data/case1';
 import { GameState } from '../state/GameState';
 
@@ -27,8 +27,6 @@ export class TitleScene extends Phaser.Scene {
       frequency: 300,
     });
 
-    haze(this, 1, 0.22);
-    fogBand(this, 2, { y: 430, h: 290, alpha: 0.4, parallax: 0, speed: 8 });
     // a soft dark panel so the title and level buttons read over the painting
     const panel = this.add.graphics();
     panel.fillStyle(0x050505, 0.86);

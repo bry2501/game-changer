@@ -17,8 +17,8 @@ export const PAL = {
   brassDark: 0x7a5e22,
   brick: 0x6b3b3f,
   mortar: 0x34252c,
-  pale: 0x8fb0d6, // painted plaster / mantel
-  paleDark: 0x5f7fa8,
+  pale: 0x4a5566, // plaster and mantel: dim, so nothing large glows
+  paleDark: 0x343c4a,
   leaf: 0x1f4a4a,
   leafLight: 0x3f7a6a,
   velvet: 0x2c3f78,

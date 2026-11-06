@@ -4,7 +4,7 @@ import { ENDING_CORRECT, ENDING_WRONG, EndLine, SUSPECTS } from '../data/case1';
 import { FLOOR_Y, drawBody, drawDesk, drawGrandfatherClock, drawWainscot, drawWindow } from '../ui/art';
 import { PAL, cobweb, paintRect } from '../ui/paint';
 import { drawSuspect } from './MemoryScene';
-import { Noir, filmGrain, fogBand, haze } from '../ui/noir';
+import { Noir, filmGrain } from '../ui/noir';
 import { Sound } from '../audio/Sound';
 
 const BODY_AT = 520;
@@ -53,8 +53,6 @@ export class EndingScene extends Phaser.Scene {
     this.amber = this.add.rectangle(0, 0, W, H, 0x2a1d10, 0).setOrigin(0).setDepth(50);
     this.caption = txt(this, W / 2, 40, '', 22, '#d9b98a', { fontStyle: 'italic' }).setOrigin(0.5, 0).setDepth(80);
     this.box = this.add.container(0, 0).setDepth(90);
-    haze(this, 21, 0.38);
-    fogBand(this, 35, { y: 380, h: 340, alpha: 0.4, parallax: 0, speed: 7 });
     this.add.image(W / 2, H / 2, 'vignette').setDepth(60);
     // the study in black and white; the story's turns bloom into colour
     this.noir = new Noir(this, this.cameras.main, 0);
@@ -73,8 +71,8 @@ export class EndingScene extends Phaser.Scene {
 
   /** The study, painted once: walls, window, clock, desk, the body on its rug, and the door. */
   private drawStudy() {
-    this.add.tileSprite(0, 0, W, FLOOR_Y, 'paintWall').setOrigin(0).setTint(0x5a7aa6);
-    this.add.tileSprite(0, FLOOR_Y, W, H - FLOOR_Y, 'floorboards').setOrigin(0).setTint(0xa9b4c8);
+    this.add.tileSprite(0, 0, W, FLOOR_Y, 'paintWall').setOrigin(0).setTint(0x2c3240);
+    this.add.tileSprite(0, FLOOR_Y, W, H - FLOOR_Y, 'floorboards').setOrigin(0).setTint(0x34363c);
     const g = this.add.graphics();
     drawWainscot(g, 0, W);
     drawWindow(g, 70, 120, 180, 240);

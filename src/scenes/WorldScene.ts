@@ -43,7 +43,7 @@ import {
 } from '../data/house';
 import { GameState } from '../state/GameState';
 import { Controls } from '../ui/Controls';
-import { AccentCamera, Noir, blurBack, filmGrain, fogBand } from '../ui/noir';
+import { AccentCamera, Noir, filmGrain } from '../ui/noir';
 import { ThoughtBubble } from '../ui/ThoughtBubble';
 import { Sound } from '../audio/Sound';
 
@@ -51,15 +51,15 @@ const WORLD_W = Math.max(...ROOMS.map((r) => r.x1));
 
 /** Wall tints per room: moonlit blues and teals with a little plum, after the painted references. */
 const ROOM_TINT: Record<string, number> = {
-  study: 0x5a7aa6,
-  hallway: 0x5d6b92,
-  dining: 0x6e5f88,
-  conservatory: 0x4f8580,
-  office: 0x65708c,
-  clara: 0x7a6390,
-  landing: 0x58689a,
-  library: 0x4d7a72,
-  boxroom: 0x6a6a80,
+  study: 0x2c3240,
+  hallway: 0x2a2d38,
+  dining: 0x30293a,
+  conservatory: 0x26332f,
+  office: 0x2e2f36,
+  clara: 0x342b3a,
+  landing: 0x2a2e3c,
+  library: 0x263230,
+  boxroom: 0x2f2f36,
 };
 const SPEED = 340;
 const REACH = 110;
@@ -82,8 +82,10 @@ export class WorldScene extends Phaser.Scene {
   private cursor = 'default';
   /** The camera follows the ghost horizontally (floors change by a deliberate move). */
   private following = true;
+  /** Window frames (drawn over the shared sky) and the panes the sky shows through. */
+  private frames!: Phaser.GameObjects.Graphics;
+  private windowRects: Phaser.Geom.Rectangle[] = [];
   private layers = new Map<number, Phaser.GameObjects.Container>();
-  private mists: Phaser.GameObjects.TileSprite[] = [];
   /** Black and white, except for what the accent camera keeps in colour. */
   private noir!: Noir;
   private accent!: AccentCamera;
@@ -131,9 +133,11 @@ export class WorldScene extends Phaser.Scene {
     this.noir = new Noir(this, cam, 0);
     this.accent = new AccentCamera(this);
     this.layers.clear();
-    this.mists = [];
+    this.windowRects = [];
+    this.frames = this.add.graphics().setDepth(10.8);
     this.buildFloor(0);
     this.buildFloor(1);
+    this.buildSky();
     this.buildProps();
 
     this.glow = this.add.image(0, 0, 'glow').setScale(2.4).setBlendMode(Phaser.BlendModes.ADD).setDepth(50);
@@ -166,8 +170,7 @@ export class WorldScene extends Phaser.Scene {
       .setDepth(60)
       .setScrollFactor(0);
     this.buildForeground();
-    // Limbo-style air: a glow behind the fog, fog at two depths, a dark oval vignette, grain
-    fogBand(this, 85, { y: 520, h: 200, alpha: 0.22, parallax: 1.3, speed: -10 });
+    // a dark oval vignette and fine grain
     this.add.image(W / 2, H / 2, 'vignette').setScrollFactor(0).setDepth(900);
     filmGrain(this);
 
@@ -234,7 +237,6 @@ export class WorldScene extends Phaser.Scene {
   update(_time: number, delta: number) {
     const dt = delta / 1000;
     this.t += dt;
-    for (const m of this.mists) m.tilePositionX += dt * 9;
     if (this.following) {
       const cam = this.cameras.main;
       cam.scrollX += (this.followX() - cam.scrollX) * Math.min(1, 0.08 * dt * 60);
@@ -698,7 +700,6 @@ export class WorldScene extends Phaser.Scene {
   private buildFloor(floor: number) {
     const layer = this.add.container(0, floorTop(floor)).setDepth(10);
     this.layers.set(floor, layer);
-    blurBack(layer); // the room recedes; the ghost and what he can touch stay sharp
     const rooms = ROOMS.filter((r) => r.floor === floor);
     const b = floorBounds(floor);
     const R: Record<string, Phaser.GameObjects.Graphics> = {};
@@ -706,7 +707,7 @@ export class WorldScene extends Phaser.Scene {
       const w = r.x1 - r.x0;
       // painted plaster, tinted to the room, and floorboards below
       const wall = this.add.tileSprite(r.x0, 0, w, F, 'paintWall').setOrigin(0).setTint(ROOM_TINT[r.id] ?? 0x4a6890);
-      const boards = this.add.tileSprite(r.x0, F, w, FLOOR_H - F, 'floorboards').setOrigin(0).setTint(0xa9b4c8);
+      const boards = this.add.tileSprite(r.x0, F, w, FLOOR_H - F, 'floorboards').setOrigin(0).setTint(0x34363c);
       const g = this.add.graphics();
       layer.add([wall, boards, g]);
       R[r.id] = g;
@@ -727,20 +728,6 @@ export class WorldScene extends Phaser.Scene {
       if (i % 2 === 0) layer.add(cobweb(this, r.x0 + (i > 0 ? 62 : 0) + (i === 0 ? b.min - 60 - r.x0 : 0), 40, 0.9));
       if (i % 3 !== 1) layer.add(cobweb(this, r.x1 - (i < rooms.length - 1 ? 62 : 0) - (i === rooms.length - 1 ? r.x1 - b.max - 60 : 0), 40, 0.8, true));
     });
-    // Limbo-style depth: the walls at the back, then a pool of light and drifting mist,
-    // then the furniture in front as dark silhouettes
-    const backs = layer.list.filter((o) => o instanceof Phaser.GameObjects.TileSprite);
-    backs.forEach((o) => layer.sendToBack(o));
-    let at = backs.length;
-    rooms.forEach((r) => {
-      const w = r.x1 - r.x0;
-      const glow = this.add.image(r.x0 + w / 2, 250, 'haze').setDisplaySize(w * 1.15, 560).setBlendMode(Phaser.BlendModes.SCREEN).setAlpha(0.5);
-      layer.addAt(glow, at++);
-      this.roomGfx.push({ g: glow, floor, x0: r.x0, x1: r.x1 });
-    });
-    const mist = this.add.tileSprite(b.min - 100, 140, b.max - b.min + 260, F - 40, 'fogband').setOrigin(0).setAlpha(0.75).setTileScale(1.6, (F - 40) / 256);
-    layer.addAt(mist, at);
-    this.mists.push(mist);
     if (floor === 0) this.decorGround(R, layer);
     else this.decorUpstairs(R, layer);
   }
@@ -759,17 +746,76 @@ export class WorldScene extends Phaser.Scene {
     }
   }
 
+  /** A window onto the shared night outside: its panes show the one sky, moon and trees. */
+  private skyWindow(floor: number, x: number, y: number, w: number, h: number) {
+    const top = floorTop(floor);
+    this.windowRects.push(new Phaser.Geom.Rectangle(x, top + y, w, h));
+    drawWindow(this.frames, x, top + y, w, h, false);
+  }
+
+  /**
+   * One night outside every window: a dark sky, a single moon that barely moves, and trees at
+   * two depths that slide past it as the ghost drifts (parallax). Everything is masked to the
+   * window panes, so the walls hide it and each window is a view onto the same garden.
+   */
+  private buildSky() {
+    const mask = this.make.graphics({}, false);
+    mask.fillStyle(0xffffff, 1);
+    for (const r of this.windowRects) mask.fillRect(r.x, r.y, r.width, r.height);
+    const geo = mask.createGeometryMask();
+    const sky = this.add.graphics().setScrollFactor(0).setDepth(10.5);
+    sky.fillGradientStyle(0x0d1420, 0x0d1420, 0x1c2a36, 0x1c2a36, 1);
+    sky.fillRect(0, 0, W, H);
+    for (let i = 0; i < 70; i++) {
+      sky.fillStyle(0xdfe8ff, 0.25 + ((i * 37) % 10) / 25);
+      sky.fillCircle((i * 197) % W, (i * 83) % 420, i % 9 === 0 ? 1.6 : 0.9);
+    }
+    // the moon: fixed high in the sky, drifting only a little
+    const moon = this.add.graphics().setScrollFactor(0.03, 0).setDepth(10.52);
+    for (let r = 120; r > 46; r -= 12) {
+      moon.fillStyle(0xdfe8ff, 0.05);
+      moon.fillCircle(820, 170, r);
+    }
+    moon.fillStyle(0xeef2ff, 1);
+    moon.fillCircle(820, 170, 46);
+    moon.fillStyle(0xc9d2e4, 0.7);
+    moon.fillCircle(805, 158, 8);
+    moon.fillCircle(836, 186, 6);
+    // far trees, then near branches hung with moss, sliding past at different speeds
+    const tree = (g: Phaser.GameObjects.Graphics, x: number, s: number, color: number) => {
+      g.fillStyle(color, 1);
+      g.fillRect(x - 10 * s, 120 * s, 20 * s, H);
+      g.lineStyle(9 * s, color, 1);
+      g.lineBetween(x, 200 * s, x + 140 * s, 110 * s);
+      g.lineBetween(x, 260 * s, x - 120 * s, 170 * s);
+      g.lineBetween(x, 150 * s, x + 40 * s, 30 * s);
+      g.fillStyle(color, 1);
+      [[0, 90, 120], [120, 100, 90], [-100, 150, 90], [50, 30, 70]].forEach(([dx, y, r]) => g.fillEllipse(x + dx * s, y * s, r * 2 * s, r * 1.1 * s));
+      g.fillStyle(0x3c4a48, 0.6);
+      for (let i = 0; i < 14; i++) {
+        const mx = x + (((i * 47) % 260) - 130) * s;
+        const my = (110 + ((i * 29) % 90)) * s;
+        g.fillTriangle(mx - 4 * s, my, mx + 4 * s, my, mx + ((i % 3) - 1) * 4, my + (40 + ((i * 13) % 50)) * s);
+      }
+    };
+    const far = this.add.graphics().setScrollFactor(0.25, 0).setDepth(10.54);
+    for (let x = 200; x < WORLD_W * 0.25 + W + 400; x += 620) tree(far, x + ((x * 7) % 180), 1, 0x0a0f14);
+    const near = this.add.graphics().setScrollFactor(0.55, 0).setDepth(10.56);
+    for (let x = 500; x < WORLD_W * 0.55 + W + 600; x += 1150) tree(near, x, 1.6, 0x030506);
+    for (const o of [sky, moon, far, near]) o.setMask(geo);
+  }
+
   /** Soft moonlight falling from a window onto the floor. */
   private shaft(layer: Phaser.GameObjects.Container, x: number, y: number, w: number, lean = 0.12) {
     const img = this.add.image(x, y, 'shaft').setOrigin(0.5, 0).setBlendMode(Phaser.BlendModes.ADD);
-    img.setDisplaySize(w * 1.4, F - y).setRotation(-lean).setAlpha(0.9);
+    img.setDisplaySize(w * 1.4, F - y).setRotation(-lean).setAlpha(0.7);
     layer.add(img);
   }
 
   private decorGround(R: Record<string, Phaser.GameObjects.Graphics>, layer: Phaser.GameObjects.Container) {
     // Study: the window, a desk, the fireplace and my clock
     let g = R.study;
-    drawWindow(g, WINDOW_X - 90, 120, 180, 240);
+    this.skyWindow(0, WINDOW_X - 90, 120, 180, 240);
     this.shaft(layer, WINDOW_X, 372, 180);
     drawFireplace(g, 1490, 230, 280);
     drawDesk(g, 820, 360);
@@ -819,7 +865,7 @@ export class WorldScene extends Phaser.Scene {
 
     // Dining room: a long table before a second fireplace
     g = R.dining;
-    drawWindow(g, 3600, 130, 160, 230);
+    this.skyWindow(0, 3600, 130, 160, 230);
     this.shaft(layer, 3680, 372, 160);
     drawPortrait(g, 4300, 230);
     drawChandelier(g, 4300);
@@ -831,7 +877,7 @@ export class WorldScene extends Phaser.Scene {
     // Conservatory: tall windows, plants, a potting bench
     g = R.conservatory;
     for (let i = 0; i < 4; i++) {
-      drawWindow(g, 5180 + i * 400, 70, 260, 330);
+      this.skyWindow(0, 5180 + i * 400, 70, 260, 330);
       this.shaft(layer, 5310 + i * 400, 412, 260, 0.08);
     }
     drawPlant(g, 5530, 1.0);
@@ -843,7 +889,7 @@ export class WorldScene extends Phaser.Scene {
 
     // Office
     g = R.office;
-    drawWindow(g, 7700, 140, 170, 210);
+    this.skyWindow(0, 7700, 140, 170, 210);
     this.shaft(layer, 7785, 362, 170);
     drawBookshelf(g, 7880, 140, 330);
     drawGrandfatherClock(this, 7250, layer);
@@ -853,7 +899,7 @@ export class WorldScene extends Phaser.Scene {
   private decorUpstairs(R: Record<string, Phaser.GameObjects.Graphics>, layer: Phaser.GameObjects.Container) {
     // Clara's room
     let g = R.clara;
-    drawWindow(g, 1420, 130, 140, 190);
+    this.skyWindow(1, 1420, 130, 140, 190);
     this.shaft(layer, 1490, 332, 140);
     paintRect(g, 1790, F - 72, 170, 52, PAL.maroon, { radius: 8 }); // bed
     paintRect(g, 1790, F - 130, 14, 130, PAL.plumWood);
@@ -880,7 +926,7 @@ export class WorldScene extends Phaser.Scene {
     drawChandelier(g, 4300);
     // Box room
     g = R.boxroom;
-    drawWindow(g, 5700, 160, 120, 160);
+    this.skyWindow(1, 5700, 160, 120, 160);
     this.shaft(layer, 5760, 332, 120);
     paintRect(g, 5180, F - 90, 110, 90, PAL.plumWood); // crates
     paintRect(g, 5200, F - 160, 80, 70, PAL.plumWood);
@@ -1082,7 +1128,6 @@ export class WorldScene extends Phaser.Scene {
   private buildForeground() {
     // near layer (fast horizontal parallax): heavy velvet curtains and blurred furniture passing in front
     const fg = this.add.graphics().setScrollFactor(1.25, 1).setDepth(80);
-    blurBack(fg, 2.2); // out of focus, close to the lens
     for (let x = 0; x < WORLD_W * 1.25 + W; x += 1100) {
       for (const top of [0, FLOOR_H]) {
         // a curtain gathered at the top, folds picked out with lighter strokes

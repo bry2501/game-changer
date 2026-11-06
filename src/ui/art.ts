@@ -72,7 +72,21 @@ export function drawGrandfatherClock(scene: Phaser.Scene, x: number, layer?: Pha
 }
 
 /** A moonlit window: a pale frame, cool panes, the moon, and moss-hung trees outside. */
-export function drawWindow(g: Phaser.GameObjects.Graphics, x: number, y: number, w: number, h: number) {
+/** A window frame. With `sky` false the panes are left empty, for a shared sky drawn behind. */
+export function drawWindow(g: Phaser.GameObjects.Graphics, x: number, y: number, w: number, h: number, sky = true) {
+  if (sky) paintPanes(g, x, y, w, h);
+  // the frame, mullions and sill: painted wood with a dark ink line
+  g.lineStyle(9, 0x3a4250, 1);
+  g.strokeRect(x, y, w, h);
+  g.lineStyle(5, 0x3a4250, 1);
+  g.lineBetween(x + w / 2, y, x + w / 2, y + h);
+  g.lineBetween(x, y + h / 2, x + w, y + h / 2);
+  g.lineStyle(2, PAL.ink, 0.8);
+  g.strokeRect(x - 5, y - 5, w + 10, h + 10);
+  paintRect(g, x - 14, y + h + 4, w + 28, 12, 0x3a4250, { edge: 0x8a96aa });
+}
+
+function paintPanes(g: Phaser.GameObjects.Graphics, x: number, y: number, w: number, h: number) {
   // panes: night sky fading to the garden
   g.fillGradientStyle(0x2c4a70, 0x2c4a70, 0x1d3540, 0x1d3540, 1);
   g.fillRect(x, y, w, h);
@@ -89,15 +103,6 @@ export function drawWindow(g: Phaser.GameObjects.Graphics, x: number, y: number,
     const mx = x + w * 0.06 + i * w * 0.06;
     g.lineBetween(mx, y + h * 0.4, mx + 2, y + h * (0.5 + (i % 3) * 0.07));
   }
-  // the frame, mullions and sill: pale painted wood with a dark ink line
-  g.lineStyle(9, 0xb9cde6, 1);
-  g.strokeRect(x, y, w, h);
-  g.lineStyle(5, 0xb9cde6, 1);
-  g.lineBetween(x + w / 2, y, x + w / 2, y + h);
-  g.lineBetween(x, y + h / 2, x + w, y + h / 2);
-  g.lineStyle(2, PAL.ink, 0.8);
-  g.strokeRect(x - 5, y - 5, w + 10, h + 10);
-  paintRect(g, x - 14, y + h + 4, w + 28, 12, 0xb9cde6, { edge: 0xffffff });
 }
 
 export function drawBookshelf(g: Phaser.GameObjects.Graphics, x: number, w: number, h: number) {
