@@ -175,3 +175,18 @@ describe('logic audit', () => {
     }
   });
 });
+
+describe('the player drives the board', () => {
+  it("updates with the player's own likelihoods, and scores a Medium guess against them", async () => {
+    const { GameState } = await import('../state/GameState');
+    GameState.newGame('medium');
+    GameState.rememberSuspects();
+    GameState.setPrior(truePrior());
+    const mine = [0.9, 0.2, 0.2];
+    const expected = update(truePrior(), mine);
+    const rec = GameState.applyClue({ playerLik: mine, guess: expected });
+    rec.belief.forEach((b, i) => expect(b).toBeCloseTo(expected[i], 10));
+    expect(rec.playerLik).toEqual(mine);
+    expect(rec.score).toBe(100);
+  });
+});

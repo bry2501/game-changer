@@ -12,7 +12,7 @@ export interface StepRecord {
   guess?: Dist;
   /** Medium: 0–100 score for the guess. */
   score?: number;
-  /** Hard: the likelihoods the player chose. */
+  /** The likelihoods the player chose (they drive the board in every mode). */
   playerLik?: number[];
 }
 
@@ -97,19 +97,14 @@ class GameStateImpl {
   applyClue(opts: { guess?: number[]; playerLik?: number[] }): StepRecord {
     const i = this.data.found;
     const clue = CLUES[i];
-    let rec: StepRecord;
-    if (this.data.difficulty === 'hard') {
-      const lik = opts.playerLik ?? clue.likelihoods;
-      const belief = update(this.data.belief, lik);
-      rec = { clueId: clue.id, belief, playerLik: lik.slice() };
-    } else {
-      const truth = update(this.data.belief, clue.likelihoods);
-      rec = { clueId: clue.id, belief: truth };
-      if (this.data.difficulty === 'medium' && opts.guess) {
-        const g = normalize(opts.guess);
-        rec.guess = g;
-        rec.score = scoreGuess(g, truth);
-      }
+    // the player's own likelihoods drive their board in every mode; the ghost's are for comparison
+    const lik = opts.playerLik ?? clue.likelihoods;
+    const belief = update(this.data.belief, lik);
+    const rec: StepRecord = { clueId: clue.id, belief, playerLik: lik.slice() };
+    if (opts.guess) {
+      // Medium: how close was the guessed posterior to what the player's own numbers give?
+      rec.guess = normalize(opts.guess);
+      rec.score = scoreGuess(rec.guess, belief);
     }
     this.data.belief = rec.belief;
     this.data.history.push(rec);

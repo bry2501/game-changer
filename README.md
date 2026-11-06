@@ -39,9 +39,11 @@ Each mode plays the same mystery with a different number of suspects and clues, 
 
 | Mode | Suspects | What you do |
 |---|---|---|
-| Easy | Clara, Voss (5 clues) | The ghost shows the full Bayes update: prior × P(E\|H) ÷ P(E) → posterior. |
-| Medium | Clara, Voss, Pip (6 clues) | You drag the bars to guess each posterior, then see the true answer, your score (0–100) and the lesson. |
-| Hard | Graves, Clara, Voss, Pip (7 clues) | You choose your own prior and P(E\|H) for every suspect, using only verbal hints. There is no feedback until you accuse; then the breakdown shows where your model drifted. |
+| Easy | Clara, Voss (5 clues) | For each suspect you pick a likelihood (Very unlikely 0.05 … Very likely 0.9) after a hint from the ghost; the ghost then offers its own estimate, which you can adopt. Every step of the math is shown with your numbers, then compared with the ghost's. |
+| Medium | Clara, Voss, Pip (6 clues) | You pick the likelihoods, guess where the bars will land (scored), then compare your numbers with the ghost's. |
+| Hard | Graves, Clara, Voss, Pip (7 clues) | You set your own prior and likelihoods from the ghost's words alone. No comparison until you accuse. |
+
+In every mode **your likelihoods drive your board**, so a gut call that ignores the base rates or the ratios really can lead you to the wrong person. The ghost's estimates (the table below) are the reference the breakdown compares you against.
 
 ## The case, "The Clockmaker's Last Hour" (Hard mode)
 

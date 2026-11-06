@@ -20,6 +20,8 @@ export interface Suspect {
   memory: string;
   /** Why they were not in the house, for difficulties that leave them out. */
   absent: string;
+  /** How the household log shows them when they were not in the house. */
+  absentLog: [string, string];
   /** Who they are to Alistair, and what they might have to gain or lose. */
   backstory: string;
   /** What they did tonight (consistent with the household log). */
@@ -29,11 +31,24 @@ export interface Suspect {
   logOut: string;
 }
 
+/**
+ * The evidence itself, exactly as found, with no interpretation:
+ * - letter: a handwritten note
+ * - table: a log or ledger (rows of columns)
+ * - facts: plain observations of a physical object
+ */
+export type Evidence =
+  | { kind: 'letter'; date: string; lines: string[]; sign: string }
+  | { kind: 'table'; columns: string[]; rows: string[][]; foot?: string; widths?: number[] }
+  | { kind: 'facts'; rows: [string, string][] };
+
 export interface Clue {
   id: string;
   title: string;
-  /** What the ghost sees. */
-  text: string;
+  /** Where it was found (shown as a caption outside the evidence card). */
+  found: string;
+  /** The evidence itself, as found. */
+  evidence: Evidence;
   /** Why it matters: the narrative context before any analysis. */
   context: string;
   /** Short name used in questions: "How likely would I be to find ___?" */
@@ -44,8 +59,10 @@ export interface Clue {
   reasons: string[];
   /** Name of the reasoning trap this clue is built around. */
   trap: string;
-  /** Explanation shown after the update. */
+  /** Explanation shown after the update (numbers filled from the ghost's own chain). */
   lesson: string;
+  /** The same lesson with {butler} {niece} {partner} {gardener} placeholders, to fill with any posterior. */
+  lessonTemplate: string;
   /** The ghost's inner voice right after the clue: first the gut, then the reflective voice. */
   reaction: string[];
   /** The ghost's thought pointing toward the next clue (or back to the body). */
@@ -54,7 +71,7 @@ export interface Clue {
 
 /** Authoring form of a clue. Lessons may contain {butler} {niece} {partner} {gardener},
  *  replaced by that suspect's true posterior after this clue in the active case. */
-interface ClueSource extends Omit<Clue, 'nextThought'> {
+interface ClueSource extends Omit<Clue, 'nextThought' | 'lessonTemplate'> {
   /** The ghost's thought that points toward THIS clue. */
   leadIn: string;
   /** Overrides for Easy, where only Clara and Voss are suspects. */
@@ -76,6 +93,7 @@ const ALL_SUSPECTS: Suspect[] = [
     tonight: 'He served supper, brought my tea at half past nine as always, then signed out to visit his sister.',
     logIn: '6:00 pm', logOut: '9:30 pm',
     absent: 'Graves had the evening off and was visiting his sister.',
+    absentLog: ['\u2014', 'not in tonight (evening off)'],
   },
   {
     id: 'niece', name: 'Clara', role: 'the niece', color: 0xff9fc6, hoursInside: 3,
@@ -86,6 +104,7 @@ const ALL_SUSPECTS: Suspect[] = [
     tonight: 'She came back from a long walk at seven and spent the evening upstairs. I heard her on the telephone.',
     logIn: '7:00 pm', logOut: '10:00 pm (still in)',
     absent: '',
+    absentLog: ['', ''],
   },
   {
     id: 'partner', name: 'Mr. Voss', role: 'the business partner', color: 0xffd27a, hoursInside: 2,
@@ -96,6 +115,7 @@ const ALL_SUSPECTS: Suspect[] = [
     tonight: 'He came at four with papers to sign, stayed to supper, and signed out at eight.',
     logIn: '6:00 pm', logOut: '8:00 pm',
     absent: '',
+    absentLog: ['', ''],
   },
   {
     id: 'gardener', name: 'Pip', role: 'the gardener', color: 0x9ff0b0, hoursInside: 1.5,
@@ -106,6 +126,7 @@ const ALL_SUSPECTS: Suspect[] = [
     tonight: 'He ate supper in the kitchen and mended the boiler, then went out to the greenhouse for the rest of the evening.',
     logIn: '6:00 pm', logOut: '7:30 pm (to the greenhouse)',
     absent: 'Pip went home at six, as he always does.',
+    absentLog: ['\u2014', 'out 6:00 pm (went home)'],
   },
 ];
 
@@ -197,12 +218,17 @@ const ALL_CLUES: ClueSource[] = [
     id: 'teacup',
     short: 'Graves\u2019s fingerprints on my teacup',
     context:
-      'The sleeping draught was in my tea, so whoever handled this cup had a chance to slip it in. But a teacup passes through hands for innocent reasons too.',
+      'The sleeping draught was in this tea, so whoever handled the cup had a chance to slip it in. But Graves carries my tea every night: a cup passes through hands for innocent reasons too.',
     leadIn: 'My teacup is still on the desk. Let me start there.',
     title: 'Fingerprints on the Teacup',
-    text:
-      'My blue willow teacup, left on the desk beside the clock I was mending. A brown ring of cold tea at the bottom, and a faint bitter smell. ' +
-      'Clear fingerprints on the handle and the rim: a right thumb with a small scar across it, exactly like Graves\u2019s.',
+    found: 'On the study desk, beside the clock I was mending.',
+    evidence: { kind: 'facts', rows: [
+      ['Object', 'Blue willow teacup'],
+      ['Contents', 'Cold tea, a brown ring at the bottom'],
+      ['Smell', 'Faint and bitter'],
+      ['Fingerprints', 'On the handle and the rim'],
+      ['Prints match', 'Graves (right thumb, small scar across it)'],
+    ] },
     likelihoods: [0.95, 0.9, 0.9, 0.9],
     reasons: [
       'Graves serves my tea every night. His prints would be there almost no matter what: very likely.',
@@ -223,12 +249,11 @@ const ALL_CLUES: ClueSource[] = [
     id: 'letter',
     short: 'an angry letter like this',
     context:
-      'Clara and I quarrelled about my will. A letter like this shows strong feelings, maybe even a motive. But strong feelings are common, and poisoning is rare.',
+      'Dated three days ago, the day we quarrelled about my will, and never sent. It shows strong feelings, maybe even a motive. But strong feelings are common, and poisoning is rare.',
     leadIn: 'Clara\u2019s room is upstairs. If she has been writing to me, the drafts will be in her writing desk.',
     title: 'An Angry Letter',
-    text:
-      'Folded small at the back of Clara\u2019s writing-desk drawer: a draft letter on her blue notepaper, crossed out and rewritten. ' +
-      'It reads: "Uncle, if you change your will, I will NEVER forgive you!" It is dated three days ago, and it was never sent.',
+    found: 'Folded small at the back of Clara\u2019s writing-desk drawer. A draft, crossed out and rewritten.',
+    evidence: { kind: 'letter', date: 'Tuesday', lines: ['Uncle \u2014', 'If you change your will, I will NEVER forgive you!'], sign: 'C.' },
     likelihoods: [0.3, 0.6, 0.3, 0.3],
     reasons: [
       'If Graves did it, the quarrel with Clara happened anyway, and the letter could still turn up: 0.3.',
@@ -239,7 +264,7 @@ const ALL_CLUES: ClueSource[] = [
     trap: 'Vivid but weak evidence',
     lesson:
       'Angry words are dramatic, but plenty of people write angry letters and harm no one. ' +
-      'The likelihood ratio is only 2: it doubles Clara’s odds, making her the top suspect at {niece}. That is not a confession.',
+      'The likelihood ratio is only 2: it only doubles Clara’s odds. By the ghost’s estimates she would now be at {niece}. That is not a confession.',
     reaction: [
       'Clara. She was so angry with me...',
       'Anger makes a vivid story. But a vivid story isn\u2019t the same as a likely one.',
@@ -249,12 +274,17 @@ const ALL_CLUES: ClueSource[] = [
     id: 'boot',
     short: 'a muddy print hidden behind the fern',
     context:
-      'Someone came or went through the garden tonight, by a window that is never open. Who would be likely to leave a print like this?',
+      'Someone came in through the garden tonight, by a window that is never left open. Who would be likely to leave a print like this?',
     leadIn: 'A cold draft... it comes from the conservatory, at the far end of the house.',
     title: 'A Muddy Boot Print',
-    text:
-      'Hidden behind the big fern, right under the window that should have been latched: a boot print in wet garden mud, pointing into the house. ' +
-      'A large boot with a worn heel. The mud is still soft.',
+    found: 'On the conservatory floor, hidden behind the big fern, right under the window.',
+    evidence: { kind: 'facts', rows: [
+      ['Mark', 'One boot print, in wet garden mud'],
+      ['Size', 'Large, with a worn heel'],
+      ['Pointing', 'Into the house'],
+      ['Window above', 'Unlatched'],
+      ['Mud', 'Still soft'],
+    ] },
     likelihoods: [0.1, 0.1, 0.5, 0.8],
     reasons: [
       'Graves never goes through the garden at night: unlikely, 0.1.',
@@ -265,11 +295,11 @@ const ALL_CLUES: ClueSource[] = [
     trap: 'Representativeness ("mud means gardener")',
     lesson:
       'Mud screams "gardener!", but Voss would also leave prints, and Pip started with the lowest prior. ' +
-      'Prior × likelihood: Pip {gardener} vs Voss {partner}. The clue points to the GARDEN, not one person.',
+      'By the ghost’s estimates: Pip {gardener}, Voss {partner}. The clue points to the GARDEN, not one person.',
     trapEasy: 'A large likelihood ratio flips the lead',
     lessonEasy:
       'Clara\u2019s room is upstairs, while Voss parks by the garden gate. Mud is 5\u00D7 more likely if Voss did it, ' +
-      'so this one clue flips the lead: Voss is now {partner}. A large likelihood ratio moves belief a lot.',
+      'so this one clue can flip the lead: by the ghost’s estimates Voss would now be at {partner}. A large likelihood ratio moves belief a lot.',
     reactionEasy: [
       'Garden mud, under the open window. Who walks through the garden at night?',
       'Not Clara: her room is upstairs. But Voss parks by the garden gate...',
@@ -283,12 +313,17 @@ const ALL_CLUES: ClueSource[] = [
     id: 'ledger',
     short: 'a ledger like this',
     context:
-      'Money is missing from Finch & Voss Clockworks. If someone was stealing from me and feared I would find out, that would be a reason to silence me.',
+      'I have never heard of Harrow & Pike. If someone was stealing from the business and feared I was about to go through the books, that would be a reason to silence me.',
     leadIn: 'Voss kept the partnership books in his desk, in the office.',
     title: 'The Partnership Ledger',
-    text:
-      'In the bottom drawer of Voss\u2019s desk, under a stack of blank invoices: the real partnership ledger. ' +
-      'Column after column of payments to a company I have never heard of, every entry in Voss\u2019s tidy hand. More than two thousand pounds this year alone.',
+    found: 'In the bottom drawer of Voss\u2019s desk, under a stack of blank invoices.',
+    evidence: { kind: 'table', columns: ['Date', 'Paid to', 'Amount'], rows: [
+      ['3 March', 'Harrow & Pike Ltd', '\u00A3340'],
+      ['11 April', 'Harrow & Pike Ltd', '\u00A3415'],
+      ['2 June', 'Harrow & Pike Ltd', '\u00A3520'],
+      ['19 August', 'Harrow & Pike Ltd', '\u00A3610'],
+      ['7 October', 'Harrow & Pike Ltd', '\u00A3280'],
+    ], foot: 'Total this year: \u00A32,165.  Every entry in the same tidy hand: E. Voss.' },
     likelihoods: [0.2, 0.2, 0.7, 0.2],
     reasons: [
       'If Graves did it, missing money in the books is an unrelated mess: 0.2.',
@@ -299,7 +334,7 @@ const ALL_CLUES: ClueSource[] = [
     trap: 'Motive evidence (genuinely diagnostic)',
     lesson:
       'THIS clue is diagnostic: it is 3.5× more likely if Voss is guilty than if anyone else is. ' +
-      'Voss is now at {partner}. Notice that it took a strong likelihood ratio, not a vivid story.',
+      'By the ghost’s estimates Voss would now be at {partner}. Notice that it took a strong likelihood ratio, not a vivid story.',
     reaction: [
       'Voss. My partner. Stealing from me?',
       'This clue fits one person far better than anyone else. That is what strong evidence feels like.',
@@ -312,9 +347,12 @@ const ALL_CLUES: ClueSource[] = [
       'Graves left my tea on the desk at half past nine, and I drank it a little before ten. The draught went in some time around 9:40. Anyone on the telephone then could hardly have been in my study.',
     leadIn: 'The switchboard log lives in the telephone table drawer, back in the hallway.',
     title: 'The Telephone Log',
-    text:
-      'In the telephone table drawer: the switchboard operator\u2019s log for this month. One entry from tonight: a long-distance call from this house, ' +
-      'placed by Miss C. Finch to a number in Edinburgh, from 9:35 to 9:50 pm.',
+    found: 'In the hallway telephone table drawer: the switchboard operator\u2019s log.',
+    evidence: { kind: 'table', columns: ['Time', 'Caller', 'Called', 'Length'], rows: [
+      ['4:12 pm', 'Mr A. Finch', 'Hollis Brass Co.', '6 min'],
+      ['7:48 pm', '(incoming)', 'for Mr E. Voss', '2 min'],
+      ['9:35 pm', 'Miss C. Finch', 'Edinburgh 4471', '15 min'],
+    ] },
     likelihoods: [0.5, 0.05, 0.5, 0.5],
     reasons: [
       'If Graves did it, Clara\u2019s evening call has nothing to do with it. She phones friends most evenings: about even odds, 0.5.',
@@ -325,7 +363,7 @@ const ALL_CLUES: ClueSource[] = [
     trap: 'Exculpatory evidence',
     lesson:
       'Evidence can clear people too. An alibi makes the clue 10× LESS likely under "Clara did it". ' +
-      'Her probability collapses to {niece}, and the others share what she loses.',
+      'By the ghost’s estimates she would fall to {niece}, and the others share what she loses.',
     reaction: [
       'Clara was on the telephone when my tea was poured.',
       'I am almost relieved. An alibi is evidence too: it pushes belief away from someone.',
@@ -338,9 +376,13 @@ const ALL_CLUES: ClueSource[] = [
       'Pip\u2019s notes put him in the greenhouse all evening, writing every ten minutes. Would someone busy poisoning my tea keep such a steady record?',
     leadIn: 'Pip keeps his greenhouse log in the potting cupboard, in the conservatory.',
     title: 'The Greenhouse Log',
-    text:
-      'On the top shelf of the potting cupboard: Pip\u2019s greenhouse notebook, smelling of earth. ' +
-      'Tonight\u2019s page lists the temperature every ten minutes from 9:00 to 10:00 pm, in his small, careful pencil. No gaps.',
+    found: 'On the top shelf of the potting cupboard: Pip\u2019s greenhouse notebook.',
+    evidence: { kind: 'table', columns: ['Time', 'Temp.', 'Time', 'Temp.'], rows: [
+      ['9:00 pm', '61\u00B0F', '9:40 pm', '59\u00B0F'],
+      ['9:10 pm', '61\u00B0F', '9:50 pm', '59\u00B0F'],
+      ['9:20 pm', '60\u00B0F', '10:00 pm', '58\u00B0F'],
+      ['9:30 pm', '60\u00B0F', '', ''],
+    ], foot: 'Small, careful pencil. No gaps.  \u2014 P.' },
     likelihoods: [0.6, 0.6, 0.6, 0.09],
     reasons: [
       'If Graves did it, Pip simply did what he does most evenings: an unbroken log is likely, 0.6.',
@@ -351,7 +393,7 @@ const ALL_CLUES: ClueSource[] = [
     trap: 'Exculpatory evidence (weighing against the earlier clue)',
     lesson:
       'Remember the boot print that pointed at Pip? This alibi cancels most of it. ' +
-      'Bayesian updating lets evidence add up AND cancel out. Pip drops to {gardener}.',
+      'Bayesian updating lets evidence add up AND cancel out. By the ghost’s estimates Pip would drop to {gardener}.',
     reaction: [
       'Dear Pip, counting temperatures while I fell asleep for good.',
       'The mud pointed at him; this points away. Evidence can cancel out evidence.',
@@ -361,12 +403,15 @@ const ALL_CLUES: ClueSource[] = [
     id: 'cufflink',
     short: 'a \u201CV\u201D cufflink under my chair',
     context:
-      'Voss wears cufflinks like this. But he also sat at this very desk this afternoon, hours before anything happened.',
+      'Voss wore a pair just like this today, at our meeting and at supper. But he also sat at this very desk this afternoon, hours before anything happened.',
     leadIn: 'My desk chair in the study has been pushed back. Was something underneath it?',
     title: 'A Cufflink Engraved "V"',
-    text:
-      'Under my desk chair, caught in the fringe of the rug: a silver cufflink engraved with a looping "V". Its partner is missing. ' +
-      'Voss wore a pair just like it today, at our meeting and at supper.',
+    found: 'Under my desk chair, caught in the fringe of the rug.',
+    evidence: { kind: 'facts', rows: [
+      ['Object', 'One silver cufflink'],
+      ['Engraving', 'A looping \u201CV\u201D'],
+      ['Its partner', 'Missing'],
+    ] },
     likelihoods: [0.3, 0.3, 0.6, 0.3],
     reasons: [
       'If Graves did it, Voss could still have lost it at our meeting or at supper: 0.3.',
@@ -377,7 +422,7 @@ const ALL_CLUES: ClueSource[] = [
     trap: "Prosecutor's fallacy",
     lesson:
       'P(cufflink | Voss guilty) = 0.6, but that is NOT P(Voss guilty | cufflink). ' +
-      'On its own this clue is weak (likelihood ratio 2). What convicts Voss is ALL the evidence together: {partner}.',
+      'On its own this clue is weak (likelihood ratio 2). What convicts Voss is ALL the evidence together: by the ghost’s estimates, {partner}.',
     reaction: [
       'Voss\u2019s cufflink. But he sat at this desk this afternoon...',
       'On its own it proves little. Together with everything else, the picture is clear.',
@@ -421,6 +466,17 @@ export let CLUES: Clue[] = [];
 export let CULPRIT_INDEX = 0;
 export let PRIOR_SHEET = { ...PRIOR_SOURCE, nextThought: '', total: 0 };
 
+/** Every suspect in the story (in log order), including those a difficulty leaves out. */
+export const allSuspects = () => ALL_SUSPECTS;
+
+/** Fill a lesson template's {suspect} placeholders from any distribution over the active suspects. */
+export function fillLesson(template: string, dist: number[]): string {
+  return template.replace(/\{(butler|niece|partner|gardener)\}/g, (_m, id: string) => {
+    const k = SUSPECTS.findIndex((s) => s.id === id);
+    return k < 0 ? '' : fmtPct(dist[k]);
+  });
+}
+
 function fmtPct(x: number) {
   return `${Math.round(x * 100)}%`;
 }
@@ -451,13 +507,15 @@ export function setCase(difficulty: Difficulty) {
     return {
       id: src.id,
       title: src.title,
-      text: src.text,
+      found: src.found,
+      evidence: src.evidence,
       context: src.context,
       short: src.short,
       likelihoods,
       reasons: idx.map((i) => src.reasons[i]),
       trap: (easy && src.trapEasy) || src.trap,
       lesson: fill((easy && src.lessonEasy) || src.lesson, belief),
+      lessonTemplate: (easy && src.lessonEasy) || src.lesson,
       reaction: (easy && src.reactionEasy) || src.reaction,
       nextThought: n + 1 < sources.length ? sources[n + 1].leadIn : FINAL_THOUGHT,
     };

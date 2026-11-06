@@ -6,6 +6,12 @@ import { argmax, pct, totalVariation, update } from '../bayes/engine';
 import { beliefChart } from './BoardScene';
 import { Sound } from '../audio/Sound';
 
+/** Likelihoods as ratios to the smallest, e.g. 4.5 : 1 : 1. */
+function ratio(lik: number[]) {
+  const m = Math.min(...lik);
+  return lik.map((l) => +(l / m).toFixed(2)).join(' : ');
+}
+
 export class AccuseScene extends Phaser.Scene {
   private layer!: Phaser.GameObjects.Container;
   private accused = -1;
@@ -104,25 +110,20 @@ export class AccuseScene extends Phaser.Scene {
         : `You accused ${SUSPECTS[this.accused].name}. The evidence pointed to ${SUSPECTS[CULPRIT_INDEX].name} at ${pct(truth[truth.length - 1][CULPRIT_INDEX])}.`;
     txt(this, W / 2, 72, verdict, 20, this.accused === CULPRIT_INDEX ? '#9ff0b0' : '#ff9f9f').setOrigin(0.5, 0);
 
-    // chart: truth solid, player dashed (when the player's numbers differ)
-    txt(this, 40, 112, 'True posterior after each clue' + (d === 'easy' ? '' : ' (solid) vs. yours (dashed)'), 17, DIM);
+    // chart: the ghost's chain (solid) vs. the player's own board (dashed)
+    txt(this, 40, 112, 'The ghost\u2019s estimates (solid) vs. your board (dashed)', 17, DIM);
     beliefChart(this, 40, 140, 520, 300, truth, CLUES.length);
-    if (d === 'hard') {
-      beliefChart(this, 40, 140, 520, 300, [data.prior, ...data.history.map((h) => h.belief)], CLUES.length, {
-        dashed: true,
-        alpha: 0.8,
-      });
-    } else if (d === 'medium') {
-      const guesses = [truth[0], ...data.history.map((h) => h.guess ?? h.belief)];
-      beliefChart(this, 40, 140, 520, 300, guesses, CLUES.length, { dashed: true, alpha: 0.8 });
-    }
+    beliefChart(this, 40, 140, 520, 300, [data.prior, ...data.history.map((h) => h.belief)], CLUES.length, {
+      dashed: true,
+      alpha: 0.8,
+    });
     SUSPECTS.forEach((s, i) => txt(this, 40 + i * 130, 452, s.name, 17, hex(s.color)));
 
     // per-clue table
     const x0 = 600;
-    txt(this, x0, 112, 'Clue → trap', 17, DIM);
-    txt(this, x0 + 410, 112, 'truth', 17, DIM);
-    if (d !== 'easy') txt(this, x0 + 530, 112, 'you', 17, DIM);
+    txt(this, x0, 112, 'Clue \u2192 trap', 17, DIM);
+    txt(this, x0 + 410, 112, 'ghost', 17, DIM);
+    txt(this, x0 + 530, 112, 'you', 17, DIM);
     const stepErr: number[] = [];
     CLUES.forEach((c, k) => {
       const y = 152 + k * 44;
@@ -130,31 +131,25 @@ export class AccuseScene extends Phaser.Scene {
       stackedBar(this, x0 + 410, y, 110, 18, truth[k + 1], colors);
       const h = data.history[k];
       if (!h) return;
-      if (d === 'medium' && h.guess) {
-        stackedBar(this, x0 + 530, y, 110, 18, h.guess, colors);
-        stepErr.push(totalVariation(h.guess, truth[k + 1]));
-      } else if (d === 'hard' && h.playerLik) {
-        stackedBar(this, x0 + 530, y, 110, 18, h.belief, colors);
-        // isolate this step: apply the player's likelihoods to the TRUE previous belief
-        stepErr.push(totalVariation(update(truth[k], h.playerLik), truth[k + 1]));
-      }
+      stackedBar(this, x0 + 530, y, 110, 18, h.belief, colors);
+      // isolate this one step: apply the player's likelihoods to the ghost's previous belief
+      if (h.playerLik) stepErr.push(totalVariation(update(truth[k], h.playerLik), truth[k + 1]));
     });
 
     // takeaway
     let summary = '';
-    if (d === 'easy') {
-      const leaders = truth.slice(1).map(argmax);
-      const wrongLead = leaders.map((l, k) => (l !== CULPRIT_INDEX ? `${SUSPECTS[l].name} after clue ${k + 1}` : '')).filter(Boolean);
-      summary = `The lead changed hands: ${wrongLead.join(', ')}. Loud clues created false leaders; the quiet, diagnostic ones decided the case.`;
-    } else if (stepErr.length) {
+    const leaders = truth.slice(1).map(argmax);
+    const wrongLead = leaders.map((l, k) => (l !== CULPRIT_INDEX ? `${SUSPECTS[l].name} after clue ${k + 1}` : '')).filter(Boolean);
+    if (stepErr.length) {
       const worst = stepErr.indexOf(Math.max(...stepErr));
       const c = CLUES[worst];
       const avg = Math.round(100 * (1 - stepErr.reduce((a, b) => a + b, 0) / stepErr.length));
-      summary = `Update accuracy: ${avg}/100. Your biggest drift was clue ${worst + 1} (${c.title}): ${c.trap}.`;
-      if (d === 'hard') {
-        const lik = data.history[worst].playerLik!;
-        summary += ` You set P(E|H) = [${lik.map((v) => v.toFixed(2)).join(', ')}]; the ghost's model says [${c.likelihoods.join(', ')}].`;
-      }
+      summary = `How closely your likelihoods matched the ghost\u2019s: ${avg}/100. The biggest difference was clue ${worst + 1} (${c.title}): ${c.trap}. `;
+      const lik = data.history[worst].playerLik!;
+      summary += `Your likelihoods there, as ratios: ${ratio(lik)}; the ghost\u2019s: ${ratio(c.likelihoods)}.`;
+    }
+    if (d === 'easy' && wrongLead.length) {
+      summary += `  On the ghost\u2019s reckoning the lead changed hands: ${wrongLead.join(', ')}. Loud clues created false leaders; the quiet, diagnostic ones decided the case.`;
     }
     txt(this, 40, 495, summary, 19, '#cfe6ff', { wordWrap: { width: 1200 }, lineSpacing: 4 });
 
