@@ -80,12 +80,16 @@ export class BootScene extends Phaser.Scene {
       }
     }
     for (let i = 1; i < 16; i++) pts.push([10, 104 - (54 * i) / 16]);
-    // push each point in or out from the middle by a gentle, irregular wave
+    // push each point in or out from the middle by a gentle, irregular wave.
+    // The dome (the first 57 points) ripples less toward the crown, blending into
+    // full ripples at the shoulders; the sides and tail keep them all.
+    const DOME = 56;
     const rough = pts.map(([x, y], i) => {
       const dx = x - 48;
       const dy = y - 62;
       const len = Math.hypot(dx, dy) || 1;
-      const off = Math.sin(i * 0.95) * 0.5 + Math.sin(i * 0.41 + 1) * 0.15; // small, shallow ripples
+      const w = i <= DOME ? 0.25 + 0.75 * (2 * Math.abs(i / DOME - 0.5)) ** 2 : 1;
+      const off = (Math.sin(i * 0.95) * 0.5 + Math.sin(i * 0.41 + 1) * 0.15) * w; // small, shallow ripples
       return [x + (dx / len) * off, y + (dy / len) * off] as [number, number];
     });
     ctx.beginPath();
