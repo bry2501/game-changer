@@ -4,6 +4,7 @@ import { CLUES, Evidence, PRIOR_SHEET, SUSPECTS, allSuspects } from '../data/cas
 import { GameState, StepRecord, levelOf, truePrior } from '../state/GameState';
 import { joint, normalize, pct, update } from '../bayes/engine';
 import { drawSuspect } from './MemoryScene';
+import { CONCEPTS } from '../data/lessons';
 import { Sound } from '../audio/Sound';
 
 type Kind = 'prior' | 'clue';
@@ -32,17 +33,23 @@ const RATINGS = [
 ];
 const ratingOf = (v: number) => RATINGS.find((r) => Math.abs(r.v - v) < 1e-9)!;
 
-/** Whole-number "points" for Level 2 arithmetic (percent of a percent). */
-const pts = (x: number) => (x * 100).toFixed(x * 100 < 10 ? 1 : 0);
+/** Level 1's words for how much of a share a rating keeps. */
+const KEEP_WORDS: Record<number, string> = {
+  1: 'keeps very little',
+  2: 'keeps less than half',
+  3: 'keeps half',
+  4: 'keeps most',
+  5: 'keeps almost all',
+};
+
 
 /**
- * A note or clue, examined one idea at a time. The steps, and how much math they show,
- * depend on the level:
- * - Level 1 (feel it): the clue, where suspicion stands, a 1–5 rating per suspect, then a
- *   picture of each share shrinking by fit and stretching back to fill the line. No numbers.
- * - Level 2 (count it): the same, with percentages: multiply, guess, add up and rescale.
- * - Level 3 (prove it): decimals and Bayes' formula; the player also sets their own prior.
- * The game follows only the player's choices. The ghost gives hints, never answers.
+ * A note or clue, examined one idea at a time:
+ *   the clue (as found, with the ghost's reading) → a concept lesson (one new idea per clue)
+ *   → a 1–5 rating per suspect (the ghost hints, never answers) → [Level 2: guess]
+ *   → the update, stepped through (before, shrink, together, stretch) → [Level 3: the formula] → recap.
+ * Level 1 uses words only, Level 2 adds percentages, Level 3 probabilities and Bayes' formula.
+ * The game follows only the player's choices.
  */
 export class EvidenceScene extends Phaser.Scene {
   private kind: Kind = 'clue';
@@ -65,6 +72,8 @@ export class EvidenceScene extends Phaser.Scene {
   private guess: number[] = [];
   private guessLocked = false;
   private rec?: StepRecord;
+  /** Which step of the update animation is showing (0–3). */
+  private phase = 0;
 
   constructor() {
     super('Evidence');
@@ -81,6 +90,7 @@ export class EvidenceScene extends Phaser.Scene {
     this.guessLocked = false;
     this.rec = undefined;
     this.nextOverride = undefined;
+    this.phase = 0;
   }
 
   create() {
@@ -104,7 +114,9 @@ export class EvidenceScene extends Phaser.Scene {
   private go(delta: number) {
     Sound.blip();
     if (delta > 0 && this.index === this.steps.length - 1) return this.close();
-    this.index = Phaser.Math.Clamp(this.index + delta, 0, this.steps.length - 1);
+    const next = Phaser.Math.Clamp(this.index + delta, 0, this.steps.length - 1);
+    if (next !== this.index && !this.committed) this.phase = 0;
+    this.index = next;
     this.show();
   }
 
@@ -433,36 +445,35 @@ export class EvidenceScene extends Phaser.Scene {
           this.ghostNote(bottom + 24, clue.context);
         },
       },
-      {
-        crumb: 'Before',
-        build: () => {
-          this.title(head);
-          this.beliefStrip(CONTENT_Y + 30, this.prior, 'Before this clue, my suspicion is shared like this:');
-          this.para(W / 2, CONTENT_Y + 200, 'The question is never “who does this point at?”', 26, INK, 1000, 0.5);
-          this.para(
-            W / 2,
-            CONTENT_Y + 250,
-            L === 1
-              ? 'It is: if each person did it, how well would this clue fit their story? One person at a time.'
-              : 'It is: if each person did it, how likely is it that I would find this clue? That is the likelihood. One person at a time.',
-            24,
-            ACCENT,
-            1000,
-            0.5,
-          );
-        },
-      },
+      { crumb: 'Lesson', build: () => this.conceptPage(head) },
     ];
     SUSPECTS.forEach((s, i) => steps.push({ crumb: s.name, build: () => this.ratePage(i, clue, head) }));
-    if (L === 1) {
-      steps.push({ crumb: 'Weigh it', build: () => this.weighVisual(head) });
-    } else {
-      steps.push({ crumb: 'Weigh', build: () => this.weighPage(head) });
-      if (L === 2) steps.push({ crumb: 'Guess', build: () => this.guessPage(head) });
-      steps.push({ crumb: 'Rescale', build: () => this.balancePage(head) });
-    }
-    steps.push({ crumb: 'Lesson', build: () => this.lessonPage(head, clue) });
+    if (L === 2) steps.push({ crumb: 'Guess', build: () => this.guessPage(head) });
+    steps.push({ crumb: 'Update', build: () => this.updatePage(head) });
+    if (L === 3) steps.push({ crumb: 'Formula', build: () => this.formulaPage(head) });
+    steps.push({ crumb: 'Recap', build: () => this.recapPage(head, clue) });
     return steps;
+  }
+
+  /**
+   * The concept for this point in the case: one new idea per clue, building as you go.
+   * It teaches how to reason, not what to conclude. Levels 2 and 3 add the numbers.
+   */
+  private conceptPage(head: string) {
+    const L = this.level;
+    const k = Math.min(GameState.data.found, CONCEPTS.length - 1);
+    const c = CONCEPTS[k];
+    this.title(head);
+    this.put(txt(this, W / 2, CONTENT_Y + 2, `Lesson ${k + 1}: ${c.title}`, 28, GOLD, { fontStyle: 'bold' }).setOrigin(0.5, 0));
+    let y = CONTENT_Y + 52;
+    const add = (t: Phaser.GameObjects.Text, gap: number) => {
+      y += t.height + gap;
+      return t;
+    };
+    add(this.para(W / 2, y, c.body, 23, INK, 1000, 0.5), 18);
+    if (L >= 2) add(this.para(W / 2, y, `In numbers: ${c.numbers}`, 20, '#cfe6ff', 1000, 0.5), 14);
+    if (L === 3) add(this.para(W / 2, y, `In the formula: ${c.formula}`, 20, ACCENT, 1000, 0.5), 14);
+    this.beliefStrip(Math.max(y + 10, CONTENT_Y + 330), this.prior, 'Before this clue, your suspicion is shared like this:');
   }
 
   /** The player rates, from 1 to 5, how well this clue would fit if this person did it. */
@@ -518,107 +529,142 @@ export class EvidenceScene extends Phaser.Scene {
   }
 
   /**
-   * Level 1: no numbers. Each share shrinks by how well the clue fits that story,
-   * then the line is stretched back to full length.
+   * The update, one step at a time, at the player's pace:
+   *   0. before: each person's share as a bar
+   *   1. shrink: each share keeps only as much as the clue fits that story (the lost part stays, faded)
+   *   2. together: what's left, side by side, no longer fills the line
+   *   3. stretch: rescale back to the full line; old sizes outlined, with grew / shrank marks
+   * Level 1 uses words only; Level 2 adds percentages; Level 3 uses probabilities.
    */
-  private weighVisual(head: string) {
-    this.title(head);
-    this.commitClue();
-    const lik = this.lik;
-    const after = update(this.prior, lik);
-    const width = 860;
-    const x0 = W / 2 - width / 2;
-    const colors = SUSPECTS.map((s) => s.color);
-
-    this.para(W / 2, CONTENT_Y + 4, '1. Before the clue, suspicion is shared like this:', 21, '#cfe6ff', 1000, 0.5);
-    this.put(stackedBar(this, x0, CONTENT_Y + 56, width, 30, this.prior, colors));
-
-    this.para(W / 2, CONTENT_Y + 100, '2. Each share shrinks by how well the clue fits that person’s story. A 5 keeps almost all of it; a 1 keeps very little.', 21, '#cfe6ff', 1000, 0.5);
-    const shrunk = this.put(this.add.container(0, 0));
-    let x = x0;
-    SUSPECTS.forEach((s, i) => {
-      const full = width * this.prior[i];
-      const kept = full * lik[i];
-      const ghost = this.add.rectangle(x, CONTENT_Y + 196, full, 30, s.color, 0.15).setOrigin(0, 0.5);
-      const bar = this.add.rectangle(x, CONTENT_Y + 196, full, 30, s.color, 0.9).setOrigin(0, 0.5);
-      shrunk.add([ghost, bar]);
-      shrunk.add(txt(this, x + 4, CONTENT_Y + 218, `${s.name}: ${ratingOf(lik[i]).n}`, 17, hex(s.color)));
-      this.time.delayedCall(500 + i * 500, () => this.tweens.add({ targets: bar, width: kept, duration: 700, ease: 'Sine.easeInOut' }));
-      x += full;
-    });
-
-    this.para(W / 2, CONTENT_Y + 262, '3. What is left no longer fills the line. Stretch it back to full length, keeping the proportions:', 21, '#cfe6ff', 1000, 0.5);
-    const finalBar = this.put(stackedBar(this, x0, CONTENT_Y + 342, width, 30, after, colors).setAlpha(0));
-    this.time.delayedCall(700 + SUSPECTS.length * 500, () => this.tweens.add({ targets: finalBar, alpha: 1, duration: 600 }));
-
-    // say in words what happened to each share
-    const lines = SUSPECTS.map((s, i) => {
-      const d = after[i] - this.prior[i];
-      const how = Math.abs(d) < 0.02 ? 'stayed about the same' : d > 0 ? (d > 0.15 ? 'grew a lot' : 'grew') : d < -0.15 ? 'shrank a lot' : 'shrank';
-      return `${s.name}’s share ${how}.`;
-    });
-    const words = this.para(W / 2, CONTENT_Y + 396, lines.join('  '), 21, INK, 1000, 0.5).setAlpha(0);
-    this.time.delayedCall(1300 + SUSPECTS.length * 500, () => this.tweens.add({ targets: words, alpha: 1, duration: 500 }));
-    this.para(
-      W / 2,
-      CONTENT_Y + 448,
-      'Only how the fits compare matters: if you had rated everyone the same, nothing would have moved.',
-      18,
-      DIM,
-      1000,
-      0.5,
-    );
-  }
-
-  /** Levels 2–3: prior × likelihood, one row at a time. */
-  private weighPage(head: string) {
+  private updatePage(head: string) {
     const L = this.level;
+    const ph = this.phase;
     this.title(head);
     const lik = this.lik;
-    const j = joint(this.prior, lik);
-    this.para(
-      W / 2,
-      CONTENT_Y + 4,
-      L === 2
-        ? 'Step 1, multiply: each person’s share of suspicion × how well the clue fits their story.'
-        : 'Multiply each prior by its likelihood: P(H) × P(clue | H).',
-      22,
-      '#cfe6ff',
-      1060,
-      0.5,
-    );
-    const max = Math.max(...j);
-    const rowH = Math.min(84, 330 / SUSPECTS.length);
+    const kept = joint(this.prior, lik);
+    const total = kept.reduce((a, b) => a + b, 0);
+    const after = update(this.prior, lik);
+    if (ph >= 3) this.commitClue(L === 2 ? this.guess : undefined);
+
+    const n = SUSPECTS.length;
+    const X = 290;
+    const BW = 640;
+    const rowH = Math.min(74, 290 / n);
+    const top = CONTENT_Y + 150;
+    const fmt = (x: number) => (L === 2 ? pct(x) : x.toFixed(3));
+
+    // the caption for this step
+    const captions = [
+      L === 3
+        ? 'Before the clue. Each bar is a prior, P(H): that person\u2019s share of suspicion. Together they fill the line.'
+        : `Before the clue. Each bar is one person\u2019s share of my suspicion. Together they fill the whole line${L === 2 ? ' (100%)' : ''}.`,
+      L === 1
+        ? 'Each share shrinks by how well the clue fits that person\u2019s story. A good fit keeps most of it; a poor fit keeps little. The faded part is what the clue took away.'
+        : L === 2
+          ? 'Multiply: each share keeps its rating\u2019s percentage. A 4 keeps 70%, a 2 keeps 30%. The faded part is what the clue took away.'
+          : 'Multiply each prior by its likelihood: P(H) \u00D7 P(clue | H). The faded part is what the clue took away.',
+      L === 1
+        ? 'Put what\u2019s left side by side. It no longer fills the whole line, because the clue took a piece of every share.'
+        : L === 2
+          ? `Add up what\u2019s left: ${kept.map((x) => pct(x)).join(' + ')} = ${pct(total)}. It no longer fills 100%.`
+          : `Add up the products: ${kept.map((x) => x.toFixed(3)).join(' + ')} = ${total.toFixed(3)}. That total is P(clue).`,
+      L === 1
+        ? 'Stretch what\u2019s left back to the full line, keeping the proportions. Whoever kept more than the others grows; whoever kept less shrinks.'
+        : L === 2
+          ? `Rescale: divide each by ${pct(total)} so they fill 100% again. Whoever kept more than average grows; whoever kept less shrinks.`
+          : `Divide each product by P(clue) = ${total.toFixed(3)}. The result is the posterior, P(H | clue).`,
+    ];
+    const stepName = ['Before', 'Step 1 of 3: shrink', 'Step 2 of 3: together', 'Step 3 of 3: stretch'][ph];
+    this.put(txt(this, W / 2, CONTENT_Y + 2, stepName, 22, GOLD, { fontStyle: 'bold' }).setOrigin(0.5, 0));
+    this.para(W / 2, CONTENT_Y + 36, captions[ph], 20, '#cfe6ff', 1060, 0.5);
+
     SUSPECTS.forEach((s, i) => {
-      const y = CONTENT_Y + 130 + i * rowH;
-      const row = this.put(this.add.container(0, 0).setAlpha(0));
-      row.add(txt(this, 70, y - 14, s.name, 25, hex(s.color), { fontStyle: 'bold' }));
-      if (L === 2) {
-        row.add(txt(this, 250, y - 14, `${pct(this.prior[i])}  ×  ${pct(lik[i])}  =  ${pts(j[i])} points`, 25, INK));
-        row.add(txt(this, 250, y + 16, `share  ×  your ${ratingOf(lik[i]).n} (${ratingOf(lik[i]).word.toLowerCase()})`, 15, DIM));
+      const y = top + i * rowH;
+      const r = ratingOf(lik[i]);
+      this.put(txt(this, 60, y - 13, s.name, 23, hex(s.color), { fontStyle: 'bold' }));
+      this.put(this.add.rectangle(X, y, BW, 26, 0x0c1120).setOrigin(0, 0.5).setStrokeStyle(1, 0x3a4566));
+      const priorW = BW * this.prior[i];
+      const keptW = BW * kept[i];
+      const postW = BW * after[i];
+      const label = this.put(txt(this, X + BW + 16, y - 12, '', 18, INK));
+
+      if (ph <= 2) {
+        // the part the clue takes away stays visible, faded and outlined
+        if (ph >= 1) {
+          this.put(this.add.rectangle(X, y, priorW, 26, s.color, 0.16).setOrigin(0, 0.5).setStrokeStyle(1, s.color, 0.5));
+        }
+        const bar = this.put(this.add.rectangle(X, y, ph >= 1 ? keptW : priorW, 26, s.color, 0.92).setOrigin(0, 0.5));
+        if (ph === 1) {
+          bar.width = priorW;
+          this.time.delayedCall(250 + i * 450, () => this.tweens.add({ targets: bar, width: keptW, duration: 700, ease: 'Sine.easeInOut' }));
+        }
+        if (ph === 0) label.setText(L === 1 ? '' : L === 2 ? pct(this.prior[i]) : this.prior[i].toFixed(3));
+        else
+          label.setText(
+            L === 1
+              ? `rated ${r.n}: ${KEEP_WORDS[r.n]}`
+              : L === 2
+                ? `${pct(this.prior[i])} \u00D7 ${pct(lik[i])} = ${pct(kept[i])}`
+                : `${this.prior[i].toFixed(3)} \u00D7 ${lik[i]} = ${kept[i].toFixed(3)}`,
+          );
       } else {
-        const shown = +this.prior[i].toFixed(3) * lik[i];
-        const eq = shown.toFixed(3) === j[i].toFixed(3) ? '=' : '≈';
-        row.add(txt(this, 250, y - 14, `${this.prior[i].toFixed(3)}  ×  ${lik[i]}  ${eq}  ${j[i].toFixed(3)}`, 25, INK));
-        row.add(txt(this, 250, y + 16, `P(${s.name})  ×  P(clue | ${s.name})`, 15, DIM));
+        // stretched: the new share, with the old size outlined for comparison
+        const bar = this.put(this.add.rectangle(X, y, keptW, 26, s.color, 0.92).setOrigin(0, 0.5));
+        this.put(this.add.rectangle(X, y, priorW, 30).setOrigin(0, 0.5).setStrokeStyle(2, 0xffffff, 0.55));
+        if (L === 2 && this.guess.length) {
+          this.put(this.add.rectangle(X + BW * this.guess[i], y, 4, 38, 0x9ff0b0).setOrigin(0.5));
+        }
+        this.time.delayedCall(700, () => this.tweens.add({ targets: bar, width: postW, duration: 900, ease: 'Sine.easeInOut' }));
+        const d = after[i] - this.prior[i];
+        const mark = Math.abs(d) < 0.01 ? '= about the same' : d > 0 ? '\u25B2 grew' : '\u25BC shrank';
+        label.setText(L === 1 ? mark : `${fmt(this.prior[i])} \u2192 ${fmt(after[i])}  ${mark.split(' ')[0]}`);
+        label.setColor(Math.abs(d) < 0.01 ? INK : d > 0 ? '#9ff0b0' : '#ff9f9f').setAlpha(0);
+        this.time.delayedCall(1500, () => this.tweens.add({ targets: label, alpha: 1, duration: 400 }));
       }
-      const bar = new BarRow(this, 780, y, 340, s.color, 0, () => (L === 2 ? pts(j[i]) : j[i].toFixed(3)), { height: 24 });
-      row.add(bar);
-      this.time.delayedCall(350 + i * 650, () => {
-        this.tweens.add({ targets: row, alpha: 1, duration: 300 });
-        bar.setValue(j[i] / max, true);
-      });
     });
-    this.para(
-      W / 2,
-      CONTENT_Y + 450,
-      'Only how the likelihoods compare matters: rate everyone the same and nothing moves.',
-      19,
-      DIM,
-      1060,
-      0.5,
-    );
-    this.para(W / 2, CONTENT_Y + 490, 'Weighing clues one at a time assumes each clue depends only on who did it, not on the other clues.', 16, '#56627f', 1060, 0.5);
+
+    // the leftovers side by side (step 2), then stretched to the full line (step 3)
+    const cy = top + n * rowH + 22;
+    if (ph >= 2) {
+      this.put(txt(this, 60, cy - 12, ph === 2 ? 'What\u2019s left' : 'Stretched', 18, DIM));
+      this.put(this.add.rectangle(X, cy, BW, 26, 0x0c1120).setOrigin(0, 0.5).setStrokeStyle(1, 0x3a4566));
+      const strip = this.put(this.add.container(X, cy));
+      let x = 0;
+      SUSPECTS.forEach((s, i) => {
+        const w = BW * kept[i];
+        strip.add(this.add.rectangle(x, 0, w, 26, s.color, 0.92).setOrigin(0, 0.5));
+        x += w;
+      });
+      if (ph === 2) {
+        strip.setAlpha(0);
+        this.tweens.add({ targets: strip, alpha: 1, duration: 600, delay: 200 });
+        this.put(txt(this, X + BW * total + 8, cy - 11, L === 1 ? '\u2190 short of the full line' : `\u2190 ${L === 2 ? pct(total) : total.toFixed(3)} of the line`, 17, GOLD));
+      } else {
+        this.time.delayedCall(200, () => this.tweens.add({ targets: strip, scaleX: 1 / total, duration: 900, ease: 'Sine.easeInOut' }));
+      }
+    }
+
+    if (ph === 3) {
+      const words = SUSPECTS.map((s, i) => {
+        const d = after[i] - this.prior[i];
+        const how = Math.abs(d) < 0.01 ? 'stayed about the same' : d > 0 ? (d > 0.15 ? 'grew a lot' : 'grew') : d < -0.15 ? 'shrank a lot' : 'shrank';
+        return `${s.name}\u2019s share ${how}.`;
+      });
+      const note =
+        L === 2 && this.rec?.score !== undefined
+          ? `Your guess (green line) scored ${this.rec.score}/100.  ` + words.join('  ')
+          : words.join('  ') + '  White outline = the size before this clue.';
+      this.para(W / 2, cy + 40, note, 19, INK, 1080, 0.5);
+    }
+
+    // the player steps through at their own pace
+    if (ph < 3) {
+      this.setNext(`Show step ${ph + 1} \u203A`, true, () => {
+        this.phase = ph + 1;
+        Sound.blip();
+        this.show();
+      });
+    }
   }
 
   /** Level 2: before rescaling, the player guesses where the bars will land. */
@@ -646,58 +692,22 @@ export class EvidenceScene extends Phaser.Scene {
     });
   }
 
-  /** Levels 2–3: add up and rescale so the shares fill 100% again. */
-  private balancePage(head: string) {
-    const L = this.level;
+  /** Level 3: the same update written as Bayes\u2019 formula, with every number in place. */
+  private formulaPage(head: string) {
     this.title(head);
+    this.commitClue();
     const lik = this.lik;
     const j = joint(this.prior, lik);
     const pE = j.reduce((a, b) => a + b, 0);
     const post = update(this.prior, lik);
-    this.commitClue(L === 2 ? this.guess : undefined);
-
-    if (L === 2) {
-      const sumEq = j.reduce((a, x) => a + +pts(x), 0).toFixed(1) === (+pts(pE)).toFixed(1) ? '=' : '≈';
-      this.para(
-        W / 2,
-        CONTENT_Y + 4,
-        `Step 2, add up: ${j.map(pts).join(' + ')} ${sumEq} ${pts(pE)} points.  Step 3, rescale: divide each by ${pts(pE)} so they fill 100% again.`,
-        22,
-        '#cfe6ff',
-        1060,
-        0.5,
-      );
-      this.barsTable(this.prior, post, (i) => `${pts(j[i])} ÷ ${pts(pE)}`, true, this.guess.length ? this.guess : undefined, true);
-      if (this.rec?.score !== undefined) {
-        this.para(W / 2, CONTENT_Y + 462, `Your guess (white line) scored ${this.rec.score}/100 against your own numbers.`, 21, '#9ff0b0', 1000, 0.5);
-      }
-      return;
-    }
-    // Level 3: the formula, with every number in place
-    const sumEq = j.reduce((a, x) => a + +x.toFixed(3), 0).toFixed(3) === pE.toFixed(3) ? '=' : '≈';
-    this.para(W / 2, CONTENT_Y + 0, 'P(H | clue)  =  P(clue | H) × P(H)  ÷  P(clue)', 26, GOLD, 1060, 0.5);
-    this.para(
-      W / 2,
-      CONTENT_Y + 44,
-      `P(clue) = the products added up: ${j.map((x) => x.toFixed(3)).join(' + ')} ${sumEq} ${pE.toFixed(3)}`,
-      20,
-      '#cfe6ff',
-      1060,
-      0.5,
-    );
-    this.barsTable(
-      this.prior,
-      post,
-      (i) => `${this.prior[i].toFixed(3)} × ${lik[i]} ÷ ${pE.toFixed(3)}`,
-      true,
-      undefined,
-      true,
-      CONTENT_Y + 150,
-    );
+    const sumEq = j.reduce((a, x) => a + +x.toFixed(3), 0).toFixed(3) === pE.toFixed(3) ? '=' : '\u2248';
+    this.para(W / 2, CONTENT_Y + 0, 'P(H | clue)  =  P(clue | H) \u00D7 P(H)  \u00F7  P(clue)', 26, GOLD, 1060, 0.5);
+    this.para(W / 2, CONTENT_Y + 44, `P(clue) = ${j.map((x) => x.toFixed(3)).join(' + ')} ${sumEq} ${pE.toFixed(3)}`, 20, '#cfe6ff', 1060, 0.5);
+    this.barsTable(this.prior, post, (i) => `${lik[i]} \u00D7 ${this.prior[i].toFixed(3)} \u00F7 ${pE.toFixed(3)}`, true, undefined, true, CONTENT_Y + 150);
     this.para(
       W / 2,
       CONTENT_Y + 462,
-      'Equivalently, each share is multiplied by P(clue | H) ÷ P(clue): above 1 it grows, below 1 it shrinks.',
+      'Each prior is multiplied by P(clue | H) \u00F7 P(clue): above 1 it grows, below 1 it shrinks. Exactly the shrink-and-stretch you just watched.',
       18,
       DIM,
       1040,
@@ -705,7 +715,7 @@ export class EvidenceScene extends Phaser.Scene {
     );
   }
 
-  private lessonPage(head: string, clue: (typeof CLUES)[number]) {
+  private recapPage(head: string, clue: (typeof CLUES)[number]) {
     this.title(head);
     this.commitClue();
     const after = this.rec?.belief ?? GameState.data.belief;

@@ -75,6 +75,8 @@ interface ClueSource extends Omit<Clue, 'nextThought' | 'hints'> {
   /** The ghost's thought that points toward THIS clue. */
   leadIn: string;
   /** Overrides for Easy, where only Clara and Voss are suspects. */
+  /** Fuller reasoning for Level 1, keyed by suspect id: it points the way without giving the rating. */
+  hintsSimple?: Record<string, string>;
   /** Plain-words lesson for Level 1. */
   lessonSimple?: string;
   trapEasy?: string;
@@ -266,6 +268,10 @@ const ALL_CLUES: ClueSource[] = [
   },
   {
     id: 'letter',
+    hintsSimple: {
+      niece: 'If Clara did it, the quarrel over my will would be her reason, and a furious letter is just what that anger leaves behind. But angry letters are written by people who never hurt anyone, too. So her guilt makes this letter more expected, though not by a huge margin.',
+      partner: 'If Voss did it, Clara and I still quarrelled about the will, and she might still have written this and thought better of sending it. His guilt does not stop the letter existing. It just gives it less of a reason to be here.',
+    },
     short: 'an angry letter like this',
     context:
       'Dated three days ago, the day we quarrelled about my will, and never sent. It shows strong feelings, maybe even a motive. But strong feelings are common, and poisoning is rare.',
@@ -292,6 +298,10 @@ const ALL_CLUES: ClueSource[] = [
   },
   {
     id: 'boot',
+    hintsSimple: {
+      niece: 'If Clara did it, would she come in through the garden at night? Her room is upstairs and she was inside all evening. A muddy print under this window is very hard to explain in her story.',
+      partner: 'If Voss did it, he signed out at eight and had to slip back in unseen. He parks by the garden gate, and the muddy beds lie between that gate and this very window. In his story, a print like this is easy to explain.',
+    },
     short: 'a muddy print hidden behind the fern',
     context:
       'Someone came in through the garden tonight, by a window that is never left open. Who would be likely to leave a print like this?',
@@ -329,6 +339,10 @@ const ALL_CLUES: ClueSource[] = [
   },
   {
     id: 'ledger',
+    hintsSimple: {
+      niece: 'If Clara did it, the money missing from the business has nothing to do with her. Her guilt would not make this hidden ledger any more expected. It would be here either way, or not.',
+      partner: 'If Voss did it, here is his reason: payments to a company I have never heard of, all in his hand, and I had just told him I wanted to see the books. In his story, a hidden ledger like this is exactly what you would expect to find.',
+    },
     short: 'a ledger like this',
     context:
       'I have never heard of Harrow & Pike. If someone was stealing from the business and feared I was about to go through the books, that would be a reason to silence me.',
@@ -361,6 +375,10 @@ const ALL_CLUES: ClueSource[] = [
   },
   {
     id: 'phone',
+    hintsSimple: {
+      niece: 'If Clara poured the draught at about 9:40, how could she be on a call to Edinburgh from 9:35 to 9:50? Her guilt and this log hardly fit together, unless the log itself is wrong.',
+      partner: 'If Voss did it, Clara\u2019s call is just Clara phoning a friend, as she often does in the evening. His guilt changes nothing about whether she would make that call. It neither helps nor hurts his story.',
+    },
     short: 'this telephone log',
     context:
       'Graves left my tea on the desk at half past nine, and I drank it a little before ten. The draught went in some time around 9:40. Anyone on the telephone then could hardly have been in my study.',
@@ -420,6 +438,10 @@ const ALL_CLUES: ClueSource[] = [
   },
   {
     id: 'cufflink',
+    hintsSimple: {
+      niece: 'If Clara did it, the cufflink is still easy to explain: Voss sat in this very chair at our meeting this afternoon, and cufflinks do fall off. It would not surprise me much either way.',
+      partner: 'If Voss did it, he came back tonight in a hurry, and a cufflink lost while rushing is easy to imagine. But he could just as well have lost it this afternoon. His story explains it somewhat better, not overwhelmingly.',
+    },
     short: 'a \u201CV\u201D cufflink under my chair',
     context:
       'Voss wore a pair just like this today, at our meeting and at supper. But he also sat at this very desk this afternoon, hours before anything happened.',
@@ -535,7 +557,7 @@ export function setCase(difficulty: Difficulty) {
       reasons: idx.map((i) => src.reasons[i]),
       trap: (easy && src.trapEasy) || src.trap,
       lesson: (easy && src.lessonSimple) || src.lesson,
-      hints: idx.map((i) => hintOf(src.reasons[i])),
+      hints: idx.map((i) => (easy && src.hintsSimple?.[ALL_SUSPECTS[i].id]) || hintOf(src.reasons[i])),
       reaction: (easy && src.reactionEasy) || src.reaction,
       nextThought: n + 1 < sources.length ? sources[n + 1].leadIn : FINAL_THOUGHT,
     };
