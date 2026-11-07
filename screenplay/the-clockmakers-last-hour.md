@@ -28,7 +28,7 @@ One night. One hour. Two suspects. You are the ghost, and you have until the clo
 > **GHOST** *(thought)*: It’s dark.
 > **GHOST** *(thought)*: And cold. Too cold...
 > **GHOST** *(thought)*: I don’t remember getting here.
-> **GHOST** *(thought)*: I don’t remember anything at all. My name feels slightly out of reach.
+> **GHOST** *(thought)*: My name feels out of reach.
 
 *The ghost drifts toward a tall shape against the wall: a grandfather clock, its case dark as strong tea, the pendulum swinging slow and unhurried.*
 

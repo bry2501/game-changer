@@ -120,7 +120,7 @@ export const AWAKEN_LINES: string[] = [
   'It’s dark.',
   'And cold. Too cold...',
   'I don’t remember getting here.',
-  'I don’t remember anything at all. My name feels slightly out of reach.',
+  'My name feels out of reach.',
 ];
 
 /** Beat: drifting to the grandfather clock and reaching for it. */
