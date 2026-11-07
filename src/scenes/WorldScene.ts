@@ -109,6 +109,8 @@ export class WorldScene extends Phaser.Scene {
   private bodyVisible = false;
   private tapTarget?: string;
   private roomGfx: { g: Phaser.GameObjects.Components.Visible; floor: number; x0: number; x1: number }[] = [];
+  /** Parallax pieces (sky trees, foreground curtains), shown only while they are on screen. */
+  private parallaxCull: { o: Phaser.GameObjects.Components.Visible; x: number; w: number; factor: number }[] = [];
   private t = 0;
   private vx = 0;
 
@@ -787,6 +789,13 @@ export class WorldScene extends Phaser.Scene {
       const top = floorTop(floor);
       layer.setVisible(top < v.bottom && top + FLOOR_H > v.y);
     }
+    // a piece at scroll factor f sits on screen at x - scrollX · f
+    const cam = this.cameras.main;
+    const vw = v.right - v.x;
+    for (const p of this.parallaxCull) {
+      const sx = p.x - cam.scrollX * p.factor;
+      p.o.setVisible(sx + p.w > -60 && sx < vw + 60);
+    }
     for (const r of this.roomGfx) {
       const top = floorTop(r.floor);
       r.g.setVisible(r.x1 > v.x - 300 && r.x0 < v.right + 300 && top < v.bottom && top + FLOOR_H > v.y);
@@ -845,11 +854,44 @@ export class WorldScene extends Phaser.Scene {
         drawFoliage(g, x + dx * s, y * s, r * s, r * 0.55 * s, color, Math.round(x) + k, s),
       );
     };
-    const far = this.add.graphics().setScrollFactor(0.25, 0).setDepth(10.54);
-    for (let x = 200; x < WORLD_W * 0.25 + W + 400; x += 620) tree(far, x + ((x * 7) % 180), 1, 0x0a0f14);
-    const near = this.add.graphics().setScrollFactor(0.55, 0).setDepth(10.56);
-    for (let x = 500; x < WORLD_W * 0.55 + W + 600; x += 1150) tree(near, x, 1.6, 0x030506);
-    for (const o of [sky, moon, far, near]) o.setMask(geo);
+    // The tree rows are thousands of small shapes, far too many to redraw every frame, so each
+    // row is painted once into a texture that repeats along the house, and shown as images.
+    const far = this.treeRow('sky-far', 4, 620, (g, k, x) => tree(g, x + ((k * 4340) % 180), 1, 0x0a0f14), 0.25, 10.54, 200);
+    const near = this.treeRow('sky-near', 2, 1150, (g, _k, x) => tree(g, x, 1.6, 0x030506), 0.55, 10.56, 500);
+    for (const o of [sky, moon, ...far, ...near]) o.setMask(geo);
+  }
+
+  /**
+   * One row of trees for the sky, baked into a repeating texture: `count` trees `gap` apart
+   * make one tile (drawn wrapped at both ends so the tiles join without a seam), and tiles are
+   * laid end to end across the house at the row's parallax.
+   */
+  private treeRow(
+    key: string,
+    count: number,
+    gap: number,
+    draw: (g: Phaser.GameObjects.Graphics, k: number, x: number) => void,
+    factor: number,
+    depth: number,
+    start: number,
+  ): Phaser.GameObjects.Image[] {
+    const tileW = count * gap;
+    const res = Math.min(ZOOM, 1.5); // sharp enough behind the glass, and modest on memory
+    if (!this.textures.exists(key)) {
+      const g = this.make.graphics({}, false);
+      for (let k = 0; k < count; k++) for (const shift of [-tileW, 0, tileW]) draw(g, k, k * gap + shift + gap / 2);
+      g.setScale(res);
+      const tex = this.textures.addDynamicTexture(key, Math.ceil(tileW * res), Math.ceil(H * res))!;
+      tex.draw(g, 0, 0);
+      g.destroy();
+    }
+    const imgs: Phaser.GameObjects.Image[] = [];
+    for (let x = start - gap / 2; x < WORLD_W * factor + W + gap; x += tileW) {
+      const img = this.add.image(x, 0, key).setOrigin(0).setScale(1 / res).setScrollFactor(factor, 0).setDepth(depth);
+      imgs.push(img);
+      this.parallaxCull.push({ o: img, x, w: tileW, factor });
+    }
+    return imgs;
   }
 
   /** Soft moonlight falling from a window onto the floor. */
@@ -1171,26 +1213,28 @@ export class WorldScene extends Phaser.Scene {
   }
 
   private buildForeground() {
-    // near layer (fast horizontal parallax): heavy velvet curtains and blurred furniture passing in front
-    const fg = this.add.graphics().setScrollFactor(1.25, 1).setDepth(80);
+    // near layer (fast horizontal parallax): heavy velvet curtains and blurred furniture passing in front.
+    // Each curtain is its own small drawing so the ones off screen can be skipped.
     for (let x = 0; x < WORLD_W * 1.25 + W; x += 1100) {
+      const fg = this.add.graphics().setScrollFactor(1.25, 1).setDepth(80).setPosition(x, 0);
+      this.parallaxCull.push({ o: fg, x: x - 40, w: 760, factor: 1.25 });
       for (const top of [0, FLOOR_H]) {
         // a curtain gathered at the top, folds picked out with lighter strokes
         fg.fillStyle(0x020202, 0.96);
         fg.beginPath();
-        fg.moveTo(x - 40, top);
-        fg.lineTo(x + 150, top);
-        fg.lineTo(x + 70, top + 260);
-        fg.lineTo(x + 60, top + FLOOR_H);
-        fg.lineTo(x - 40, top + FLOOR_H);
+        fg.moveTo(-40, top);
+        fg.lineTo(150, top);
+        fg.lineTo(70, top + 260);
+        fg.lineTo(60, top + FLOOR_H);
+        fg.lineTo(-40, top + FLOOR_H);
         fg.closePath();
         fg.fillPath();
         fg.lineStyle(3, 0x3a4a78, 0.55);
-        for (const dx of [-10, 15, 40]) fg.lineBetween(x + dx + 40, top + 10, x + dx, top + FLOOR_H);
+        for (const dx of [-10, 15, 40]) fg.lineBetween(dx + 40, top + 10, dx, top + FLOOR_H);
         fg.fillStyle(PAL.maroon, 0.85); // a tie-back
-        fg.fillRoundedRect(x + 40, top + 250, 46, 16, 6);
+        fg.fillRoundedRect(40, top + 250, 46, 16, 6);
         fg.fillStyle(0x0d1428, 0.7);
-        fg.fillEllipse(x + 500, top + FLOOR_H + 10, 420, 110);
+        fg.fillEllipse(500, top + FLOOR_H + 10, 420, 110);
       }
     }
   }
