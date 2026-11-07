@@ -211,7 +211,7 @@ const CLUE_SOURCES: ClueSource[] = [
     title: 'An Angry Letter',
     leadIn: 'Clara’s room is upstairs. I know my niece. If she wrote something, the draft will be in her writing desk.',
     searchCue: 'The drawer sticks, then slides out with a small wooden cry',
-    found: 'Folded small, then smaller, at the back of Clara’s writing-desk drawer. A draft, crossed out and rewritten, the nib pressed so hard on the last line that it nearly tore the paper.',
+    found: 'I found this letter at the back of Clara’s writing-desk drawer, folded small, then smaller. It is a draft, crossed out and rewritten, the nib pressed so hard on the last line that it nearly tore the paper.',
     evidence: { kind: 'letter', date: 'Tuesday', lines: ['Uncle —', 'If you change your will, I will NEVER forgive you!'], sign: 'C.' },
     context: [
       'Tuesday. Three days ago: the day we quarrelled about my will. A letter in a drawer is a letter nobody read.',
@@ -234,7 +234,7 @@ const CLUE_SOURCES: ClueSource[] = [
     title: 'The Draft Will',
     leadIn: 'Clara’s letter was about my will. Let me see what I actually wrote. The draft should be in my desk drawer.',
     searchCue: 'Beneath the pencils and the coiled mainsprings lies a page folded in three',
-    found: 'Under the pencils in my desk drawer, folded in three. My own handwriting.',
+    found: 'I found my draft will under the pencils in my own desk drawer, folded in three. The handwriting is mine.',
     evidence: {
       kind: 'facts',
       rows: [
@@ -272,7 +272,7 @@ const CLUE_SOURCES: ClueSource[] = [
     title: 'A Muddy Boot Print',
     leadIn: 'There’s cold air moving through the house. It smells of wet earth, and it’s coming from the conservatory.',
     searchCue: 'The fronds part and settle again',
-    found: 'On the conservatory floor, hidden behind the big fern, right under the window.',
+    found: 'I found a boot print on the conservatory floor, hidden behind the big fern, right under the window.',
     evidence: {
       kind: 'facts',
       rows: [
@@ -307,7 +307,7 @@ const CLUE_SOURCES: ClueSource[] = [
     title: 'The Foxgloves',
     leadIn: 'My tea tasted bitter. Foxgloves are bitter too, and they can kill. Thomas keeps them in pots on the potting bench.',
     searchCue: 'A row of foxgloves stands in pots along the bench, their long leaves soft in the moonlight',
-    found: 'On the potting bench, in the row of foxgloves. One pot has been stripped of its lower leaves.',
+    found: 'I found the foxgloves on the potting bench. One pot in the row has been stripped of its lower leaves.',
     evidence: {
       kind: 'facts',
       rows: [
@@ -344,7 +344,7 @@ const CLUE_SOURCES: ClueSource[] = [
     title: 'The Chemist’s Slip',
     leadIn: 'Clara walked at seven, in her grey coat. It should be on the hall stand.',
     searchCue: 'Clara’s grey walking coat hangs among the others; the paper in its pocket stirs as the ghost’s hand passes through',
-    found: 'In the pocket of Clara’s grey walking coat, on the hall stand. A small slip of paper, folded once.',
+    found: 'I found a small slip of paper, folded once, in the pocket of Clara’s grey walking coat on the hall stand.',
     evidence: {
       kind: 'facts',
       rows: [
@@ -381,7 +381,7 @@ const CLUE_SOURCES: ClueSource[] = [
     title: 'The Telephone Log',
     leadIn: 'It all comes down to half past nine. The exchange writes down every call made from this house. That log is in the telephone table drawer, in the hallway.',
     searchCue: 'The drawer slides out',
-    found: 'In the hallway telephone table drawer: the switchboard operator’s log. The exchange writes down every call placed from this house: the time, the number, and how long the line stayed open.',
+    found: 'I found the switchboard operator’s log in the drawer of the hallway telephone table. The exchange writes down every call placed from this house: the time, the number, and how long the line stayed open.',
     evidence: {
       kind: 'table',
       columns: ['Time', 'Caller', 'Called', 'Length'],
@@ -418,7 +418,7 @@ const CLUE_SOURCES: ClueSource[] = [
     title: 'A Pruning Knife',
     leadIn: 'Back to the study. My desk chair has been pushed back from the desk. Was something underneath it?',
     searchCue: 'Something small catches the moonlight in the fringe of the rug',
-    found: 'Under my desk chair, caught in the fringe of the rug.',
+    found: 'I found a pruning knife under my desk chair, caught in the fringe of the rug.',
     evidence: {
       kind: 'facts',
       rows: [

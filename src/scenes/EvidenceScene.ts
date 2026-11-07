@@ -231,7 +231,7 @@ export class EvidenceScene extends Phaser.Scene {
     const pad = 30;
     const x0 = W / 2 - w / 2;
     if (found) {
-      const cap = this.put(txt(this, x0 + 4, y, `Found: ${found}`, 18, '#9a9a9a', { fontStyle: 'italic', wordWrap: { width: w } }));
+      const cap = this.put(txt(this, x0 + 4, y, found, 18, '#9a9a9a', { fontStyle: 'italic', wordWrap: { width: w } }));
       y += cap.height + 12;
     }
     const card = this.put(this.add.container(0, 0));
@@ -465,7 +465,7 @@ export class EvidenceScene extends Phaser.Scene {
             CONTENT_Y + 6,
             'the household log, tonight (6 – 10 pm)',
             { kind: 'table', columns: ['Name', 'Signed in', 'Signed out'], rows: LOG_ROWS, widths: [1.4, 1, 1] },
-            'on the side table in the study.',
+            'I found the household log on the side table in the study, where it always lies.',
           );
           this.ghostNotes(bottom + 22, [{ text: PRIOR_SHEET.text }, { text: PRIOR_SHEET.context }]);
         },

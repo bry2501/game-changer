@@ -215,7 +215,7 @@ Once right: *Mr. Thomas was inside for 2 hours.* The lit blocks are Mr. Thomas�
 
 ### Page: The clue
 
-*Found: Folded small, then smaller, at the back of Clara’s writing-desk drawer. A draft, crossed out and rewritten, the nib pressed so hard on the last line that it nearly tore the paper.*
+*I found this letter at the back of Clara’s writing-desk drawer, folded small, then smaller. It is a draft, crossed out and rewritten, the nib pressed so hard on the last line that it nearly tore the paper.*
 
 **Evidence card: An Angry Letter**
 
@@ -289,7 +289,7 @@ An angry letter feels like a confession. But people write angry letters all the 
 
 ### Page: The clue
 
-*Found: Under the pencils in my desk drawer, folded in three. My own handwriting.*
+*I found my draft will under the pencils in my own desk drawer, folded in three. The handwriting is mine.*
 
 **Evidence card: The Draft Will**
 
@@ -370,7 +370,7 @@ A will in my desk feels like a motive for Clara, and for Thomas. But I knew abou
 
 ### Page: The clue
 
-*Found: On the conservatory floor, hidden behind the big fern, right under the window.*
+*I found a boot print on the conservatory floor, hidden behind the big fern, right under the window.*
 
 **Evidence card: A Muddy Boot Print**
 
@@ -447,7 +447,7 @@ Only someone coming through the garden would leave this. Clara has been inside s
 
 ### Page: The clue
 
-*Found: On the potting bench, in the row of foxgloves. One pot has been stripped of its lower leaves.*
+*I found the foxgloves on the potting bench. One pot in the row has been stripped of its lower leaves.*
 
 **Evidence card: The Foxgloves**
 
@@ -526,7 +526,7 @@ This clue fits one person far better than anyone else. That is what strong evide
 
 ### Page: The clue
 
-*Found: In the pocket of Clara’s grey walking coat, on the hall stand. A small slip of paper, folded once.*
+*I found a small slip of paper, folded once, in the pocket of Clara’s grey walking coat on the hall stand.*
 
 **Evidence card: The Chemist’s Slip**
 
@@ -604,7 +604,7 @@ Thomas was running away with the board, and this slip pulls Clara back into the 
 
 ### Page: The clue
 
-*Found: In the hallway telephone table drawer: the switchboard operator’s log. The exchange writes down every call placed from this house: the time, the number, and how long the line stayed open.*
+*I found the switchboard operator’s log in the drawer of the hallway telephone table. The exchange writes down every call placed from this house: the time, the number, and how long the line stayed open.*
 
 **Evidence card: The Telephone Log**
 
@@ -681,7 +681,7 @@ Evidence can clear people too. If Clara was on the telephone the whole time the 
 
 ### Page: The clue
 
-*Found: Under my desk chair, caught in the fringe of the rug.*
+*I found a pruning knife under my desk chair, caught in the fringe of the rug.*
 
 **Evidence card: A Pruning Knife**
 

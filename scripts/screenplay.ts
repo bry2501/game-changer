@@ -305,7 +305,7 @@ CLUES.forEach((c, k) => {
   w();
   w('### Page: The clue');
   w();
-  w(`*Found: ${c.found}*`);
+  w(`*${c.found}*`);
   w();
   w(`**Evidence card: ${c.title}**`);
   w();
