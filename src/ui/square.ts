@@ -170,16 +170,22 @@ export class BayesSquare extends Phaser.GameObjects.Container {
       const y0 = S - L * S + 2;
       const y1 = S - 2;
       if (y1 - y0 < 14) return;
-      // the bracket marks the evidence: the part of this story in which the clue turns up
-      const b = new Brace(this.scene, y0, y1, base, dir as 1 | -1, this.colors[i], depth, true);
-      const label = txt(this.scene, labelX, (y0 + y1) / 2, 'evidence', fs, hex(this.colors[i]), { fontStyle: 'italic' }).setOrigin(dir < 0 ? 1 : 0, 0.5);
+      // the bracket marks the evidence: the part of this story in which the clue turns up.
+      // At the shrink step it first labels the whole bar, then shrinks down with it.
+      const shrinking = animate && ph === 1;
+      const top = shrinking ? 2 : y0;
+      const b = new Brace(this.scene, top, y1, base, dir as 1 | -1, this.colors[i], depth, true);
+      const label = txt(this.scene, labelX, (top + y1) / 2, 'evidence', fs, hex(this.colors[i]), { fontStyle: 'italic' }).setOrigin(dir < 0 ? 1 : 0, 0.5);
       this.add([b, label]);
       this.sides.push(b, label);
-      [b, label].forEach((o) => {
-        if (!(animate && ph === 1)) return;
-        o.setAlpha(0);
-        this.scene.tweens.add({ targets: o, alpha: 1, duration: 400, delay: 150 + i * 150 });
-      });
+      if (shrinking) {
+        [b, label].forEach((o) => {
+          o.setAlpha(0);
+          this.scene.tweens.add({ targets: o, alpha: 1, duration: 400, delay: 150 + i * 150 });
+        });
+        // same timing as the bar's own shrink in setPhase()
+        b.setSpan(y0, y1, true, 900, 600 + i * 300, (tip) => label.setY(tip));
+      }
     });
   }
 
