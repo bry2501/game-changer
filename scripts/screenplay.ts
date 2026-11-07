@@ -339,7 +339,7 @@ CLUES.forEach((c, k) => {
   w();
   w('### Page: The math');
   w();
-  w(`*(The same update as Bayes’ rule, one hypothesis per suspect: ${SUSPECTS.map((s, i) => `H${i + 1} “${s.name} is the murderer”`).join(', ')}, and E finding ${c.short}. P(H1 | E) = P(H1) · P(E | H1) ÷ [P(H1) · P(E | H1) + P(H2) · P(E | H2)]. Shown in three stages the player steps through: the rule in symbols with a key; the same rule with the people and the clue named (P(Clara) · P(letter | Clara) over the same for both suspects); then the player’s numbers worked to the answer, with the second suspect’s line beneath.)*`);
+  w(`*(The same update as Bayes’ rule, one hypothesis per suspect: ${SUSPECTS.map((s, i) => `H${i + 1} “${s.name} is the murderer”`).join(', ')}, and E finding ${c.short}. P(H1 | E) = P(H1) · P(E | H1) ÷ [P(H1) · P(E | H1) + P(H2) · P(E | H2)]. One formula that transforms in place as the player steps through: the rule in symbols with a key; then each symbol becomes the person or the clue (P(Clara) · P(letter given Clara) over the same for both suspects); then each becomes the player’s number, worked to the answer, with the second suspect’s line beneath.)*`);
   {
     const lik = c.likelihoods;
     const j = belief.map((p, i) => p * lik[i]);

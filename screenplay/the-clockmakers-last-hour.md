@@ -264,7 +264,7 @@ After choosing: “You rated it N: …, a P% chance.”
 
 ### Page: The math
 
-*(The same update as Bayes’ rule, one hypothesis per suspect: H1 “Clara is the murderer”, H2 “Mr. Thomas is the murderer”, and E finding an angry letter like this. P(H1 | E) = P(H1) · P(E | H1) ÷ [P(H1) · P(E | H1) + P(H2) · P(E | H2)]. Shown in three stages the player steps through: the rule in symbols with a key; the same rule with the people and the clue named (P(Clara) · P(letter | Clara) over the same for both suspects); then the player’s numbers worked to the answer, with the second suspect’s line beneath.)*
+*(The same update as Bayes’ rule, one hypothesis per suspect: H1 “Clara is the murderer”, H2 “Mr. Thomas is the murderer”, and E finding an angry letter like this. P(H1 | E) = P(H1) · P(E | H1) ÷ [P(H1) · P(E | H1) + P(H2) · P(E | H2)]. One formula that transforms in place as the player steps through: the rule in symbols with a key; then each symbol becomes the person or the clue (P(Clara) · P(letter given Clara) over the same for both suspects); then each becomes the player’s number, worked to the answer, with the second suspect’s line beneath.)*
 
 - **P(H1), P(H2)**, your board so far: Clara 60%, Mr. Thomas 40% *(numbers here follow the designed ratings)*
 - **P(E | H1), P(E | H2)**, your ratings: Clara 70%, Mr. Thomas 50%
@@ -352,7 +352,7 @@ After choosing: “You rated it N: …, a P% chance.”
 
 ### Page: The math
 
-*(The same update as Bayes’ rule, one hypothesis per suspect: H1 “Clara is the murderer”, H2 “Mr. Thomas is the murderer”, and E finding a draft will like this in my desk. P(H1 | E) = P(H1) · P(E | H1) ÷ [P(H1) · P(E | H1) + P(H2) · P(E | H2)]. Shown in three stages the player steps through: the rule in symbols with a key; the same rule with the people and the clue named (P(Clara) · P(letter | Clara) over the same for both suspects); then the player’s numbers worked to the answer, with the second suspect’s line beneath.)*
+*(The same update as Bayes’ rule, one hypothesis per suspect: H1 “Clara is the murderer”, H2 “Mr. Thomas is the murderer”, and E finding a draft will like this in my desk. P(H1 | E) = P(H1) · P(E | H1) ÷ [P(H1) · P(E | H1) + P(H2) · P(E | H2)]. One formula that transforms in place as the player steps through: the rule in symbols with a key; then each symbol becomes the person or the clue (P(Clara) · P(letter given Clara) over the same for both suspects); then each becomes the player’s number, worked to the answer, with the second suspect’s line beneath.)*
 
 - **P(H1), P(H2)**, your board so far: Clara 68%, Mr. Thomas 32% *(numbers here follow the designed ratings)*
 - **P(E | H1), P(E | H2)**, your ratings: Clara 90%, Mr. Thomas 90%
@@ -439,7 +439,7 @@ After choosing: “You rated it N: …, a P% chance.”
 
 ### Page: The math
 
-*(The same update as Bayes’ rule, one hypothesis per suspect: H1 “Clara is the murderer”, H2 “Mr. Thomas is the murderer”, and E finding a muddy print hidden behind the fern. P(H1 | E) = P(H1) · P(E | H1) ÷ [P(H1) · P(E | H1) + P(H2) · P(E | H2)]. Shown in three stages the player steps through: the rule in symbols with a key; the same rule with the people and the clue named (P(Clara) · P(letter | Clara) over the same for both suspects); then the player’s numbers worked to the answer, with the second suspect’s line beneath.)*
+*(The same update as Bayes’ rule, one hypothesis per suspect: H1 “Clara is the murderer”, H2 “Mr. Thomas is the murderer”, and E finding a muddy print hidden behind the fern. P(H1 | E) = P(H1) · P(E | H1) ÷ [P(H1) · P(E | H1) + P(H2) · P(E | H2)]. One formula that transforms in place as the player steps through: the rule in symbols with a key; then each symbol becomes the person or the clue (P(Clara) · P(letter given Clara) over the same for both suspects); then each becomes the player’s number, worked to the answer, with the second suspect’s line beneath.)*
 
 - **P(H1), P(H2)**, your board so far: Clara 68%, Mr. Thomas 32% *(numbers here follow the designed ratings)*
 - **P(E | H1), P(E | H2)**, your ratings: Clara 10%, Mr. Thomas 50%
@@ -524,7 +524,7 @@ After choosing: “You rated it N: …, a P% chance.”
 
 ### Page: The math
 
-*(The same update as Bayes’ rule, one hypothesis per suspect: H1 “Clara is the murderer”, H2 “Mr. Thomas is the murderer”, and E finding a foxglove stripped like this. P(H1 | E) = P(H1) · P(E | H1) ÷ [P(H1) · P(E | H1) + P(H2) · P(E | H2)]. Shown in three stages the player steps through: the rule in symbols with a key; the same rule with the people and the clue named (P(Clara) · P(letter | Clara) over the same for both suspects); then the player’s numbers worked to the answer, with the second suspect’s line beneath.)*
+*(The same update as Bayes’ rule, one hypothesis per suspect: H1 “Clara is the murderer”, H2 “Mr. Thomas is the murderer”, and E finding a foxglove stripped like this. P(H1 | E) = P(H1) · P(E | H1) ÷ [P(H1) · P(E | H1) + P(H2) · P(E | H2)]. One formula that transforms in place as the player steps through: the rule in symbols with a key; then each symbol becomes the person or the clue (P(Clara) · P(letter given Clara) over the same for both suspects); then each becomes the player’s number, worked to the answer, with the second suspect’s line beneath.)*
 
 - **P(H1), P(H2)**, your board so far: Clara 30%, Mr. Thomas 70% *(numbers here follow the designed ratings)*
 - **P(E | H1), P(E | H2)**, your ratings: Clara 30%, Mr. Thomas 90%
@@ -614,7 +614,7 @@ After choosing: “You rated it N: …, a P% chance.”
 
 ### Page: The math
 
-*(The same update as Bayes’ rule, one hypothesis per suspect: H1 “Clara is the murderer”, H2 “Mr. Thomas is the murderer”, and E finding a chemist’s slip like this in Clara’s coat. P(H1 | E) = P(H1) · P(E | H1) ÷ [P(H1) · P(E | H1) + P(H2) · P(E | H2)]. Shown in three stages the player steps through: the rule in symbols with a key; the same rule with the people and the clue named (P(Clara) · P(letter | Clara) over the same for both suspects); then the player’s numbers worked to the answer, with the second suspect’s line beneath.)*
+*(The same update as Bayes’ rule, one hypothesis per suspect: H1 “Clara is the murderer”, H2 “Mr. Thomas is the murderer”, and E finding a chemist’s slip like this in Clara’s coat. P(H1 | E) = P(H1) · P(E | H1) ÷ [P(H1) · P(E | H1) + P(H2) · P(E | H2)]. One formula that transforms in place as the player steps through: the rule in symbols with a key; then each symbol becomes the person or the clue (P(Clara) · P(letter given Clara) over the same for both suspects); then each becomes the player’s number, worked to the answer, with the second suspect’s line beneath.)*
 
 - **P(H1), P(H2)**, your board so far: Clara 12%, Mr. Thomas 88% *(numbers here follow the designed ratings)*
 - **P(E | H1), P(E | H2)**, your ratings: Clara 70%, Mr. Thomas 30%
@@ -699,7 +699,7 @@ After choosing: “You rated it N: …, a P% chance.”
 
 ### Page: The math
 
-*(The same update as Bayes’ rule, one hypothesis per suspect: H1 “Clara is the murderer”, H2 “Mr. Thomas is the murderer”, and E finding this telephone log. P(H1 | E) = P(H1) · P(E | H1) ÷ [P(H1) · P(E | H1) + P(H2) · P(E | H2)]. Shown in three stages the player steps through: the rule in symbols with a key; the same rule with the people and the clue named (P(Clara) · P(letter | Clara) over the same for both suspects); then the player’s numbers worked to the answer, with the second suspect’s line beneath.)*
+*(The same update as Bayes’ rule, one hypothesis per suspect: H1 “Clara is the murderer”, H2 “Mr. Thomas is the murderer”, and E finding this telephone log. P(H1 | E) = P(H1) · P(E | H1) ÷ [P(H1) · P(E | H1) + P(H2) · P(E | H2)]. One formula that transforms in place as the player steps through: the rule in symbols with a key; then each symbol becomes the person or the clue (P(Clara) · P(letter given Clara) over the same for both suspects); then each becomes the player’s number, worked to the answer, with the second suspect’s line beneath.)*
 
 - **P(H1), P(H2)**, your board so far: Clara 25%, Mr. Thomas 75% *(numbers here follow the designed ratings)*
 - **P(E | H1), P(E | H2)**, your ratings: Clara 10%, Mr. Thomas 50%
@@ -783,7 +783,7 @@ After choosing: “You rated it N: …, a P% chance.”
 
 ### Page: The math
 
-*(The same update as Bayes’ rule, one hypothesis per suspect: H1 “Clara is the murderer”, H2 “Mr. Thomas is the murderer”, and E finding a pruning knife under my chair. P(H1 | E) = P(H1) · P(E | H1) ÷ [P(H1) · P(E | H1) + P(H2) · P(E | H2)]. Shown in three stages the player steps through: the rule in symbols with a key; the same rule with the people and the clue named (P(Clara) · P(letter | Clara) over the same for both suspects); then the player’s numbers worked to the answer, with the second suspect’s line beneath.)*
+*(The same update as Bayes’ rule, one hypothesis per suspect: H1 “Clara is the murderer”, H2 “Mr. Thomas is the murderer”, and E finding a pruning knife under my chair. P(H1 | E) = P(H1) · P(E | H1) ÷ [P(H1) · P(E | H1) + P(H2) · P(E | H2)]. One formula that transforms in place as the player steps through: the rule in symbols with a key; then each symbol becomes the person or the clue (P(Clara) · P(letter given Clara) over the same for both suspects); then each becomes the player’s number, worked to the answer, with the second suspect’s line beneath.)*
 
 - **P(H1), P(H2)**, your board so far: Clara 6%, Mr. Thomas 94% *(numbers here follow the designed ratings)*
 - **P(E | H1), P(E | H2)**, your ratings: Clara 50%, Mr. Thomas 70%

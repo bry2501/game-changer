@@ -79,6 +79,8 @@ export class EvidenceScene extends Phaser.Scene {
   private fromShort = '';
   /** Which stage of the math page is showing: symbols, words, numbers (0–2). */
   private mathStage = 0;
+  /** The math stage just left, so the next one can transform out of it. */
+  private mathFrom?: number;
 
   constructor() {
     super('Evidence');
@@ -878,16 +880,19 @@ export class EvidenceScene extends Phaser.Scene {
   }
 
   /**
-   * The same update as Bayes' rule, built up in three stages the player steps through:
-   *   0. the rule in symbols: one hypothesis per suspect (H₁, H₂) and the evidence E
-   *   1. the same rule in words: each symbol replaced by what it stands for here
-   *   2. the same rule with the player's numbers, worked to the answer
-   * Earlier stages stay on the page, so each line reads as a rewrite of the one above.
+   * The same update as Bayes' rule, in one formula that rewrites itself in three stages:
+   *   0. symbols: one hypothesis per suspect (H₁, H₂) and the evidence E
+   *   1. names: each symbol becomes the person or the clue it stands for
+   *   2. numbers: each term becomes the player's own number, worked to the answer
+   * Stepping forward transforms the formula in place: every term slides to its new place
+   * while the old wording dissolves into the new, and the fraction bar stretches to fit.
    */
   private mathPage(head: string, clue: (typeof CLUES)[number]) {
     this.title(head);
     this.commitClue();
     const stage = Math.min(this.mathStage, 2);
+    const from = this.mathFrom;
+    this.mathFrom = undefined;
     const EC = '#9fc4ff'; // the evidence
     const WC = '#f2f2f2';
     const SUB = ['₁', '₂', '₃', '₄'];
@@ -897,122 +902,195 @@ export class EvidenceScene extends Phaser.Scene {
     const after = joint.map((j) => j / pE);
     const col = (i: number) => hex(SUSPECTS[i].color);
     const short = (i: number) => SUSPECTS[i].name.replace(/^Mr\. /, '');
+    const noun = clue.noun.replace(/^the /, '');
 
     type Part = [string, string];
-    type Item = Part | { n: Part[]; d: Part[]; d2?: Part[] };
+    const P = (...inner: Part[]): Part[] => [['P(', WC], ...inner, [')', WC]];
+    const measure = (parts: Part[], size: number) =>
+      parts.reduce((a, [t]) => {
+        const m = txt(this, 0, 0, t, size, WC, { fontStyle: 'italic' });
+        const w = m.width;
+        m.destroy();
+        return a + w;
+      }, 0);
+
+    // ---- what each term says at each stage
     const H = (i: number): Part => [`H${SUB[i]}`, col(i)];
     const E: Part = ['E', EC];
-    const P = (...inner: Part[]): Part[] => [['P(', WC], ...inner, [')', WC]];
-    const given: Part = [' | ', WC];
-    const sumOver = (f: (i: number) => Part[]): Part[] => SUSPECTS.flatMap((_, i) => (i ? [[' + ', WC] as Part, ...f(i)] : f(i)));
+    const given = (st: number): Part => (st === 0 ? [' | ', WC] : [' given ', WC]);
+    const content = (st: number) => {
+      const who = (i: number): Part => (st === 0 ? H(i) : [short(i), col(i)]);
+      const ev: Part = st === 0 ? E : [noun, EC];
+      const prior = (i: number): Part[] => (st < 2 ? P(who(i)) : [[share(this.prior[i]), col(i)]]);
+      const rate = (i: number): Part[] => (st < 2 ? P(ev, given(st), who(i)) : [[share(lik[i]), col(i)]]);
+      const dot: Part = st < 2 ? [' · ', WC] : [' × ', WC];
+      return { lhs: [...P(who(0), given(st), ev), [' = ', WC]] as Part[], prior, rate, dot };
+    };
 
-    // draw a line of parts and fractions, vertically centred on y; returns its width
-    const draw = (x: number, y: number, items: Item[], size: number, put = true) => {
-      const objs: Phaser.GameObjects.GameObject[] = [];
-      const run = (x0: number, yy: number, parts: Part[], sz: number) => {
-        let cx = x0;
-        parts.forEach(([t, c]) => {
-          const o = txt(this, cx, yy, t, sz, c, { fontStyle: 'italic' }).setOrigin(0, 0.5);
-          objs.push(o);
-          cx += o.width;
-        });
-        return cx - x0;
-      };
-      let cx = x;
-      items.forEach((it) => {
-        if (Array.isArray(it)) {
-          cx += run(cx, y, [it], size);
-          return;
+    // ---- lay a stage out: each term is a slot with its words and its place
+    type Slot = { parts: Part[]; x: number; y: number; w: number };
+    const FY = CONTENT_Y + 170;
+    const layout = (st: number) => {
+      const c = content(st);
+      let size = 28;
+      const build = (sz: number) => {
+        const slots = new Map<string, Slot>();
+        const gap = sz * 0.7; // numerator above the bar, denominator below
+        const term = (i: number, pre: string): [string, Part[]][] => [
+          [`${pre}p${i}`, c.prior(i)],
+          [`${pre}dot${i}`, [c.dot]],
+          [`${pre}r${i}`, c.rate(i)],
+        ];
+        const num = term(0, 'n');
+        const den = SUSPECTS.flatMap((_, i) => [...(i ? [[`dplus${i}`, [[' + ', WC]]] as [string, Part[]]] : []), ...term(i, 'd')]);
+        const width = (items: [string, Part[]][]) => items.reduce((a, [, p]) => a + measure(p, sz), 0);
+        const lw = measure(c.lhs, sz);
+        const fw = Math.max(width(num), width(den)) + 16;
+        // the answer, written after the fraction once the numbers are in
+        const tail: [string, Part[]][] =
+          st === 2
+            ? [
+                ['eq2', [[' = ', WC]]],
+                ['tailfrac', []],
+                ['eq3', [[' = ', WC]]],
+                ['res', [[share(after[0]), col(0)]]],
+              ]
+            : [];
+        const tn: Part[] = [[share(joint[0]), WC]];
+        const td: Part[] = [[share(pE), WC]];
+        const tfw = st === 2 ? Math.max(measure(tn, sz), measure(td, sz)) + 12 : 0;
+        const tw = tail.reduce((a, [k, p]) => a + (k === 'tailfrac' ? tfw : measure(p, sz)), 0);
+        const total = lw + fw + tw;
+        let x = W / 2 - total / 2;
+        slots.set('lhs', { parts: c.lhs, x, y: FY, w: lw });
+        x += lw;
+        const place = (items: [string, Part[]][], y: number, x0: number) => {
+          let cx = x0;
+          for (const [k, p] of items) {
+            const w = measure(p, sz);
+            slots.set(k, { parts: p, x: cx, y, w });
+            cx += w;
+          }
+        };
+        place(num, FY - gap, x + (fw - width(num)) / 2);
+        place(den, FY + gap, x + (fw - width(den)) / 2);
+        const bar = { x, w: fw };
+        x += fw;
+        let tfrac: { x: number; w: number } | undefined;
+        for (const [k, p] of tail) {
+          if (k === 'tailfrac') {
+            tfrac = { x, w: tfw };
+            slots.set('tn', { parts: tn, x: x + (tfw - measure(tn, sz)) / 2, y: FY - gap, w: measure(tn, sz) });
+            slots.set('td', { parts: td, x: x + (tfw - measure(td, sz)) / 2, y: FY + gap, w: measure(td, sz) });
+            x += tfw;
+          } else {
+            const w = measure(p, sz);
+            slots.set(k, { parts: p, x, y: FY, w });
+            x += w;
+          }
         }
-        const fs = Math.round(size * 0.9);
-        const nw = run(0, -9999, it.n, fs);
-        const dw = run(0, -9999, it.d, fs);
-        const d2w = it.d2 ? run(0, -9999, it.d2, fs) : 0;
-        objs.splice(objs.length - it.n.length - it.d.length - (it.d2?.length ?? 0)).forEach((o) => o.destroy());
-        const w = Math.max(nw, dw, d2w) + 12;
-        run(cx + (w - nw) / 2, y - fs * 0.72, it.n, fs);
-        run(cx + (w - dw) / 2, y + fs * 0.78, it.d, fs);
-        // a long denominator continues on a second line
-        if (it.d2) run(cx + (w - d2w) / 2, y + fs * 2.1, it.d2, fs);
-        objs.push(this.add.rectangle(cx, y, w, 2, 0xdcdcdc).setOrigin(0, 0.5));
-        cx += w + 4;
-      });
-      if (put) objs.forEach((o) => this.put(o));
-      else objs.forEach((o) => o.destroy());
-      return cx - x;
+        return { slots, bar, tfrac, total, size: sz };
+      };
+      let L = build(size);
+      if (L.total > 1120) L = build((size = Math.floor((size * 1120) / L.total)));
+      return L;
     };
 
-    const size = 26;
-    const lhs: Item[] = [...P(H(0), given, E), [' = ', WC]];
-    const lhsW = draw(0, -9999, lhs, size, false);
-    const eqW = draw(0, -9999, [[' = ', WC]], size, false);
-    const x0 = 300;
-    const xr = x0 + lhsW;
-    const label = (y: number, t: string) => this.put(txt(this, 110, y, t, 17, DIM, { fontStyle: 'italic' }).setOrigin(0, 0.5));
-    const fade = (from: number, k: number) => {
-      // only the stage just revealed fades in
-      if (k !== stage || stage === 0) return;
-      this.page.list.slice(from).forEach((o) => {
-        (o as unknown as Phaser.GameObjects.Components.Alpha).setAlpha(0);
-        this.tweens.add({ targets: o, alpha: 1, duration: 500 });
+    const draw = (sl: Slot, size: number) => {
+      const c = this.put(this.add.container(sl.x, sl.y));
+      let cx = 0;
+      sl.parts.forEach(([t, color]) => {
+        const o = txt(this, cx, 0, t, size, color, { fontStyle: 'italic' }).setOrigin(0, 0.5);
+        c.add(o);
+        cx += o.width;
       });
+      return c;
     };
+    const barAt = (b: { x: number; w: number }) => this.put(this.add.rectangle(b.x, FY, 1, 2, 0xdcdcdc).setOrigin(0, 0.5).setScale(b.w, 1));
 
-    // stage 0: the rule in symbols, and what each symbol means here
-    let y = CONTENT_Y + 50;
-    label(y, 'The rule');
-    draw(x0, y, lhs, size);
-    draw(xr, y, [{ n: [...P(H(0)), [' · ', WC], ...P(E, given, H(0))], d: sumOver((i) => [...P(H(i)), [' · ', WC], ...P(E, given, H(i))]) }], size);
-    const legend: Part[] = [];
-    SUSPECTS.forEach((s, i) => legend.push(H(i), [`  ${s.name} is the murderer      `, '#bdbdbd']));
-    legend.push(E, [`  finding ${clue.short}`, '#bdbdbd']);
-    draw(x0, y + 62, legend, 17);
-
-    // stage 1: the same rule in words
-    if (stage >= 1) {
-      const from = this.page.list.length;
-      y += 150;
-      label(y, 'In words');
-      // the same rule with the people and the clue named: P(Clara) · P(letter | Clara) / ...
-      const ev: Part = [clue.noun.replace(/^the /, ''), EC];
-      const who = (i: number): Part => [short(i), col(i)];
-      const termN = (i: number): Part[] => [...P(who(i)), [' · ', WC], ...P(ev, given, who(i))];
-      draw(xr - eqW, y, [[' = ', WC], { n: termN(0), d: sumOver(termN) }], 24);
-      this.put(
-        txt(
-          this,
-          x0,
-          y + 62,
-          `P(${short(0)}): your board before this clue (${this.fromShort})     P(${ev[0]} | ${short(0)}): your rating for ${short(0)}`,
-          15,
-          '#9a9a9a',
-          { fontStyle: 'italic' },
-        ).setOrigin(0, 0.5),
-      );
-      fade(from, 1);
+    const L = layout(stage);
+    const animate = from !== undefined && from === stage - 1;
+    const old = animate ? layout(from) : undefined;
+    const MS = 750;
+    for (const [k, sl] of L.slots) {
+      const o = old?.slots.get(k);
+      const n = draw(sl, L.size);
+      if (!o) {
+        if (animate) {
+          n.setAlpha(0);
+          this.tweens.add({ targets: n, alpha: 1, duration: 400, delay: MS - 100 });
+        }
+        continue;
+      }
+      // the old wording slides toward the new place and dissolves; the new wording takes over
+      const was = draw(o, old!.size);
+      const cxNew = sl.x + sl.w / 2;
+      const cxOld = o.x + o.w / 2;
+      n.setPosition(cxOld - sl.w / 2, o.y).setAlpha(0);
+      this.tweens.add({ targets: was, x: cxNew - o.w / 2, y: sl.y, alpha: 0, duration: MS, ease: 'Sine.easeInOut' });
+      this.tweens.add({ targets: n, x: sl.x, y: sl.y, duration: MS, ease: 'Sine.easeInOut' });
+      this.tweens.add({ targets: n, alpha: 1, duration: MS * 0.6, delay: MS * 0.35 });
+    }
+    const bar = barAt(old ? old.bar : L.bar);
+    if (old) this.tweens.add({ targets: bar, x: L.bar.x, scaleX: L.bar.w, duration: MS, ease: 'Sine.easeInOut' });
+    if (L.tfrac) {
+      const tb = barAt(L.tfrac);
+      if (animate) {
+        tb.setAlpha(0);
+        this.tweens.add({ targets: tb, alpha: 1, duration: 400, delay: MS - 100 });
+      }
     }
 
-    // stage 2: your numbers, worked to the answer for both suspects
-    if (stage >= 2) {
-      const from = this.page.list.length;
-      y += 130;
-      label(y, 'Your numbers');
-      const pr = (i: number): Part => [share(this.prior[i]), col(i)];
-      const rt = (i: number): Part => [share(lik[i]), col(i)];
-      const w = draw(xr - eqW, y, [[' = ', WC], { n: [pr(0), [' × ', WC], rt(0)], d: sumOver((i) => [pr(i), [' × ', WC], rt(i)]) }], size);
-      draw(xr - eqW + w, y, [[' = ', WC], { n: [[share(joint[0]), WC]], d: [[share(pE), WC]] }, [' = ', WC], [share(after[0]), col(0)]], size);
-      // and the other story, the same way
+    // ---- the stage's name above, and its key below
+    const names = ['The rule', 'With the names', 'With your numbers'];
+    this.put(txt(this, W / 2, CONTENT_Y + 40, names[stage], 18, DIM, { fontStyle: 'italic' }).setOrigin(0.5));
+    const below: Phaser.GameObjects.GameObject[] = [];
+    const keyY = FY + 92;
+    if (stage === 0) {
+      const legend: Part[] = [];
+      SUSPECTS.forEach((sp, i) => legend.push(H(i), [`  ${sp.name} is the murderer      `, '#bdbdbd']));
+      legend.push(E, [`  finding ${clue.short}`, '#bdbdbd']);
+      below.push(draw({ parts: legend, x: W / 2 - measure(legend, 18) / 2, y: keyY, w: 0 }, 18));
+    } else if (stage === 1) {
+      const note = `P(${short(0)}): your board before this clue (${this.fromShort})      P(${noun} given ${short(0)}): your rating for ${short(0)}`;
+      below.push(this.put(txt(this, W / 2, keyY, note, 16, '#9a9a9a', { fontStyle: 'italic' }).setOrigin(0.5)));
+    } else {
+      // the other suspect's answer, worked the same way, with stacked fractions
       SUSPECTS.forEach((_, i) => {
         if (i === 0) return;
-        const yy = y + 100 * i;
-        label(yy, `And for ${SUSPECTS[i].name}`);
-        draw(x0, yy, [...P(H(i), given, E), [' = ', WC], { n: [pr(i), [' × ', WC], rt(i)], d: [[share(pE), WC]] }, [' = ', WC], { n: [[share(joint[i]), WC]], d: [[share(pE), WC]] }, [' = ', WC], [share(after[i]), col(i)]], size);
+        const sz = 22;
+        const items: (Part[] | { n: Part[]; d: Part[] })[] = [
+          [...P([short(i), col(i)], given(1), [noun, EC]), [' = ', WC]],
+          { n: [[share(this.prior[i]), col(i)], [' × ', WC], [share(lik[i]), col(i)]], d: [[share(pE), WC]] },
+          [[' = ', WC]],
+          { n: [[share(joint[i]), WC]], d: [[share(pE), WC]] },
+          [[' = ', WC], [share(after[i]), col(i)]],
+        ];
+        const wOf = (it: (typeof items)[number]) => (Array.isArray(it) ? measure(it, sz) : Math.max(measure(it.n, sz), measure(it.d, sz)) + 12);
+        const total = items.reduce((a, it) => a + wOf(it), 0);
+        const y = keyY + 40 + (i - 1) * 70;
+        let x = W / 2 - total / 2;
+        for (const it of items) {
+          const w = wOf(it);
+          if (Array.isArray(it)) below.push(draw({ parts: it, x, y, w }, sz));
+          else {
+            below.push(draw({ parts: it.n, x: x + (w - measure(it.n, sz)) / 2, y: y - sz * 0.7, w }, sz));
+            below.push(draw({ parts: it.d, x: x + (w - measure(it.d, sz)) / 2, y: y + sz * 0.7, w }, sz));
+            below.push(this.put(this.add.rectangle(x, y, w, 2, 0xdcdcdc).setOrigin(0, 0.5)));
+          }
+          x += w;
+        }
       });
-      fade(from, 2);
     }
+    if (animate)
+      below.forEach((o) => {
+        (o as unknown as Phaser.GameObjects.Components.Alpha).setAlpha(0);
+        this.tweens.add({ targets: o, alpha: 1, duration: 450, delay: MS });
+      });
 
     if (stage < 2) {
-      this.setNext(stage === 0 ? 'In words ›' : 'With your numbers ›', true, () => {
+      this.setNext(stage === 0 ? 'With the names ›' : 'With your numbers ›', true, () => {
+        this.mathFrom = stage;
         this.mathStage = stage + 1;
         Sound.blip();
         this.show(true);
