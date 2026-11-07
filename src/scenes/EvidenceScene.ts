@@ -160,7 +160,7 @@ export class EvidenceScene extends Phaser.Scene {
       // arriving from behind shows a page's last thought; arriving fresh shows its first
       this.noteIdx = delta < 0 ? Number.MAX_SAFE_INTEGER : 0;
       this.noteScroll = undefined;
-      this.mathStage = delta < 0 ? 7 : 0;
+      this.mathStage = delta < 0 ? 99 : 0;
       this.weighStage = delta < 0 ? SUSPECTS.length : 0;
       this.chimed = false;
     }
@@ -952,14 +952,15 @@ export class EvidenceScene extends Phaser.Scene {
    *   2. names: "Clara Updated = Clara's Prior · Boot Print given Clara / …"
    *   3. numbers: each term becomes the player's own number
    *   4. multiply, 5. add, 6. divide: the arithmetic done inside the formula itself
-   *   7. the rest: the other suspect's update is what is left of 100%
+   *   7–9. the other suspect underneath: "Thomas Updated = 100% − Clara Updated", then the
+   *        figure substituted in, then the subtraction done
    * Stepping forward transforms the formula in place: every term slides to its new place
    * while the old wording dissolves into the new, and the fraction bar stretches to fit.
    */
   private mathPage(head: string, clue: (typeof CLUES)[number]) {
     this.title(head);
     this.commitClue();
-    const LAST = 7;
+    const LAST = SUSPECTS.length === 2 ? 9 : 6;
     const stage = Math.min(this.mathStage, LAST);
     const from = this.mathFrom;
     this.mathFrom = undefined;
@@ -1068,7 +1069,7 @@ export class EvidenceScene extends Phaser.Scene {
     // denominator (or, once divided, a single answer). A slot can name the earlier slots it
     // is made from, so "60% × 70%" can collapse into "42%" and "42% + 20%" into "62%".
     type Item = [string, Part[], string[]?];
-    type Shape = { lhs: Part[]; num?: Item[]; den?: Item[]; solo?: Item };
+    type Shape = { lhs: Part[]; num?: Item[]; den?: Item[]; solo?: Item; line2?: Item[] };
     const plus = (i: number): Item => [`dplus${i}`, [[' + ', WC]]];
     const shape = (f: number): Shape => {
       const c = content(Math.min(f, 2));
@@ -1086,7 +1087,18 @@ export class EvidenceScene extends Phaser.Scene {
       const sum: Item = ['dsum', [[share(pE), WC]], SUSPECTS.flatMap((_, i) => [...(i ? [`dplus${i}`] : []), `dj${i}`])];
       if (f === 4) return { lhs, num: [[`nj${focus}`, [[share(joint[focus]), col(focus)]]]], den: [sum] };
       // divide: the fraction becomes the answer
-      return { lhs, solo: ['res', [[share(after[focus]), col(focus)]], [`nj${focus}`, 'dsum']] };
+      const solo: Item = ['res', [[share(after[focus]), col(focus)]], [`nj${focus}`, 'dsum']];
+      if (f === 5) return { lhs, solo };
+      // the other suspect, worked out underneath in the same way: what is left of 100%.
+      // (Worked from the rounded figure on screen, so the subtraction always adds up.)
+      const other = 1 - focus;
+      const shown = parseFloat(share(after[focus])) / 100;
+      const head: Item = ['olhs', [[short(other), col(other)], [' Updated', col(other)], [' = ', WC]]];
+      const hundred: Item = ['o100', [['100%', WC]]];
+      const minus: Item = ['ominus', [[' − ', WC]]];
+      if (f === 6) return { lhs, solo, line2: [head, hundred, minus, ['oref', [[short(focus), col(focus)], [' Updated', col(focus)]]]] };
+      if (f === 7) return { lhs, solo, line2: [head, hundred, minus, ['oval', [[share(after[focus]), col(focus)]], ['oref']]] };
+      return { lhs, solo, line2: [head, ['ores', [[share(1 - shown), col(other)]], ['o100', 'ominus', 'oval']]] };
     };
 
     type Slot = { parts: Part[]; x: number; y: number; w: number; src?: string[] };
@@ -1117,6 +1129,10 @@ export class EvidenceScene extends Phaser.Scene {
           place(sh.num!, FY - gap, x + lw + (fw - width(sh.num!)) / 2);
           place(sh.den!, FY + gap, x + lw + (fw - width(sh.den!)) / 2);
         }
+        if (sh.line2) {
+          const w2 = width(sh.line2);
+          place(sh.line2, FY + 100, W / 2 - w2 / 2);
+        }
         // a divided answer has no bar: it collapses to nothing where the fraction was
         const bar = sh.solo ? { x: x + lw + sw / 2, w: 0 } : { x: x + lw, w: fw };
         return { slots, bar, total, size: sz };
@@ -1130,7 +1146,7 @@ export class EvidenceScene extends Phaser.Scene {
       this.put(this.add.rectangle(b.x, FY, 1, 2, 0xdcdcdc).setOrigin(0, 0.5).setScale(Math.max(b.w, 0.001), 1).setVisible(b.w > 0));
 
     // formula stage for this page stage (the last page stage keeps the divided formula)
-    const fOf = (st: number) => Math.min(st - 1, 5);
+    const fOf = (st: number) => st - 1;
     const f = fOf(stage);
     const L = layout(f);
     const morph = from !== undefined && from === stage - 1 && from >= 1 && fOf(from) !== f;
@@ -1139,12 +1155,23 @@ export class EvidenceScene extends Phaser.Scene {
     const used = new Set<string>();
     for (const [k, sl] of L.slots) {
       const n = draw(sl, L.size);
-      const sources = (sl.src ?? [k]).map((key) => [key, old?.slots.get(key)] as const).filter(([, o]) => o) as [string, Slot][];
+      // a slot grows out of the pieces it names, if they were on screen; otherwise out of itself
+      const keys = sl.src && sl.src.some((key) => old?.slots.has(key)) ? sl.src : [k];
+      const sources = keys.map((key) => [key, old?.slots.get(key)] as const).filter(([, o]) => o) as [string, Slot][];
       if (!sources.length) {
         if (morph) {
           n.setAlpha(0);
           this.tweens.add({ targets: n, alpha: 1, duration: 400, delay: MS - 100 });
         }
+        continue;
+      }
+      // a piece whose words don't change just slides to its new place, with no fade at all
+      const same = (a: Part[], b: Part[]) => a.length === b.length && a.every(([t, c], i) => t === b[i][0] && c === b[i][1]);
+      if (sources.length === 1 && same(sources[0][1].parts, sl.parts) && Math.abs(old!.size - L.size) < 0.5) {
+        const o = sources[0][1];
+        used.add(sources[0][0]);
+        n.setPosition(o.x, o.y);
+        this.tweens.add({ targets: n, x: sl.x, y: sl.y, duration: MS, ease: 'Sine.easeInOut' });
         continue;
       }
       // the old pieces slide onto the new place and dissolve; the new wording takes over there
@@ -1180,7 +1207,7 @@ export class EvidenceScene extends Phaser.Scene {
       });
 
     // ---- the stage's name above, and what goes beneath the formula
-    const names = ['', 'The rule', 'With the names', 'With your numbers', 'Multiply', 'Add', 'Divide', 'And the other'];
+    const names = ['', 'The rule', 'With the names', 'With your numbers', 'Multiply', 'Add', 'Divide', 'And the other', 'Substitute', 'Subtract'];
     this.put(txt(this, W / 2, FY - 110, names[stage], 18, DIM, { fontStyle: 'italic' }).setOrigin(0.5));
     const below: Phaser.GameObjects.GameObject[] = [];
     const keyY = FY + 92;
@@ -1195,16 +1222,6 @@ export class EvidenceScene extends Phaser.Scene {
         [Noun, EC], [' given ', '#9a9a9a'], [short(focus), col(focus)], [': your rating for ', '#9a9a9a'], [short(focus), col(focus)],
       ];
       below.push(draw({ parts: note, x: W / 2 - measure(note, 16) / 2, y: keyY }, 16));
-    } else if (stage === LAST && SUSPECTS.length === 2) {
-      // the other suspect: what is left of 100%
-      const other = 1 - focus;
-      // worked from the rounded figure on screen, so the subtraction always adds up
-      const shown = parseFloat(share(after[focus])) / 100;
-      const line: Part[] = [
-        [short(other), col(other)], [' Updated', col(other)], [' = 100% − ', WC], [short(focus), col(focus)], [' Updated', col(focus)],
-        [' = 100% − ', WC], [share(after[focus]), col(focus)], [' = ', WC], [share(1 - shown), col(other)],
-      ];
-      below.push(draw({ parts: line, x: W / 2 - measure(line, 24) / 2, y: FY + 100 }, 24));
     }
     if (from !== undefined && from === stage - 1)
       below.forEach((o) => {
