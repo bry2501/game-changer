@@ -13,7 +13,7 @@ export const UPDATE_STEPS: [string, string, string][] = [
   ],
   [
     'Step 1 of 3: shrink',
-    'Each share shrinks by how well the clue fits that person’s story. A good fit keeps most of it; a poor fit keeps little. The shaded part is what is left; the faded part is what the clue took away.',
+    'Each bar shrinks by how well the clue fits that person’s story. A good fit keeps most of it; a poor fit keeps little. The shaded part is what is left; the faded part is what the clue took away.',
     'Side brackets: the evidence. Each shaded piece is the part of that person’s story in which this clue turns up; your rating sets its height.',
   ],
   [

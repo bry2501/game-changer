@@ -105,9 +105,11 @@ export class BayesSquare extends Phaser.GameObjects.Container {
 
     this.prior.forEach((p, i) => {
       const L = this.lik[i];
-      go(this.full[i], { x: px[i], y: 0, scaleX: Math.max(p * S, 0.001), scaleY: S, alpha: [0.85, 0.16, 0.05, 0][ph] }, ph === 1 ? i * 300 : 0);
-      if (ph === 0) go(this.piece[i], { x: px[i], y: S, scaleX: Math.max(p * S, 0.001), scaleY: 0.001 });
-      else if (ph <= 2) go(this.piece[i], { x: px[i], y: S - L * S, scaleX: Math.max(p * S, 0.001), scaleY: Math.max(L * S, 0.001) }, ph === 1 ? i * 300 : 0);
+      // at the shrink step the brackets show first; then each full bar shrinks down from the top into them
+      const shrinkDelay = ph === 1 ? 600 + i * 300 : 0;
+      go(this.full[i], { x: px[i], y: 0, scaleX: Math.max(p * S, 0.001), scaleY: S, alpha: [0.85, 0.16, 0.05, 0][ph] }, shrinkDelay);
+      if (ph === 0) go(this.piece[i], { x: px[i], y: 0, scaleX: Math.max(p * S, 0.001), scaleY: S });
+      else if (ph <= 2) go(this.piece[i], { x: px[i], y: S - L * S, scaleX: Math.max(p * S, 0.001), scaleY: Math.max(L * S, 0.001) }, shrinkDelay);
       else go(this.piece[i], { x: qx[i], y: 0, scaleX: Math.max(this.post[i] * S, 0.001), scaleY: S });
     });
 
@@ -176,7 +178,7 @@ export class BayesSquare extends Phaser.GameObjects.Container {
       [b, label].forEach((o) => {
         if (!(animate && ph === 1)) return;
         o.setAlpha(0);
-        this.scene.tweens.add({ targets: o, alpha: 1, duration: 400, delay: 900 + i * 300 });
+        this.scene.tweens.add({ targets: o, alpha: 1, duration: 400, delay: 150 + i * 150 });
       });
     });
   }
@@ -261,7 +263,7 @@ export class BayesSquare extends Phaser.GameObjects.Container {
       this.numbers.push(n);
       if (animate) {
         n.setAlpha(0);
-        this.scene.tweens.add({ targets: n, alpha: 1, duration: 400, delay: ph === 1 ? 900 + i * 300 : 900 });
+        this.scene.tweens.add({ targets: n, alpha: 1, duration: 400, delay: ph === 1 ? 1500 + i * 300 : 900 });
       }
     });
   }
