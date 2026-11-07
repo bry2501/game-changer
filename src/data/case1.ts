@@ -164,7 +164,7 @@ export const MEMORY_INTRO = 'Who was here tonight? Two of them.';
 
 export const MEMORY_OUTRO = [
   'Everything after supper is still fog.',
-  'But memories seem to come back when I stand close to the things they belong to. I felt it with the stain on my cuff.',
+  'But memories seem to come back when I stand close to the things they belong to.',
   'One of them did this. Already my gut whispers a name...',
   'But a gut feeling is how the living get things wrong. I am no longer living. Perhaps I can do better.',
   'I will gather what evidence I can find, and weigh each piece honestly.',

@@ -102,7 +102,7 @@ Thomas has been my gardener for twenty years. He keeps the garden and the ground
 *The amber thins and fades. The ticking of the clocks returns, close and loud, as if a door had been opened.*
 
 > **GHOST** *(thought)*: Everything after supper is still fog.
-> **GHOST** *(thought)*: But memories seem to come back when I stand close to the things they belong to. I felt it with the stain on my cuff.
+> **GHOST** *(thought)*: But memories seem to come back when I stand close to the things they belong to.
 > **GHOST** *(thought)*: One of them did this. Already my gut whispers a name...
 > **GHOST** *(thought)*: But a gut feeling is how the living get things wrong. I am no longer living. Perhaps I can do better.
 > **GHOST** *(thought)*: I will gather what evidence I can find, and weigh each piece honestly.
