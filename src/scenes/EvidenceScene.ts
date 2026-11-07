@@ -497,8 +497,9 @@ export class EvidenceScene extends Phaser.Scene {
       crumb: 'Start',
       build: () => {
         this.title('Where my suspicion starts');
-        this.para(W / 2, CONTENT_Y + 20, PRIOR_SHEET.lesson, 23, '#dcdcdc', 1000, 0.5);
-        this.blocksToBar(CONTENT_Y + 120, 'Before any clue:');
+        // set a little lower so the page sits in the middle of the screen
+        this.para(W / 2, CONTENT_Y + 75, PRIOR_SHEET.lesson, 23, '#dcdcdc', 1000, 0.5);
+        this.blocksToBar(CONTENT_Y + 175, 'Before any clue:');
         this.commitPrior(truth);
       },
     });
@@ -629,11 +630,13 @@ export class EvidenceScene extends Phaser.Scene {
     const they = s.pronoun === 'she' ? 'she' : 'he';
 
     this.title(PRIOR_SHEET.title);
+    // the question and the blocks sit level with the silhouette, in the middle of the page
+    const TOP = CONTENT_Y + 110;
     this.suspectPortrait(i);
-    this.para(470, CONTENT_Y + 20, solved ? `${s.name} was inside for ${s.hoursInside} hours.` : `How long was ${s.name} inside?`, 30, hex(s.color), 760);
+    this.para(470, TOP, solved ? `${s.name} was inside for ${s.hoursInside} hours.` : `How long was ${s.name} inside?`, 30, hex(s.color), 760);
     this.para(
       470,
-      CONTENT_Y + 74,
+      TOP + 54,
       `The log says ${s.name} signed in at ${s.logIn} and out at ${s.logOut}. How many hours between 6 and 10 pm was ${they} in the house?`,
       20,
       DIM,
@@ -642,7 +645,7 @@ export class EvidenceScene extends Phaser.Scene {
     // one block per hour: choosing a block lights it and every block to its left
     [1, 2, 3, 4].forEach((hours, k) => {
       const x = 470 + k * 172;
-      const y = CONTENT_Y + 190;
+      const y = TOP + 170;
       const on = hours <= count;
       const r = this.put(this.add.rectangle(x, y, 160, 64, on ? s.color : 0x161616, on ? 0.95 : 1).setOrigin(0, 0.5));
       r.setStrokeStyle(2, on ? s.color : 0x5a5a5a, 1);
@@ -661,7 +664,7 @@ export class EvidenceScene extends Phaser.Scene {
       return;
     }
     if (count > 0)
-      this.para(470, CONTENT_Y + 262, `Not quite. Check the times again: in at ${s.logIn}, out at ${s.logOut}, and only the hours between 6 and 10 pm count.`, 20, '#d8b0b0', 760);
+      this.para(470, TOP + 242, `Not quite. Check the times again: in at ${s.logIn}, out at ${s.logOut}, and only the hours between 6 and 10 pm count.`, 20, '#d8b0b0', 760);
     this.setNext('Next ›', false);
   }
 

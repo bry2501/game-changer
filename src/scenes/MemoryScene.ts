@@ -150,6 +150,7 @@ export class MemoryScene extends Phaser.Scene {
       this.layer.add(drawSuspect(this, 300, 400, i));
       this.layer.add(txt(this, 300, 612, `${s.name}, ${s.role}`, 19, '#8a7558', { fontStyle: 'italic' }).setOrigin(0.5, 0));
       let y = 92;
+      const first = this.layer.list.length;
       const add = (t: Phaser.GameObjects.Text, gap: number) => {
         this.layer.add(t);
         y += t.height + gap;
@@ -175,6 +176,11 @@ export class MemoryScene extends Phaser.Scene {
         else y += 6;
         if (s.tonight) this.tonight(col, y, width, s.tonight, add);
       }
+      // the column of text sits level with the silhouette: centred on it, but never under the button
+      const column = this.layer.list.slice(first) as Phaser.GameObjects.Text[];
+      const top = Math.min(...column.map((t) => t.y));
+      const shift = Phaser.Math.Clamp(400 - (top + y) / 2, 0, Math.max(0, 600 - y));
+      column.forEach((t) => t.setY(t.y + shift));
     } else {
       // the memory ends in three beats: what it gave, the gut feeling, and the resolve.
       // The lines before and after "One of them did this" are set as two quiet paragraphs
