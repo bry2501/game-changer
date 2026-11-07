@@ -892,13 +892,13 @@ export class EvidenceScene extends Phaser.Scene {
     if (ph > 0) this.time.delayedCall(250, () => sq.setPhase(ph));
 
     // what each part means, beside the square (clear of the P(E | H) label on its right side)
-    const x = 600;
+    const x = 630;
     let y = CONTENT_Y + 132;
-    const k = this.para(x, y, key, 18, DIM, 640);
+    const k = this.para(x, y, key, 18, DIM, 610);
     y += k.height + 22;
     if (ph === 0) {
       // where these shares come from: the log, or the board the last clue left behind
-      const src = this.para(x, y - 8, this.fromLong, 19, INK, 640);
+      const src = this.para(x, y - 8, this.fromLong, 19, INK, 610);
       y += src.height + 18;
     }
     // each row: the words, then the exact numbers for this step
@@ -952,7 +952,7 @@ export class EvidenceScene extends Phaser.Scene {
             const how = Math.abs(d) < 0.005 ? 'stayed the same' : d > 0 ? (d > 0.15 ? 'grew a lot' : 'grew') : d < -0.15 ? 'shrank a lot' : 'shrank';
             return `${s.name}’s share ${how}.`;
           }).join('  ');
-      this.para(x, y + 6, words, 20, INK, 640);
+      this.para(x, y + 6, words, 20, INK, 610);
     }
 
     // the player steps through at their own pace

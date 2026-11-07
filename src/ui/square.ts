@@ -175,7 +175,7 @@ export class BayesSquare extends Phaser.GameObjects.Container {
       const shrinking = animate && ph === 1;
       const top = shrinking ? 2 : y0;
       const b = new Brace(this.scene, top, y1, base, dir as 1 | -1, this.colors[i], depth, true);
-      const label = txt(this.scene, labelX, (top + y1) / 2, 'evidence', fs, hex(this.colors[i]), { fontStyle: 'italic' }).setOrigin(dir < 0 ? 1 : 0, 0.5);
+      const label = txt(this.scene, labelX, (top + y1) / 2, 'New Evidence', fs, hex(this.colors[i]), { fontStyle: 'italic' }).setOrigin(dir < 0 ? 1 : 0, 0.5);
       this.add([b, label]);
       this.sides.push(b, label);
       if (shrinking) {
