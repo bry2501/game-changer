@@ -1048,11 +1048,11 @@ export class EvidenceScene extends Phaser.Scene {
           rate: (i: number): Part[] => P(E, [' | ', WC], H(i)),
           dot: [' · ', WC] as Part,
         };
-      const lhs: Part[] = [[short(focus), col(focus)], [' Updated', WC], [' = ', WC]];
+      const lhs: Part[] = [[short(focus), col(focus)], [' Updated', col(focus)], [' = ', WC]];
       if (f === 1)
         return {
           lhs,
-          prior: (i: number): Part[] => [poss(i), [' Prior', WC]],
+          prior: (i: number): Part[] => [poss(i), [' Prior', col(i)]],
           rate: (i: number): Part[] => [[Noun, EC], [' given ', WC], [short(i), col(i)]],
           dot: [' · ', WC] as Part,
         };
@@ -1191,7 +1191,7 @@ export class EvidenceScene extends Phaser.Scene {
       below.push(draw({ parts: legend, x: W / 2 - measure(legend, 18) / 2, y: keyY }, 18));
     } else if (stage === 2) {
       const note: Part[] = [
-        poss(focus), [' Prior: your board before this clue      ', '#9a9a9a'],
+        poss(focus), [' Prior', col(focus)], [': your board before this clue      ', '#9a9a9a'],
         [Noun, EC], [' given ', '#9a9a9a'], [short(focus), col(focus)], [': your rating for ', '#9a9a9a'], [short(focus), col(focus)],
       ];
       below.push(draw({ parts: note, x: W / 2 - measure(note, 16) / 2, y: keyY }, 16));
@@ -1201,7 +1201,7 @@ export class EvidenceScene extends Phaser.Scene {
       // worked from the rounded figure on screen, so the subtraction always adds up
       const shown = parseFloat(share(after[focus])) / 100;
       const line: Part[] = [
-        [short(other), col(other)], [' Updated', WC], [' = 100% − ', WC], [short(focus), col(focus)], [' Updated', WC],
+        [short(other), col(other)], [' Updated', col(other)], [' = 100% − ', WC], [short(focus), col(focus)], [' Updated', col(focus)],
         [' = 100% − ', WC], [share(after[focus]), col(focus)], [' = ', WC], [share(1 - shown), col(other)],
       ];
       below.push(draw({ parts: line, x: W / 2 - measure(line, 24) / 2, y: FY + 100 }, 24));
