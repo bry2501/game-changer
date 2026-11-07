@@ -65,7 +65,7 @@ One night. One hour. Two suspects. You are the ghost, and you have until the clo
 > **GHOST** *(thought)*: That is my body. I am standing over my own body.
 > **GHOST** *(thought)*: My name... my name was John Bayes.
 > **GHOST** *(thought)*: I was a watchmaker.
-> **GHOST** *(thought)*: But I see no bullet wounds. No knife. No broken bones. Just... stillness.
+> **GHOST** *(thought)*: But I see no bullet wounds. No knife. No broken bones.
 > **GHOST** *(thought)*: Wait, I remember having my evening tea...
 > **GHOST** *(thought)*: It tasted bitter tonight. I remember drinking it anyway.
 > **GHOST** *(thought)*: Someone must have put something in my tea.

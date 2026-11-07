@@ -148,7 +148,7 @@ export const BODY_LINES: string[] = [
   'That is my body. I am standing over my own body.',
   'My name... my name was John Bayes.',
   'I was a watchmaker.',
-  'But I see no bullet wounds. No knife. No broken bones. Just... stillness.',
+  'But I see no bullet wounds. No knife. No broken bones.',
   'Wait, I remember having my evening tea...',
   'It tasted bitter tonight. I remember drinking it anyway.',
   'Someone must have put something in my tea.',
