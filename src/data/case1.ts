@@ -259,13 +259,13 @@ const CLUE_SOURCES: ClueSource[] = [
       'In a world where Clara is the murderer, my will would still exist. So finding a draft in my own desk is very likely.',
       'In a world where Thomas is the murderer, my will would also still exist. So finding a draft in my own desk is just as likely as it was in Clara’s story.',
     ],
-    trap: 'Old news doesn’t count twice',
+    trap: 'Old news doesn’t count much',
     lesson:
-      'A will in my desk feels like a motive for Clara, and for Thomas. But I knew about the will before I opened the drawer, and the letter already carried it. ' +
-      'The draft would be in this drawer whoever the murderer is, so it moves nothing. If your two ratings were far apart, you counted the same motive twice.',
+      'What has to be true for this draft to be in the drawer? I must have written it before I was poisoned. So nobody’s guilt can reach back and change it. It will be in the drawer in every outcome. ', +
+      'A will in my desk might feel like a motive for Clara and Thomas. But I knew about the will before I opened the drawer. ' +
+      'So it changes nothing.',
     reaction: [
       'Nothing moved. That feels wrong, but it isn’t: I knew about the will before I opened the drawer.',
-      '*Talk to her.* I never did.',
     ],
   },
   {
@@ -293,12 +293,12 @@ const CLUE_SOURCES: ClueSource[] = [
     noun: 'the boot print',
     likelihoods: [0.1, 0.5],
     hints: [
-      'If Clara is the murderer, why would she come in through the conservatory? She has been inside since seven, and the front door has always been open to her. And this print is large and fresh. A print like this is very hard to explain in her story.',
-      'If Thomas is the murderer, he signed my log at eight and then had to get back in unseen. He leaves his bicycle by the garden gate, as he always does, and the beds lie between that gate and this window. A print like this is quite possible in his story, though he might have found another way in.',
+      'If Clara poisoned my tea, why would she come in through the conservatory? She has been inside since 7pm, and the front door has always been open to her. And this print is large and fresh. A print like this is very hard to explain in her story.',
+      'If Thomas poisoned my tea: He signed out at eight, so to poison the tea he had to get back in unseen. A muddy print under this window is exactly what he would leave. But it isn’t guaranteed, because he might have come in another way and left no print.',
     ],
     trap: 'One lopsided clue can swing the board',
     lesson:
-      'Only someone coming through the garden would leave this. Clara has been inside since seven; Thomas leaves his bicycle by the garden gate. When a clue fits one story far better than another, a single clue can swing the whole board.',
+      'The print doesn’t prove Thomas did it. But it does mean Clara’s story needs for it to be a coincidence and his doesn’t. When a clue fits one story far better than another, a single clue can swing the whole board.',
     reaction: [
       'Garden mud, under the open window. Who walks through a garden at night?',
       'Clara has been inside since seven, and this print is large. But Thomas leaves his bicycle by the garden gate, and he knows every path in that garden.',
