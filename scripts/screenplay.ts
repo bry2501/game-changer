@@ -274,8 +274,9 @@ w('>');
 w(`> **GHOST** *(thought)*: ${PRIOR_SHEET.context}`);
 w();
 SUSPECTS.forEach((s, i) => {
-  w(`**${s.name}** · *${s.name} was inside for ${s.hoursInside} hours.* (shown as half-hour blocks, ${s.name}’s lit).`);
-  w(`The lit blocks are ${s.name}’s share of all the time anyone spent inside, ${s.hoursInside} out of ${PRIOR_SHEET.total} hours.${i === 0 ? ' More time inside means more chances to reach my tea, so a bigger starting share of suspicion.' : ''}`);
+  w(`**${s.name}** · *How long was ${s.name} inside?* The log says ${s.name} signed in at ${s.logIn} and out at ${s.logOut}. Click each hour between 6 and 10 pm that ${s.pronoun} was in the house. *(four hour blocks, 6–7 to 9–10 pm; the player lights the right ones to continue)*`);
+  w(`If wrong: “Not quite. Check the times again: in at ${s.logIn}, out at ${s.logOut}, and only the hours between 6 and 10 pm count.”`);
+  w(`Once right: *${s.name} was inside for ${s.hoursInside} hours.* The lit blocks are ${s.name}’s share of all the time anyone spent inside, ${s.hoursInside} out of ${PRIOR_SHEET.total} hours.${i === 0 ? ' More time inside means more chances to reach my tea, so a bigger starting share of suspicion.' : ''}`);
   w();
 });
 w(`**Where my suspicion starts**: ${PRIOR_SHEET.lesson} *(a single bar, names only)*`);

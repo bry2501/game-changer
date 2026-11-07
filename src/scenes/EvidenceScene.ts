@@ -62,6 +62,8 @@ export class EvidenceScene extends Phaser.Scene {
   private prior: number[] = [];
   /** The player's likelihood for each suspect (undefined until rated). */
   private picks: (number | undefined)[] = [];
+  /** Which hours (6–10 pm) the player has lit for each suspect, on the log pages. */
+  private hourPicks: boolean[][] = [];
   private rec?: StepRecord;
   /** Which step of the update animation is showing (0–3). */
   private phase = 0;
@@ -77,6 +79,7 @@ export class EvidenceScene extends Phaser.Scene {
     this.committed = false;
     this.crumbs = [];
     this.picks = [];
+    this.hourPicks = [];
     this.rec = undefined;
     this.nextOverride = undefined;
     this.backOverride = undefined;
@@ -385,16 +388,7 @@ export class EvidenceScene extends Phaser.Scene {
     SUSPECTS.forEach((s, i) =>
       steps.push({
         crumb: s.name,
-        build: () => {
-          this.title(PRIOR_SHEET.title);
-          this.suspectPortrait(i);
-          this.para(470, CONTENT_Y + 30, `${s.name} was inside for ${s.hoursInside} hours.`, 30, hex(s.color), 760);
-          this.para(470, CONTENT_Y + 90, 'Each block below is half an hour.', 21, DIM, 760);
-          this.hourBlocks(470, CONTENT_Y + 160, i);
-          this.para(470, CONTENT_Y + 270, `The lit blocks are ${s.name}’s share of all the time anyone spent inside, ${s.hoursInside} out of ${PRIOR_SHEET.total} hours.`, 24, INK, 760);
-          if (i === 0)
-            this.para(470, CONTENT_Y + 340, 'More time inside means more chances to reach my tea, so a bigger starting share of suspicion.', 21, '#dcdcdc', 760);
-        },
+        build: () => this.hoursPage(i),
       }),
     );
     steps.push({
@@ -416,18 +410,61 @@ export class EvidenceScene extends Phaser.Scene {
     }
   }
 
-  /** Half-hour blocks: everyone's time inside, with this suspect's blocks lit. */
-  private hourBlocks(x: number, y: number, focus: number) {
-    const g = this.put(this.add.graphics());
-    const cells = SUSPECTS.reduce((a, s) => a + s.hoursInside * 2, 0);
-    const cw = Math.min(36, 740 / cells);
-    let c = 0;
-    SUSPECTS.forEach((s, i) => {
-      for (let k = 0; k < s.hoursInside * 2; k++, c++) {
-        g.fillStyle(s.color, i === focus ? 0.95 : 0.16);
-        g.fillRoundedRect(x + c * cw, y, cw - 4, 46, 5);
-      }
+  /**
+   * The player reads the log and lights each hour, 6 to 10 pm, that this person was in the
+   * house. Once the right hours are lit, the page shows their share of all the time inside.
+   */
+  private hoursPage(i: number) {
+    const s = SUSPECTS[i];
+    const SLOTS = [18, 19, 20, 21]; // 6–7, 7–8, 8–9, 9–10 pm
+    const clock = (t: string) => {
+      const m = t.match(/(\d+):(\d+)\s*pm/)!;
+      return (+m[1] % 12) + 12 + +m[2] / 60;
+    };
+    const from = Math.max(clock(s.logIn), 18);
+    const to = Math.min(clock(s.logOut), 22);
+    const truth = SLOTS.map((h) => h >= from && h + 1 <= to);
+    const picked = (this.hourPicks[i] ??= SLOTS.map(() => false));
+    const solved = picked.every((p, k) => p === truth[k]);
+    const n = picked.filter(Boolean).length;
+    const they = s.pronoun === 'she' ? 'she' : 'he';
+
+    this.title(PRIOR_SHEET.title);
+    this.suspectPortrait(i);
+    this.para(470, CONTENT_Y + 20, solved ? `${s.name} was inside for ${s.hoursInside} hours.` : `How long was ${s.name} inside?`, 30, hex(s.color), 760);
+    this.para(
+      470,
+      CONTENT_Y + 74,
+      `The log says ${s.name} signed in at ${s.logIn} and out at ${s.logOut}. Click each hour between 6 and 10 pm that ${they} was in the house.`,
+      20,
+      DIM,
+      760,
+    );
+    SLOTS.forEach((h, k) => {
+      const x = 470 + k * 172;
+      const y = CONTENT_Y + 190;
+      const on = picked[k];
+      const r = this.put(this.add.rectangle(x, y, 160, 64, on ? s.color : 0x161616, on ? 0.95 : 1).setOrigin(0, 0.5));
+      r.setStrokeStyle(2, on ? s.color : 0x5a5a5a, 1);
+      r.setInteractive({ useHandCursor: true });
+      r.on('pointerup', () => {
+        if (this.committed) return;
+        picked[k] = !picked[k];
+        Sound.blip();
+        this.show();
+      });
+      const label = `${((h - 1) % 12) + 1}–${(h % 12) + 1} pm`;
+      this.put(txt(this, x + 80, y, label, 20, on ? '#111111' : '#bdbdbd').setOrigin(0.5));
     });
+    if (solved) {
+      this.para(470, CONTENT_Y + 262, `The lit blocks are ${s.name}’s share of all the time anyone spent inside, ${s.hoursInside} out of ${PRIOR_SHEET.total} hours.`, 24, INK, 760);
+      if (i === 0)
+        this.para(470, CONTENT_Y + 332, 'More time inside means more chances to reach my tea, so a bigger starting share of suspicion.', 21, '#dcdcdc', 760);
+      return;
+    }
+    if (n >= truth.filter(Boolean).length)
+      this.para(470, CONTENT_Y + 262, `Not quite. Check the times again: in at ${s.logIn}, out at ${s.logOut}, and only the hours between 6 and 10 pm count.`, 20, '#d8b0b0', 760);
+    this.setNext('Next ›', false);
   }
 
   // ================================================================== a clue
