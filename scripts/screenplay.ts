@@ -276,7 +276,7 @@ w();
 SUSPECTS.forEach((s, i) => {
   w(`**${s.name}** · *How long was ${s.name} inside?* The log says ${s.name} signed in at ${s.logIn} and out at ${s.logOut}. How many hours between 6 and 10 pm was ${s.pronoun} in the house? *(four blocks, “1 hour” to “4 hours”; choosing one lights it and every block to its left; the player lights the right number to continue)*`);
   w(`If wrong: “Not quite. Check the times again: in at ${s.logIn}, out at ${s.logOut}, and only the hours between 6 and 10 pm count.”`);
-  w(`Once right: *${s.name} was inside for ${s.hoursInside} hours.* The lit blocks are ${s.name}’s share of all the time anyone spent inside, ${s.hoursInside} out of ${PRIOR_SHEET.total} hours.${i === 0 ? ' More time inside means more chances to reach my tea, so a bigger starting share of suspicion.' : ''}`);
+  w(`Once right: *${s.name} was inside for ${s.hoursInside} hours.* (Next unlocks.)`);
   w();
 });
 w(`**Where my suspicion starts**: ${PRIOR_SHEET.lesson} *(the hour blocks from the two log pages slide into one row of five, the gaps close, and the row becomes the starting bar; each name sits under its share with “N of 5 hours”)**`);

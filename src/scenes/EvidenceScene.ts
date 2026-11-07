@@ -656,24 +656,8 @@ export class EvidenceScene extends Phaser.Scene {
       });
       this.put(txt(this, x + 80, y, hours === 1 ? '1 hour' : `${hours} hours`, 20, on ? '#111111' : '#bdbdbd').setOrigin(0.5));
     });
+    // once right, the page just confirms it; the share itself is shown on the next page
     if (solved) {
-      const shareText = this.para(
-        470,
-        CONTENT_Y + 262,
-        `The lit blocks are ${s.name}’s share of all the time anyone spent inside, ${s.hoursInside} out of ${PRIOR_SHEET.total} hours.`,
-        24,
-        INK,
-        760,
-      );
-      // the same share, as the sum that gives it
-      const sumY = shareText.y + shareText.height + 44;
-      const sum = this.put(
-        mathText(this, 470, sumY, [{ n: `${s.hoursInside}`, d: `${PRIOR_SHEET.total}` }, ` = ${share(s.hoursInside / PRIOR_SHEET.total)}`], 30, hex(s.color), {
-          bold: true,
-        }),
-      );
-      if (i === 0)
-        this.para(470, sumY + sum.height / 2 + 16, 'More time inside means more chances to reach my tea, so a bigger starting share of suspicion.', 21, '#dcdcdc', 760);
       return;
     }
     if (count > 0)

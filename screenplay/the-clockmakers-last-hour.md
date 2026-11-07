@@ -187,11 +187,11 @@ Two floors joined by the hallway stairs. Anything searchable shimmers identicall
 
 **Clara** · *How long was Clara inside?* The log says Clara signed in at 7:00 pm and out at 10:00 pm. How many hours between 6 and 10 pm was she in the house? *(four blocks, “1 hour” to “4 hours”; choosing one lights it and every block to its left; the player lights the right number to continue)*
 If wrong: “Not quite. Check the times again: in at 7:00 pm, out at 10:00 pm, and only the hours between 6 and 10 pm count.”
-Once right: *Clara was inside for 3 hours.* The lit blocks are Clara’s share of all the time anyone spent inside, 3 out of 5 hours. More time inside means more chances to reach my tea, so a bigger starting share of suspicion.
+Once right: *Clara was inside for 3 hours.* (Next unlocks.)
 
 **Mr. Thomas** · *How long was Mr. Thomas inside?* The log says Mr. Thomas signed in at 4:00 pm and out at 8:00 pm. How many hours between 6 and 10 pm was he in the house? *(four blocks, “1 hour” to “4 hours”; choosing one lights it and every block to its left; the player lights the right number to continue)*
 If wrong: “Not quite. Check the times again: in at 4:00 pm, out at 8:00 pm, and only the hours between 6 and 10 pm count.”
-Once right: *Mr. Thomas was inside for 2 hours.* The lit blocks are Mr. Thomas’s share of all the time anyone spent inside, 2 out of 5 hours.
+Once right: *Mr. Thomas was inside for 2 hours.* (Next unlocks.)
 
 **Where my suspicion starts**: Each person’s share of the time inside becomes their starting share of suspicion: whoever spent longest in the house starts highest. That’s my starting point. *(the hour blocks from the two log pages slide into one row of five, the gaps close, and the row becomes the starting bar; each name sits under its share with “N of 5 hours”)**
 
