@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { Button, DIM, fadeThen, fitCamera, hex, INK, overlayBackground, stackedBar, txt, W, GHOST_RES } from '../ui/widgets';
+import { Button, DIM, fadeThen, fitCamera, hex, INK, overlayBackground, stackedBar, txt, W, GHOST_RES, ZOOM } from '../ui/widgets';
 import { CLUES, Evidence, LOG_ROWS, PRIOR_SHEET, SUSPECTS } from '../data/case1';
 import { GameState, StepRecord, truePrior } from '../state/GameState';
 import { update } from '../bayes/engine';
@@ -52,6 +52,12 @@ export class EvidenceScene extends Phaser.Scene {
   private backOverride?: () => void;
   /** Which of the ghost's thoughts is showing on a page that has several. */
   private noteIdx = 0;
+  /** True for one redraw after Next adds a thought, so only that bubble animates in. */
+  private noteArrived = false;
+  /** How far the stack of thoughts is scrolled (undefined: pinned to the newest). */
+  private noteScroll?: number;
+  /** Scrolls the stack of thoughts on this page, when it is taller than its space. */
+  private noteScroller?: (dy: number) => void;
   /** A remembered moment chimes once per visit to its page. */
   private chimed = false;
   private closing = false;
@@ -84,6 +90,9 @@ export class EvidenceScene extends Phaser.Scene {
     this.nextOverride = undefined;
     this.backOverride = undefined;
     this.noteIdx = 0;
+    this.noteArrived = false;
+    this.noteScroll = undefined;
+    this.noteScroller = undefined;
     this.chimed = false;
     this.phase = 0;
   }
@@ -96,6 +105,18 @@ export class EvidenceScene extends Phaser.Scene {
     this.nextBtn = new Button(this, W - 150, NAV_Y, 'Next ›', () => this.onNext(), { width: 240, height: 60, size: 24 });
     this.input.keyboard?.on('keydown-RIGHT', () => this.nextBtn.alpha === 1 && this.onNext());
     this.input.keyboard?.on('keydown-LEFT', () => this.backBtn.visible && this.onBack());
+    // scrolling a tall stack of thoughts: wheel, arrow keys, or dragging
+    this.input.on('wheel', (_p: unknown, _o: unknown, _dx: number, dy: number) => this.noteScroller?.(dy * 0.6));
+    this.input.keyboard?.on('keydown-UP', () => this.noteScroller?.(-60));
+    this.input.keyboard?.on('keydown-DOWN', () => this.noteScroller?.(60));
+    let dragY: number | undefined;
+    this.input.on('pointerdown', (p: Phaser.Input.Pointer) => (dragY = p.y));
+    this.input.on('pointerup', () => (dragY = undefined));
+    this.input.on('pointermove', (p: Phaser.Input.Pointer) => {
+      if (dragY === undefined || !p.isDown || !this.noteScroller) return;
+      this.noteScroller((dragY - p.y) / ZOOM);
+      dragY = p.y;
+    });
 
     this.steps = this.kind === 'prior' ? this.priorSteps() : this.clueSteps();
     this.buildCrumbs();
@@ -113,6 +134,7 @@ export class EvidenceScene extends Phaser.Scene {
     if (next !== this.index) {
       // arriving from behind shows a page's last thought; arriving fresh shows its first
       this.noteIdx = delta < 0 ? Number.MAX_SAFE_INTEGER : 0;
+      this.noteScroll = undefined;
       this.chimed = false;
     }
     this.index = next;
@@ -138,12 +160,15 @@ export class EvidenceScene extends Phaser.Scene {
     } else this.go(1);
   }
 
-  private show() {
+  /** Redraws the current page. A soft redraw (a thought added or taken away) skips the fade. */
+  private show(soft = false) {
     // cancel the previous page's pending animations before its objects are destroyed
     this.time.removeAllEvents();
     this.tweens.killTweensOf(this.page.list);
+    this.page.list.forEach((o) => o instanceof Phaser.GameObjects.Container && this.tweens.killTweensOf(o.list));
     this.page.removeAll(true);
-    this.page.setAlpha(0);
+    this.noteScroller = undefined;
+    this.page.setAlpha(soft ? 1 : 0);
     this.setNext('Next ›', true);
     this.backOverride = undefined;
     this.steps[this.index].build();
@@ -152,7 +177,7 @@ export class EvidenceScene extends Phaser.Scene {
       this.setNext('Continue ›', this.nextBtn.alpha === 1);
     }
     this.crumbs.forEach((c, i) => c.setColor(i === this.index ? GOLD : i < this.index ? '#aaaaaa' : '#555555'));
-    this.tweens.add({ targets: this.page, alpha: 1, duration: 250 });
+    if (!soft) this.tweens.add({ targets: this.page, alpha: 1, duration: 250 });
   }
 
   private setNext(label: string, enabled: boolean, onClick?: () => void) {
@@ -269,62 +294,123 @@ export class EvidenceScene extends Phaser.Scene {
   }
 
   /**
-   * The ghost's thoughts about a document, one at a time: Next shows the following thought
-   * before moving on, Back the one before. A remembered moment is drawn in amber.
+   * The ghost's thoughts about a document, arriving one by one like messages: Next adds the
+   * following thought under the ones before, Back takes the newest away. When the stack grows
+   * taller than the space above the buttons it scrolls (mouse wheel, drag or the arrow keys),
+   * always landing on the newest thought. A remembered moment is drawn in amber.
    */
   private ghostNotes(y: number, notes: { text: string; memory?: boolean }[]) {
     if (!notes.length) return;
     const k = Math.min(this.noteIdx, notes.length - 1);
     this.noteIdx = k;
+    const arrived = this.noteArrived;
+    this.noteArrived = false;
+
+    const viewTop = y;
+    const viewBottom = NAV_Y - 50;
+    const viewH = viewBottom - viewTop;
+    const stack = this.put(this.add.container(0, 0));
+    let bottom = viewTop;
+    let newest!: Phaser.GameObjects.Container;
+    let prevBottom = viewTop;
+    for (let i = 0; i <= k; i++) {
+      prevBottom = bottom;
+      const bubble = this.add.container(0, 0);
+      stack.add(bubble);
+      bottom = this.ghostNote(bubble, i === 0 ? bottom : bottom + 14, notes[i].text, notes[i].memory, i === k);
+      newest = bubble;
+    }
     const n = notes[k];
-    this.ghostNote(y, n.text, n.memory);
     if (n.memory && !this.chimed) {
       this.chimed = true;
       Sound.toll();
     }
+
+    // scrolling: the stack is clipped to the space between the card and the buttons
+    const contentH = bottom - viewTop;
+    const minOff = Math.min(0, viewH - contentH);
+    if (minOff < 0) {
+      const maskShape = this.make.graphics({}, false);
+      maskShape.fillStyle(0xffffff).fillRect(0, viewTop - 6, W, viewH + 12);
+      stack.setMask(maskShape.createGeometryMask());
+      // soft edges where thoughts slide out of view, and a small arrow beside the stack
+      const band = 26;
+      const fadeTop = this.put(this.add.graphics());
+      fadeTop.fillGradientStyle(0x060606, 0x060606, 0x060606, 0x060606, 1, 1, 0, 0);
+      fadeTop.fillRect(24, viewTop - 6, W - 48, band);
+      const fadeBottom = this.put(this.add.graphics());
+      fadeBottom.fillGradientStyle(0x060606, 0x060606, 0x060606, 0x060606, 0, 0, 1, 1);
+      fadeBottom.fillRect(24, viewBottom + 6 - band, W - 48, band);
+      const arrowX = W / 2 + 530;
+      const upArrow = this.put(txt(this, arrowX, viewTop + 4, '\u02c4', 26, '#8a8a8a').setOrigin(0.5, 0));
+      const downArrow = this.put(txt(this, arrowX, viewBottom - 4, '\u02c5', 26, '#8a8a8a').setOrigin(0.5, 1));
+      const scrollTo = (off: number) => {
+        this.noteScroll = Phaser.Math.Clamp(off, minOff, 0);
+        stack.y = this.noteScroll;
+        fadeTop.setVisible(this.noteScroll < 0);
+        upArrow.setVisible(this.noteScroll < 0);
+        fadeBottom.setVisible(this.noteScroll > minOff + 0.5);
+        downArrow.setVisible(this.noteScroll > minOff + 0.5);
+      };
+      scrollTo(arrived || this.noteScroll === undefined ? minOff : this.noteScroll);
+      if (arrived) {
+        // glide up to make room for the new thought
+        stack.y = Math.min(0, minOff + (bottom - prevBottom));
+        this.tweens.add({ targets: stack, y: minOff, duration: 260, ease: 'Sine.easeOut', onComplete: () => scrollTo(minOff) });
+      }
+      this.noteScroller = (dy: number) => scrollTo(this.noteScroll! - dy);
+    } else {
+      this.noteScroll = undefined;
+      this.noteScroller = undefined;
+    }
+
+    if (arrived) {
+      newest.setAlpha(0);
+      newest.y = 14;
+      this.tweens.add({ targets: newest, alpha: 1, y: 0, duration: 260, ease: 'Sine.easeOut' });
+    }
+
     if (k < notes.length - 1)
       this.setNext('Next ›', true, () => {
         this.noteIdx = k + 1;
-        this.show();
+        this.noteArrived = true;
+        this.noteScroll = undefined;
+        this.show(true);
       });
     if (k > 0)
       this.backOverride = () => {
         this.noteIdx = k - 1;
-        this.show();
+        this.noteScroll = undefined;
+        this.show(true);
       };
   }
 
-  private ghostNote(y: number, text: string, memory = false): number {
+  /** One thought bubble. Only the newest carries the ghost beside it, as in a message thread. */
+  private ghostNote(into: Phaser.GameObjects.Container, y: number, text: string, memory = false, avatar = true): number {
     const w = 900;
     const x0 = W / 2 - w / 2 + 50;
-    const note = this.put(this.add.container(0, 0));
     const bg = this.add.graphics();
-    note.add(bg);
+    into.add(bg);
     const top = memory ? 30 : 16;
-    if (memory) note.add(txt(this, x0 + 24, y + 10, '\u2014 a memory returns \u2014', 15, '#d9b98a', { fontStyle: 'italic' }));
-    // shrink long thoughts to fit above the buttons
-    const room = NAV_Y - 44 - y - top - 16;
-    let size = 22;
-    const t = txt(this, x0 + 24, y + top, text.replace(/\*/g, ''), size, memory ? '#f3e2c4' : '#dcdcdc', {
+    if (memory) into.add(txt(this, x0 + 24, y + 10, '\u2014 a memory returns \u2014', 15, '#d9b98a', { fontStyle: 'italic' }));
+    const t = txt(this, x0 + 24, y + top, text.replace(/\*/g, ''), 22, memory ? '#f3e2c4' : '#dcdcdc', {
       fontStyle: 'italic',
       wordWrap: { width: w - 48 },
       lineSpacing: 5,
     });
-    while (t.height > room && size > 16) {
-      size -= 1;
-      t.setFontSize(size);
-    }
-    note.add(t);
+    into.add(t);
     const h = t.height + top + 16;
     bg.fillStyle(memory ? 0x2a1d10 : 0x101010, 0.92);
     bg.lineStyle(2, memory ? 0xd9b98a : 0xd0d0d0, memory ? 0.7 : 0.45);
     bg.fillRoundedRect(x0, y, w, h, 18);
     bg.strokeRoundedRect(x0, y, w, h, 18);
-    const glow = this.add.image(x0 - 52, y + h / 2, 'glow').setScale(0.9).setBlendMode(Phaser.BlendModes.ADD).setAlpha(0.7);
-    const ghost = this.add.image(x0 - 52, y + h / 2, 'ghost').setScale(0.42 / GHOST_RES);
-    note.add([glow, ghost]);
-    bg.fillCircle(x0 - 14, y + h / 2 + 4, 6);
-    bg.strokeCircle(x0 - 14, y + h / 2 + 4, 6);
+    if (avatar) {
+      const glow = this.add.image(x0 - 52, y + h / 2, 'glow').setScale(0.9).setBlendMode(Phaser.BlendModes.ADD).setAlpha(0.7);
+      const ghost = this.add.image(x0 - 52, y + h / 2, 'ghost').setScale(0.42 / GHOST_RES);
+      into.add([glow, ghost]);
+      bg.fillCircle(x0 - 14, y + h / 2 + 4, 6);
+      bg.strokeCircle(x0 - 14, y + h / 2 + 4, 6);
+    }
     return y + h;
   }
 

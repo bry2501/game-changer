@@ -1,9 +1,8 @@
 import Phaser from 'phaser';
-import { W, txt } from './widgets';
 
 /**
  * Desktop controls (touch still works the same way).
- * - Keyboard: ← → / A D to drift, Space / E / Enter to examine, W / S for the stairs, B or Tab for the board.
+ * - Keyboard: ← → / A D to drift, Space / E / Enter to examine, W / S for the stairs, B or Tab for the suspects board.
  * - Mouse: click and hold anywhere and the ghost drifts toward the pointer; a click sends the
  *   ghost to that spot. Clicking something searchable sends the ghost there and examines it on arrival.
  */
@@ -15,7 +14,6 @@ export class Controls {
   enabled = true;
   private holding?: Phaser.Input.Pointer;
   private keys?: { [k: string]: Phaser.Input.Keyboard.Key };
-  private boardBtn: Phaser.GameObjects.Container;
 
   constructor(
     private scene: Phaser.Scene,
@@ -24,7 +22,6 @@ export class Controls {
     onBoard: () => void,
   ) {
     scene.input.addPointer(2);
-    this.boardBtn = this.boardButton(onBoard);
 
     scene.input.on('pointerdown', (p: Phaser.Input.Pointer, over: Phaser.GameObjects.GameObject[]) => {
       if (!this.enabled || over.length) return;
@@ -71,32 +68,9 @@ export class Controls {
     this.targetX = pt.x;
   }
 
-  showBoard(on: boolean) {
-    this.boardBtn.setVisible(on);
-  }
-
   reset() {
     this.targetX = null;
     this.pendingInspect = false;
     this.holding = undefined;
-  }
-
-  private boardButton(fn: () => void) {
-    const cont = this.scene.add.container(W - 100, 52).setDepth(1000);
-    const bg = this.scene.add
-      .rectangle(0, 0, 160, 54, 0x111111, 0.65)
-      .setStrokeStyle(2, 0xd8d8d8, 0.6)
-      .setInteractive({ useHandCursor: true });
-    const t = txt(this.scene, 0, 0, 'Suspects', 22, '#f2f2f2').setOrigin(0.5);
-    cont.add([bg, t]);
-    cont.setScrollFactor(0, 0, true);
-    let pressed = false;
-    bg.on('pointerdown', () => (pressed = true));
-    bg.on('pointerout', () => (pressed = false));
-    bg.on('pointerup', () => {
-      if (pressed && this.enabled) fn();
-      pressed = false;
-    });
-    return cont;
   }
 }

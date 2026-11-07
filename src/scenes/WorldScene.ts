@@ -203,7 +203,7 @@ export class WorldScene extends Phaser.Scene {
       .setOrigin(0.5)
       .setDepth(940)
       .setVisible(false);
-    soundToggle(this, W - 222, 52);
+    soundToggle(this, W - 50, 52);
 
     this.bubble = new ThoughtBubble(this, this.ghost);
     this.controls = new Controls(
@@ -318,7 +318,6 @@ export class WorldScene extends Phaser.Scene {
   /** Thrown into ghostly existence: no memory, only the ticking of clocks. */
   private awaken() {
     this.lock();
-    this.controls.showBoard(false);
     this.bodyMarker.setVisible(false);
     this.roomLabel.setAlpha(0);
     this.counter.setAlpha(0);
@@ -732,7 +731,6 @@ export class WorldScene extends Phaser.Scene {
 
   private refreshHud() {
     this.counter.setText(`Evidence: ${Math.max(0, GameState.data.found)} / ${CLUES.length}`);
-    this.controls.showBoard(GameState.priorSet);
     this.bodyMarker.setVisible((GameState.awakening && this.bodyVisible) || GameState.allFound);
     for (const p of this.props.values()) {
       p.spark?.setVisible(this.canSearch(p) && !GameState.data.searched.includes(p.def.id));
