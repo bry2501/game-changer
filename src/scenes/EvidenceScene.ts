@@ -973,15 +973,21 @@ export class EvidenceScene extends Phaser.Scene {
       const from = this.page.list.length;
       y += 150;
       label(y, 'In words');
-      const sus = (i: number): Part => [`suspicion of ${short(i)}`, col(i)];
-      const fit = (i: number): Part => [`chance of ${clue.noun} if ${short(i)} is the murderer`, col(i)];
-      const termW = (i: number): Part[] => [sus(i), [' × ', WC], fit(i)];
-      const rest = SUSPECTS.slice(1).flatMap((_, k) => [[' + ', WC] as Part, ...termW(k + 1)]);
-      draw(xr - eqW, y, [[' = ', WC], { n: termW(0), d: termW(0), d2: rest }], 22);
+      // the same rule with the people and the clue named: P(Clara) · P(letter | Clara) / ...
+      const ev: Part = [clue.noun.replace(/^the /, ''), EC];
+      const who = (i: number): Part => [short(i), col(i)];
+      const termN = (i: number): Part[] => [...P(who(i)), [' · ', WC], ...P(ev, given, who(i))];
+      draw(xr - eqW, y, [[' = ', WC], { n: termN(0), d: sumOver(termN) }], 24);
       this.put(
-        txt(this, x0, y + 92, `suspicion: your board before this clue (${this.fromShort})     chance: your rating`, 15, '#9a9a9a', {
-          fontStyle: 'italic',
-        }).setOrigin(0, 0.5),
+        txt(
+          this,
+          x0,
+          y + 62,
+          `P(${short(0)}): your board before this clue (${this.fromShort})     P(${ev[0]} | ${short(0)}): your rating for ${short(0)}`,
+          15,
+          '#9a9a9a',
+          { fontStyle: 'italic' },
+        ).setOrigin(0, 0.5),
       );
       fade(from, 1);
     }
@@ -989,7 +995,7 @@ export class EvidenceScene extends Phaser.Scene {
     // stage 2: your numbers, worked to the answer for both suspects
     if (stage >= 2) {
       const from = this.page.list.length;
-      y += 160;
+      y += 130;
       label(y, 'Your numbers');
       const pr = (i: number): Part => [share(this.prior[i]), col(i)];
       const rt = (i: number): Part => [share(lik[i]), col(i)];
