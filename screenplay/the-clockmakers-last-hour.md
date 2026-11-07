@@ -85,7 +85,7 @@ One night. One hour. Two suspects. You are the ghost, and you have until the clo
 
 > **GHOST** *(remembering)*: “My brother’s daughter. Bright, stubborn, and the closest thing I have to family.”
 
-Her parents died when she was twelve, and she grew up in this house, all elbows and questions. At nine she took apart my pocket watch and put it back together, and it ran. Now she studies law in the city and argues like a barrister, which is a polite way of saying she argues like me. She is the only one who noticed that I have stopped sleeping properly, and she has nagged me about it since the spring. This week I told her I meant to leave the house to the Clockmakers’ Guild instead of to her. We both said things we regret.
+Her parents died when she was twelve, and she grew up in this house, all elbows and questions. At nine she took apart my pocket watch and put it back together, and it ran. Now she studies law in the city and argues like a barrister, which is a polite way of saying she argues like me. She is the only one who noticed that I have stopped sleeping properly, and she has nagged me about it since the spring. This week I told her I meant to leave the house to the Clockmakers’ Club instead of to her. We both said things we regret.
 
 *The amber fogs over. Another face comes up through it.*
 
@@ -93,7 +93,7 @@ Her parents died when she was twelve, and she grew up in this house, all elbows 
 
 > **GHOST** *(remembering)*: “Edmund Thomas, my gardener. He smiles a little too much.”
 
-Thomas has been my gardener for twenty years. He keeps the garden and the grounds, and lives in the cottage at the end of them. Last week I told him the Guild would likely sell the grounds once I sign my will on Monday, and that the cottage would go with them.
+Thomas has been my gardener for twenty years. He keeps the garden and the grounds, and lives in the cottage at the end of them. Last week I told him the Club would likely sell the grounds once I sign my will on Monday, and that the cottage would go with them.
 
 **Tonight:** He came at four to go over the repairs to the glass and left his bicycle, as he always does, by the garden gate. He stayed to supper and signed out at eight.
 
@@ -139,7 +139,7 @@ Two floors joined by the hallway stairs. Anything searchable shimmers identicall
 |---|---|---|---|
 | The Study | Household log | Household log |  |
 | The Study | My teacup |  | My teacup, still half full. I can’t bear to look at it for long. Let me look elsewhere. |
-| The Study | Desk drawer | **Clue: The Draft Will** |  |
+| The Study | Desk drawer | **Clue: The Will** |  |
 | The Study | Desk chair | **Clue: A Pruning Knife** |  |
 | The Study | Bookshelf |  | Clock-repair manuals, forty years of them. No secret compartments. I would know: I built this shelf. |
 | The Hallway | Coat stand | **Clue: The Chemist’s Slip** |  |
@@ -183,7 +183,7 @@ Two floors joined by the hallway stairs. Anything searchable shimmers identicall
 
 > **GHOST** *(thought)*: This was my own rule: everyone signs the household log when they come and go. A house should know who is in it. This shows who was inside tonight between 6 pm and 10 pm, and for how long. I remember Poe had asked for the evening off to visit his sister. Edgar went home at six, as he always does. That leaves two people who were in this house with my tea: Clara and Mr. Thomas. The question is, who did it?
 >
-> **GHOST** *(thought)*: I need a starting point. If I had no information to go on, I would give each suspect an equal 50/50 chance of guilt. But I can use the log to count the hours each of them spent under this roof: the longer someone was here, the more chances they had. That starting belief is called the PRIOR.
+> **GHOST** *(thought)*: I need a starting point. If I had no information to go on, I would give each suspect an equal 50/50 chance of guilt. But I can use this log to count the hours each of them spent under this roof: the longer someone was here, the more chances they had. That starting belief is called the PRIOR.
 
 **Clara** · *How long was Clara inside?* The log says Clara signed in at 7:00 pm and out at 10:00 pm. How many hours between 6 and 10 pm was she in the house? *(four blocks, “1 hour” to “4 hours”; choosing one lights it and every block to its left; the player lights the right number to continue)*
 If wrong: “Not quite. Check the times again: in at 7:00 pm, out at 10:00 pm, and only the hours between 6 and 10 pm count.”
@@ -193,7 +193,7 @@ Once right: *Clara was inside for 3 hours.* (Next unlocks.)
 If wrong: “Not quite. Check the times again: in at 4:00 pm, out at 8:00 pm, and only the hours between 6 and 10 pm count.”
 Once right: *Mr. Thomas was inside for 2 hours.* (Next unlocks.)
 
-**Where my suspicion starts**: Each person’s share of the time inside becomes their starting share of suspicion: whoever spent longest in the house starts highest. That’s my starting point. *(the hour blocks from the two log pages slide into one row of five, the gaps close, and the row becomes the starting bar; each name sits under its share with “N of 5 hours”)**
+**Where my suspicion starts**: Each person’s time in the house becomes their prior suspicion: whoever spent the most time has the highest probability. That’s my starting point. *(the hour blocks from the two log pages slide into one row of five, the gaps close, and the row becomes the starting bar; each name sits under its share with “N of 5 hours”)**
 
 > **Designer’s note (not shown in game):** prior = hours inside ÷ total: Clara 3/5 = 60%, Mr. Thomas 2/5 = 40%. Clara starts ahead purely on opportunity.
 >
@@ -202,9 +202,9 @@ Once right: *Mr. Thomas was inside for 2 hours.* (Next unlocks.)
 > - Neither share is ever 0% or 100%, and no rating maps to 0 or 1, so no belief can become immune to later evidence.
 > - The hours-inside rule counts time before the tea existed. That is acceptable only because the ghost does not yet know when the tea was tampered with. A stricter alternative would count only the half hour the cup stood on the desk.
 
-> **GHOST** *(thought)*: Clara was here the longest, so she starts as the likeliest. But that doesn’t mean she’s guilty yet.
-> **GHOST** *(thought)*: Every piece of evidence from now on will shift these odds.
-> **GHOST** *(thought)*: Clara’s room is upstairs. I know my niece. If she wrote something, the draft will be in her writing desk.
+> **GHOST** *(thought)*: Clara was here the longest, so she starts as the likeliest culprit.
+> **GHOST** *(thought)*: Every new piece of evidence I find will shift this suspicion.
+> **GHOST** *(thought)*: Clara’s room is upstairs. I know my niece. If she wrote something, it will be in her writing desk.
 
 ---
 
@@ -234,13 +234,13 @@ Uncle —
 
 **Lesson 1: Think in stories**
 
-Each suspect is a story, and a clue fits some stories better than others. The key is not to ask “who does this evidence point to?” Instead ask: in the story where this person is the murderer, how likely is it that I would find this evidence? To help conceptualize the likelihood, imagine ten different nights in which that person is the murderer: on how many of them would this clue turn up? 
+Each suspect is a story, and each clue fits some stories better than others. The key is not to ask “who does this evidence point to?” Instead ask: If this story is true, then how likely are you to find this evidence? In other words, imagine this murder happens five nights in a row. In how many of them would you expect this evidence to turn up? 
 
 #### Suppose Clara is the murderer.
 
 **How likely would I be to find an angry letter like this?**
 
-> **GHOST** *(thought)*: If Clara is the murderer, the quarrel over my will would be her motive. But Clara writes furious letters all the time, and has never hurt a soul. So her guilt makes this letter more expected, though not by a huge margin.
+> **GHOST** *(thought)*: If Clara is the murderer, the quarrel over my will would be her likely motive. But Clara writes like this all the time and has never hurt a soul. So that makes this letter more expected, but not by a huge margin.
 
 [ 1 Very unlikely 10% ] [ 2 Unlikely 30% ] [ 3 As likely as not 50% ] [ 4 Likely 70% ] [ 5 Very likely 90% ]
 
@@ -250,7 +250,7 @@ After choosing: “You rated it N: …, a P% chance.”
 
 **How likely would I be to find an angry letter like this?**
 
-> **GHOST** *(thought)*: If Thomas is the murderer, nothing about this letter changes. Clara and I still quarrelled, she still went upstairs and wrote the most savage thing she could think of, and she still didn’t send it to me. His guilt does not stop this letter existing, so it is only a little less expected here than in her story.
+> **GHOST** *(thought)*: If Thomas is the murderer, nothing about this event changes. Clara and I still quarrelled, and she still went upstairs and wrote this angry letter. His guilt does not prevent this letter from existing, it only makes it less expected here than in her story.
 
 [ 1 Very unlikely 10% ] [ 2 Unlikely 30% ] [ 3 As likely as not 50% ] [ 4 Likely 70% ] [ 5 Very likely 90% ]
 
@@ -292,7 +292,7 @@ An angry letter feels like a confession. But people write angry letters all the 
 
 ---
 
-## Clue 2 of 7: The Draft Will
+## Clue 2 of 7: The Will
 
 *The Study: the player searches the desk drawer. Beneath the pencils and the coiled mainsprings lies a page folded in three; a chime; the evidence screen opens.*
 
@@ -300,20 +300,19 @@ An angry letter feels like a confession. But people write angry letters all the 
 
 *I found my will under the pencils in my drawer, folded in three. The handwriting is mine.*
 
-**Evidence card: The Draft Will**
+**Evidence card: The Will**
 
 | | |
 |---|---|
-| **Document** | A will in my hand, unsigned |
-| **The house and grounds** | To the Clockmakers’ Guild |
+| **Document** | A draft of my will, still unsigned |
+| **The house** | To the Clockmakers’ Club |
 | **To Clara** | The grandfather clock and my watch |
 | **To E. Thomas** | Six months’ notice to leave the cottage |
 | **Signing** | Monday, 10 a.m., Mr. Penrose, solicitor |
 | **Pencilled in the margin** | “C. — think first. Talk to her.” |
 
-> **GHOST** *(thought)*: The will. Exactly as I told them: the house and grounds to the Guild, a clock and a watch for Clara, and six months’ notice for Thomas. No wonder Clara was angry. And Thomas, though he didn’t show it.
-> **GHOST** *(thought)*: It’s unsigned. Mr. Penrose is due on Monday at ten. One signature, and two people with everything to lose.
-> **GHOST** *(thought)*: And the note in the margin: *Talk to her.* I wasn’t sure. I never told her I wasn’t sure.
+> **GHOST** *(thought)*: My will. The house was to be given to the Club, a clock and a watch for Clara, and six months’ notice for Thomas. No wonder Clara was angry. And Thomas, though he didn’t show it.
+> **GHOST** *(thought)*: It’s unsigned.
 > **GHOST** *(thought)*: But is this news? I knew all of this before I opened the drawer.
 
 ### Page: Lesson & ratings
@@ -326,9 +325,9 @@ A clue can feel new and still be old news. You already knew about the will and w
 
 #### Suppose Clara is the murderer.
 
-**How likely would I be to find a draft will like this in my desk?**
+**How likely would I be to find a Will like this in my desk?**
 
-> **GHOST** *(thought)*: If Clara is the murderer, I still told her about the will on Tuesday, and I still drafted it. A draft in my own desk is very likely.
+> **GHOST** *(thought)*: In a world where Clara is the murderer, my will would still exist. So finding a draft in my own desk is very likely.
 
 [ 1 Very unlikely 10% ] [ 2 Unlikely 30% ] [ 3 As likely as not 50% ] [ 4 Likely 70% ] [ 5 Very likely 90% ]
 
@@ -336,9 +335,9 @@ After choosing: “You rated it N: …, a P% chance.”
 
 #### Suppose Mr. Thomas is the murderer.
 
-**How likely would I be to find a draft will like this in my desk?**
+**How likely would I be to find a Will like this in my desk?**
 
-> **GHOST** *(thought)*: If Thomas is the murderer, nothing about the will changes. I still told them both, and I still drafted it. A draft in my own desk is just as likely.
+> **GHOST** *(thought)*: In a world where Thomas is the murderer, my will would also still exist. So finding a draft in my own desk is just as likely as it was in Clara’s story.
 
 [ 1 Very unlikely 10% ] [ 2 Unlikely 30% ] [ 3 As likely as not 50% ] [ 4 Likely 70% ] [ 5 Very likely 90% ]
 
@@ -354,7 +353,7 @@ After choosing: “You rated it N: …, a P% chance.”
 
 ### Page: The math
 
-*(The same update as Bayes’ rule, one hypothesis per suspect: H1 “Clara is the murderer”, H2 “Mr. Thomas is the murderer”, and E finding a draft will like this in my desk. P(H1 | E) = P(H1) · P(E | H1) ÷ [P(H1) · P(E | H1) + P(H2) · P(E | H2)]. First the player chooses whose math to look at first (with two suspects the shares add to 100%, so one update gives the other). Then one formula transforms in place: the rule in symbols with a key; the same with names (“Clara Updated = Clara’s Prior · Boot Print given Clara / …”); the player’s numbers; then multiply, add and divide inside the formula; finally the other suspect (“Thomas Updated = 100% − Clara Updated”).)*
+*(The same update as Bayes’ rule, one hypothesis per suspect: H1 “Clara is the murderer”, H2 “Mr. Thomas is the murderer”, and E finding a Will like this in my desk. P(H1 | E) = P(H1) · P(E | H1) ÷ [P(H1) · P(E | H1) + P(H2) · P(E | H2)]. First the player chooses whose math to look at first (with two suspects the shares add to 100%, so one update gives the other). Then one formula transforms in place: the rule in symbols with a key; the same with names (“Clara Updated = Clara’s Prior · Boot Print given Clara / …”); the player’s numbers; then multiply, add and divide inside the formula; finally the other suspect (“Thomas Updated = 100% − Clara Updated”).)*
 
 - **P(H1), P(H2)**, your board so far: Clara 68%, Mr. Thomas 32% *(numbers here follow the designed ratings)*
 - **P(E | H1), P(E | H2)**, your ratings: Clara 90%, Mr. Thomas 90%
@@ -910,7 +909,7 @@ The board after each clue, if the player’s ratings match the intended ratings 
 |---|---|---|---|---|
 | Start (household log) | — | — | 60% | 40% |
 | 1. An Unfinished Letter | 4 / 3 | 1.4 : 1 for Clara (weak) | 68% | 32% |
-| 2. The Draft Will | 5 / 5 | 1 : 1 (old news) | 68% | 32% |
+| 2. The Will | 5 / 5 | 1 : 1 (old news) | 68% | 32% |
 | 3. A Muddy Boot Print | 1 / 3 | 5 : 1 for Thomas (strong) | 30% | 70% |
 | 4. The Foxgloves | 2 / 5 | 3 : 1 for Thomas (moderate) | 12% | 88% |
 | 5. The Chemist’s Slip | 4 / 2 | 2.33 : 1 for Clara (moderate) | 25% | 75% |

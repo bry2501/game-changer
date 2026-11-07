@@ -209,7 +209,7 @@ const CLUE_SOURCES: ClueSource[] = [
   {
     id: 'letter',
     title: 'An Unfinished Letter',
-    leadIn: 'Clara’s room is upstairs. I know my niece. If she wrote something, the Will be in her writing desk.',
+    leadIn: 'Clara’s room is upstairs. I know my niece. If she wrote something, it will be in her writing desk.',
     searchCue: 'The drawer sticks, then slides out with a small wooden cry',
     found: 'A letter at the back of Clara’s writing-desk drawer, folded small, then smaller. It is a draft, crossed out and rewritten, the nib pressed so hard on the last line that it nearly tore the paper.',
     evidence: { kind: 'letter', date: 'Tuesday', lines: ['Uncle —', 'If you change your will, I will NEVER forgive you!'], sign: 'C.' },
@@ -249,7 +249,7 @@ const CLUE_SOURCES: ClueSource[] = [
     },
     context: [
       'My will. The house was to be given to the Club, a clock and a watch for Clara, and six months’ notice for Thomas. No wonder Clara was angry. And Thomas, though he didn’t show it.',
-      'It’s unsigned..',
+      'It’s unsigned.',
       'But is this news? I knew all of this before I opened the drawer.',
     ],
     short: 'a Will like this in my desk',
@@ -257,7 +257,7 @@ const CLUE_SOURCES: ClueSource[] = [
     likelihoods: [0.9, 0.9],
     hints: [
       'In a world where Clara is the murderer, my will would still exist. So finding a draft in my own desk is very likely.',
-      'In a world where Thomas is the murderer, my will would also still exist. So finding a draft in my own desk is just as likely as it was in Clara's story.',
+      'In a world where Thomas is the murderer, my will would also still exist. So finding a draft in my own desk is just as likely as it was in Clara’s story.',
     ],
     trap: 'Old news doesn’t count twice',
     lesson:
