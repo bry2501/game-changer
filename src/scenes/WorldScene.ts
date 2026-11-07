@@ -884,12 +884,7 @@ export class WorldScene extends Phaser.Scene {
     this.accent.keep(body, tea, shade);
     g.fillStyle(0xeeeeea, 0.9);
     g.fillRect(598, F - 116, 44, 10); // the household log
-    g.fillStyle(0xdfe8ff, 0.95);
-    g.fillEllipse(930, F - 128, 26, 12); // the teacup (blue willow)
-    g.lineStyle(3, 0xdfe8ff, 0.95);
-    g.strokeCircle(945, F - 130, 5);
-    g.fillStyle(0x3b5a9a, 1);
-    g.fillRect(924, F - 130, 12, 3);
+    drawTeacup(g, 930, F - 121);
 
     // Hallway: portraits, a panelled door, and the staircase rising through the ceiling
     g = R.hallway;
@@ -1200,4 +1195,41 @@ export class WorldScene extends Phaser.Scene {
     }
   }
 
+}
+
+/** The teacup (blue willow) on its saucer, side on, standing on a surface at y. */
+function drawTeacup(g: Phaser.GameObjects.Graphics, x: number, y: number) {
+  const china = 0xdfe8ff;
+  // the saucer
+  g.fillStyle(0x9fb0cc, 0.9);
+  g.fillEllipse(x, y - 1, 40, 6);
+  g.fillStyle(china, 0.95);
+  g.fillEllipse(x, y - 2.5, 36, 4);
+  // the handle, a loop on the right
+  g.lineStyle(2.5, china, 0.95);
+  g.beginPath();
+  g.arc(x + 11, y - 13, 5, -Math.PI / 2, Math.PI / 2, false);
+  g.strokePath();
+  // the bowl: wide at the rim, rounded into a small foot
+  const top = y - 19;
+  g.fillStyle(china, 0.95);
+  g.beginPath();
+  g.moveTo(x - 12, top);
+  g.lineTo(x + 12, top);
+  g.lineTo(x + 10, top + 8);
+  g.lineTo(x + 6, top + 14);
+  g.lineTo(x + 4, y - 4);
+  g.lineTo(x - 4, y - 4);
+  g.lineTo(x - 6, top + 14);
+  g.lineTo(x - 10, top + 8);
+  g.closePath();
+  g.fillPath();
+  // the blue willow band under the rim
+  g.fillStyle(0x3b5a9a, 1);
+  g.fillRect(x - 11, top + 3, 22, 2.5);
+  // the rim, and the tea inside it
+  g.fillStyle(0xf4f7ff, 1);
+  g.fillEllipse(x, top, 24, 4);
+  g.fillStyle(0x5a3a28, 1);
+  g.fillEllipse(x, top + 0.5, 19, 2.5);
 }

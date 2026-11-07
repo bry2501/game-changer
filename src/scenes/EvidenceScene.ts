@@ -6,7 +6,7 @@ import { update } from '../bayes/engine';
 import { drawSuspect } from './MemoryScene';
 import { CONCEPTS, numberWord } from '../data/lessons';
 import { BayesSquare } from '../ui/square';
-import { KEEP_WORDS as KEEP, RATE_FOOTER, RATE_PROMPT, RATING_VALUES, RATING_WORDS, UNCHANGED, UPDATE_STEPS } from '../data/ui';
+import { KEEP_WORDS as KEEP, RATING_VALUES, RATING_WORDS, UNCHANGED, UPDATE_STEPS } from '../data/ui';
 import { Sound } from '../audio/Sound';
 
 type Kind = 'prior' | 'clue';
@@ -482,11 +482,81 @@ export class EvidenceScene extends Phaser.Scene {
       build: () => {
         this.title('Where my suspicion starts');
         this.para(W / 2, CONTENT_Y + 20, PRIOR_SHEET.lesson, 23, '#dcdcdc', 1000, 0.5);
-        this.beliefStrip(CONTENT_Y + 120, truth, 'Before any clue:', 820);
+        this.blocksToBar(CONTENT_Y + 120, 'Before any clue:');
         this.commitPrior(truth);
       },
     });
     return steps;
+  }
+
+  /**
+   * The hour blocks from the log pages come together into the starting bar: each suspect's
+   * row of blocks, then one row of every hour anyone spent inside, then the gaps close and
+   * the row becomes the shared bar of suspicion.
+   */
+  private blocksToBar(y: number, label: string) {
+    const BW = 160;
+    const GAP = 12;
+    const BH = 64;
+    const total = PRIOR_SHEET.total;
+    const barW = 820;
+    const barH = 28;
+    const barX = W / 2 - barW / 2;
+    const barY = y + 44;
+    const rowX = W / 2 - (total * (BW + GAP) - GAP) / 2;
+    const unit = barW / total;
+
+    const caption = this.put(txt(this, W / 2, y, label, 18, DIM).setOrigin(0.5, 0).setAlpha(0));
+    const blocks: { r: Phaser.GameObjects.Rectangle; t: Phaser.GameObjects.Text; slot: number }[] = [];
+    const names: Phaser.GameObjects.Text[] = [];
+    let slot = 0;
+    SUSPECTS.forEach((s, i) => {
+      const rowY = barY + 20 + i * 92;
+      names.push(this.put(txt(this, rowX - 18, rowY, s.name, 20, hex(s.color)).setOrigin(1, 0.5)));
+      for (let h = 1; h <= s.hoursInside; h++) {
+        const x = rowX + (h - 1) * (BW + GAP);
+        const r = this.put(this.add.rectangle(x, rowY, BW, BH, s.color, 0.95).setOrigin(0, 0.5));
+        r.setStrokeStyle(2, s.color, 1);
+        const t = this.put(txt(this, x + BW / 2, rowY, h === 1 ? '1 hour' : `${h} hours`, 20, '#111111').setOrigin(0.5));
+        blocks.push({ r, t, slot: slot++ });
+      }
+    });
+
+    // 1. the rows join into one row of every hour spent inside
+    blocks.forEach(({ r, t, slot: k }) => {
+      const x = rowX + k * (BW + GAP);
+      this.tweens.add({ targets: r, x, y: barY, duration: 700, delay: 900, ease: 'Sine.easeInOut' });
+      this.tweens.add({ targets: t, x: x + BW / 2, y: barY, duration: 700, delay: 900, ease: 'Sine.easeInOut' });
+      // 2. the labels go, the gaps close, and the row settles into the bar
+      this.tweens.add({ targets: t, alpha: 0, duration: 300, delay: 1900 });
+      this.tweens.add({
+        targets: r,
+        x: barX + k * unit,
+        width: unit,
+        height: barH,
+        duration: 700,
+        delay: 2100,
+        ease: 'Sine.easeInOut',
+        onUpdate: () => r.setSize(r.width, r.height).setStrokeStyle(),
+      });
+    });
+    this.tweens.add({ targets: names, alpha: 0, duration: 400, delay: 800 });
+
+    // 3. the bar's outline, the caption, and each share beneath it
+    const outline = this.put(this.add.rectangle(barX, barY, barW, barH).setOrigin(0, 0.5).setStrokeStyle(1, 0x666666).setAlpha(0));
+    const after: Phaser.GameObjects.GameObject[] = [outline, caption];
+    // faint seams where the hour blocks met
+    const seams = this.put(this.add.graphics().setAlpha(0));
+    seams.lineStyle(1, 0x060606, 0.45);
+    for (let k = 1; k < total; k++) seams.lineBetween(barX + k * unit, barY - barH / 2, barX + k * unit, barY + barH / 2);
+    after.push(seams);
+    let x = barX;
+    SUSPECTS.forEach((s) => {
+      after.push(this.put(txt(this, x, barY + 24, s.name, 18, hex(s.color)).setAlpha(0)));
+      after.push(this.put(txt(this, x, barY + 48, `${s.hoursInside} of ${total} hours`, 16, DIM).setAlpha(0)));
+      x += unit * s.hoursInside;
+    });
+    this.tweens.add({ targets: after, alpha: 1, duration: 500, delay: 2900 });
   }
 
   private commitPrior(p: number[]) {
@@ -595,17 +665,9 @@ export class EvidenceScene extends Phaser.Scene {
     this.suspectPortrait(i);
     this.para(470, CONTENT_Y + 6, `Suppose ${s.name} did it.`, 31, hex(s.color), 760);
     this.para(470, CONTENT_Y + 54, `How likely would I be to find ${clue.short}?`, 24, INK, 760);
-    const prompt = this.para(
-      470,
-      CONTENT_Y + 92,
-      RATE_PROMPT,
-      17,
-      DIM,
-      760,
-    );
 
     // the ghost thinks out loud about this story
-    const hintBottom = this.ghostHint(470, prompt.y + prompt.height + 10, clue.hints[i]);
+    const hintBottom = this.ghostHint(470, CONTENT_Y + 104, clue.hints[i]);
     const chosen = this.picks[i];
     const by = hintBottom + 56;
     RATINGS.forEach((r, k) => {
@@ -621,7 +683,6 @@ export class EvidenceScene extends Phaser.Scene {
       if (chosen !== undefined && chosen !== r.v) b.setAlpha(0.5);
     });
     if (chosen === undefined) {
-      this.para(470, by + 56, RATE_FOOTER, 18, DIM, 760);
       this.setNext('Next ›', false);
       return;
     }

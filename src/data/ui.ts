@@ -1,7 +1,4 @@
 /** Fixed words the evidence screens use, shared with the screenplay generator. */
-export const RATE_PROMPT =
-  'Rate it from 1 (very unlikely) to 5 (very likely). 3 means as likely as not. Judge this clue on its own, assuming this person did it.';
-export const RATE_FOOTER = 'Say what you honestly think; your ratings are what move the board.';
 export const RATING_WORDS = ['Very unlikely', 'Unlikely', 'As likely as not', 'Likely', 'Very likely'];
 export const RATING_VALUES = [0.1, 0.3, 0.5, 0.7, 0.9];
 export const KEEP_WORDS = ['keeps very little', 'keeps less than half', 'keeps half', 'keeps most', 'keeps almost all'];

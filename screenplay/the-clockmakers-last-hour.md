@@ -194,7 +194,7 @@ Once right: *Clara was inside for 3 hours.* The lit blocks are Clara’s share o
 If wrong: “Not quite. Check the times again: in at 4:00 pm, out at 8:00 pm, and only the hours between 6 and 10 pm count.”
 Once right: *Mr. Thomas was inside for 2 hours.* The lit blocks are Mr. Thomas’s share of all the time anyone spent inside, 2 out of 5 hours.
 
-**Where my suspicion starts**: Each person’s share of the time inside becomes their starting share of suspicion: whoever spent longest in the house starts highest. That’s my starting point. *(a single bar, names only)*
+**Where my suspicion starts**: Each person’s share of the time inside becomes their starting share of suspicion: whoever spent longest in the house starts highest. That’s my starting point. *(the hour blocks from the two log pages slide into one row of five, the gaps close, and the row becomes the starting bar; each name sits under its share with “N of 5 hours”)**
 
 > **Designer’s note (not shown in game):** prior = hours inside ÷ total: Clara 3/5 = 60%, Mr. Thomas 2/5 = 40%. Clara starts ahead purely on opportunity.
 >
@@ -238,24 +238,22 @@ Don’t ask “who does this evidence point to?” Instead, go one person at a t
 ### Page: Suppose Clara did it.
 
 **How likely would I be to find an angry letter like this?**
-*Rate it from 1 (very unlikely) to 5 (very likely). 3 means as likely as not. Judge this clue on its own, assuming this person did it.*
 
 > **GHOST** *(thought)*: If Clara did it, the quarrel over my will would be her reason, and a furious letter is exactly the footprint that kind of anger leaves. But Clara writes furious letters all the time, and has never hurt a soul. So her guilt makes this letter more expected, though not by a huge margin.
 
 [ 1 Very unlikely ] [ 2 Unlikely ] [ 3 As likely as not ] [ 4 Likely ] [ 5 Very likely ]
 
-*Say what you honestly think; your ratings are what move the board.* After choosing: “You rated it N: …”
+After choosing: “You rated it N: …”
 
 ### Page: Suppose Mr. Thomas did it.
 
 **How likely would I be to find an angry letter like this?**
-*Rate it from 1 (very unlikely) to 5 (very likely). 3 means as likely as not. Judge this clue on its own, assuming this person did it.*
 
 > **GHOST** *(thought)*: If Thomas did it, nothing about that Tuesday changes. Clara and I still quarrelled, she still went upstairs and wrote the most savage thing she could think of, and she still didn’t send it to me. His guilt does not stop this letter existing, so it is only a little less expected here than in her story.
 
 [ 1 Very unlikely ] [ 2 Unlikely ] [ 3 As likely as not ] [ 4 Likely ] [ 5 Very likely ]
 
-*Say what you honestly think; your ratings are what move the board.* After choosing: “You rated it N: …”
+After choosing: “You rated it N: …”
 
 ### Page: Update (the player steps through, on a square of possible worlds)
 
@@ -318,24 +316,22 @@ A clue can feel new and still be old news. You already knew about the will and w
 ### Page: Suppose Clara did it.
 
 **How likely would I be to find a draft will like this in my desk?**
-*Rate it from 1 (very unlikely) to 5 (very likely). 3 means as likely as not. Judge this clue on its own, assuming this person did it.*
 
 > **GHOST** *(thought)*: If Clara did it, I still told her about the will on Tuesday, and I still drafted it. A draft in my own desk is very likely.
 
 [ 1 Very unlikely ] [ 2 Unlikely ] [ 3 As likely as not ] [ 4 Likely ] [ 5 Very likely ]
 
-*Say what you honestly think; your ratings are what move the board.* After choosing: “You rated it N: …”
+After choosing: “You rated it N: …”
 
 ### Page: Suppose Mr. Thomas did it.
 
 **How likely would I be to find a draft will like this in my desk?**
-*Rate it from 1 (very unlikely) to 5 (very likely). 3 means as likely as not. Judge this clue on its own, assuming this person did it.*
 
 > **GHOST** *(thought)*: If Thomas did it, nothing about the will changes. I still told them both, and I still drafted it. A draft in my own desk is just as likely.
 
 [ 1 Very unlikely ] [ 2 Unlikely ] [ 3 As likely as not ] [ 4 Likely ] [ 5 Very likely ]
 
-*Say what you honestly think; your ratings are what move the board.* After choosing: “You rated it N: …”
+After choosing: “You rated it N: …”
 
 ### Page: Update (the player steps through, on a square of possible worlds)
 
@@ -399,24 +395,22 @@ What moves suspicion is not how well a clue fits one story, but how much BETTER 
 ### Page: Suppose Clara did it.
 
 **How likely would I be to find a muddy print hidden behind the fern?**
-*Rate it from 1 (very unlikely) to 5 (very likely). 3 means as likely as not. Judge this clue on its own, assuming this person did it.*
 
 > **GHOST** *(thought)*: If Clara did it, why would she come in through the conservatory? She has been inside since seven, and the front door has always been open to her. And this print is large and fresh. A print like this is very hard to explain in her story.
 
 [ 1 Very unlikely ] [ 2 Unlikely ] [ 3 As likely as not ] [ 4 Likely ] [ 5 Very likely ]
 
-*Say what you honestly think; your ratings are what move the board.* After choosing: “You rated it N: …”
+After choosing: “You rated it N: …”
 
 ### Page: Suppose Mr. Thomas did it.
 
 **How likely would I be to find a muddy print hidden behind the fern?**
-*Rate it from 1 (very unlikely) to 5 (very likely). 3 means as likely as not. Judge this clue on its own, assuming this person did it.*
 
 > **GHOST** *(thought)*: If Thomas did it, he signed my log at eight and then had to get back in unseen. He leaves his bicycle by the garden gate, as he always does, and the beds lie between that gate and this window. A print like this is quite possible in his story, though he might have found another way in.
 
 [ 1 Very unlikely ] [ 2 Unlikely ] [ 3 As likely as not ] [ 4 Likely ] [ 5 Very likely ]
 
-*Say what you honestly think; your ratings are what move the board.* After choosing: “You rated it N: …”
+After choosing: “You rated it N: …”
 
 ### Page: Update (the player steps through, on a square of possible worlds)
 
@@ -477,24 +471,22 @@ A strong clue fits one story far better than the rest. Look for the lopsided one
 ### Page: Suppose Clara did it.
 
 **How likely would I be to find a foxglove stripped like this?**
-*Rate it from 1 (very unlikely) to 5 (very likely). 3 means as likely as not. Judge this clue on its own, assuming this person did it.*
 
 > **GHOST** *(thought)*: If Clara did it, the foxgloves have nothing to do with her. She has never so much as watered them. Then a stripped pot would only be Thomas’s ordinary pruning. Unlikely, though not impossible.
 
 [ 1 Very unlikely ] [ 2 Unlikely ] [ 3 As likely as not ] [ 4 Likely ] [ 5 Very likely ]
 
-*Say what you honestly think; your ratings are what move the board.* After choosing: “You rated it N: …”
+After choosing: “You rated it N: …”
 
 ### Page: Suppose Mr. Thomas did it.
 
 **How likely would I be to find a foxglove stripped like this?**
-*Rate it from 1 (very unlikely) to 5 (very likely). 3 means as likely as not. Judge this clue on its own, assuming this person did it.*
 
 > **GHOST** *(thought)*: If Thomas did it, here is his poison, grown by his own hand: the foxgloves he has tended for years, which he knows better than anyone alive. In his story, a stripped pot like this is exactly what I’d expect to find.
 
 [ 1 Very unlikely ] [ 2 Unlikely ] [ 3 As likely as not ] [ 4 Likely ] [ 5 Very likely ]
 
-*Say what you honestly think; your ratings are what move the board.* After choosing: “You rated it N: …”
+After choosing: “You rated it N: …”
 
 ### Page: Update (the player steps through, on a square of possible worlds)
 
@@ -560,24 +552,22 @@ Once you lean one way, the clues that point the other way are the ones you will 
 ### Page: Suppose Clara did it.
 
 **How likely would I be to find a chemist’s slip like this in Clara’s coat?**
-*Rate it from 1 (very unlikely) to 5 (very likely). 3 means as likely as not. Judge this clue on its own, assuming this person did it.*
 
 > **GHOST** *(thought)*: If Clara did it, she needed something to put a man to sleep and keep him there, and sleeping drops would do that. She might have kept the slip, because people forget what is in a pocket. It is quite likely, though she could as easily have thrown it away.
 
 [ 1 Very unlikely ] [ 2 Unlikely ] [ 3 As likely as not ] [ 4 Likely ] [ 5 Very likely ]
 
-*Say what you honestly think; your ratings are what move the board.* After choosing: “You rated it N: …”
+After choosing: “You rated it N: …”
 
 ### Page: Suppose Mr. Thomas did it.
 
 **How likely would I be to find a chemist’s slip like this in Clara’s coat?**
-*Rate it from 1 (very unlikely) to 5 (very likely). 3 means as likely as not. Judge this clue on its own, assuming this person did it.*
 
 > **GHOST** *(thought)*: If Thomas did it, Clara was simply out for a walk. She knows I sleep badly, and she has nagged me about it since the spring, so a kindness is possible. But I never asked her to fetch my drops, and she has never taken any herself. Sleeping drops on this very evening would be a coincidence. Unlikely, though not impossible.
 
 [ 1 Very unlikely ] [ 2 Unlikely ] [ 3 As likely as not ] [ 4 Likely ] [ 5 Very likely ]
 
-*Say what you honestly think; your ratings are what move the board.* After choosing: “You rated it N: …”
+After choosing: “You rated it N: …”
 
 ### Page: Update (the player steps through, on a square of possible worlds)
 
@@ -638,24 +628,22 @@ If a clue fits someone’s story badly, their share shrinks, and what they lose 
 ### Page: Suppose Clara did it.
 
 **How likely would I be to find this telephone log?**
-*Rate it from 1 (very unlikely) to 5 (very likely). 3 means as likely as not. Judge this clue on its own, assuming this person did it.*
 
 > **GHOST** *(thought)*: If Clara put something in my tea, she had to stand at my desk some time between half past nine and ten. The log has her on the line to Edinburgh for that whole half hour. Her guilt and this log hardly fit together. Either the exchange got twenty-nine minutes wrong, or she left the receiver on the table and slipped away. Both could happen. Neither is likely.
 
 [ 1 Very unlikely ] [ 2 Unlikely ] [ 3 As likely as not ] [ 4 Likely ] [ 5 Very likely ]
 
-*Say what you honestly think; your ratings are what move the board.* After choosing: “You rated it N: …”
+After choosing: “You rated it N: …”
 
 ### Page: Suppose Mr. Thomas did it.
 
 **How likely would I be to find this telephone log?**
-*Rate it from 1 (very unlikely) to 5 (very likely). 3 means as likely as not. Judge this clue on its own, assuming this person did it.*
 
 > **GHOST** *(thought)*: If Thomas did it, Clara’s call is just Clara phoning someone from the hallway. A call this long, at this hour, isn’t guaranteed, but his guilt changes nothing about whether she made it. It neither helps nor hurts his story much.
 
 [ 1 Very unlikely ] [ 2 Unlikely ] [ 3 As likely as not ] [ 4 Likely ] [ 5 Very likely ]
 
-*Say what you honestly think; your ratings are what move the board.* After choosing: “You rated it N: …”
+After choosing: “You rated it N: …”
 
 ### Page: Update (the player steps through, on a square of possible worlds)
 
@@ -715,24 +703,22 @@ Each clue starts from where the last one left you: today’s board is tomorrow�
 ### Page: Suppose Clara did it.
 
 **How likely would I be to find a pruning knife under my chair?**
-*Rate it from 1 (very unlikely) to 5 (very likely). 3 means as likely as not. Judge this clue on its own, assuming this person did it.*
 
 > **GHOST** *(thought)*: If Clara did it, the knife is still easy to explain. Thomas stood at this desk this afternoon while we went over the repairs to the glass, and things fall out of pockets. It is as likely as not.
 
 [ 1 Very unlikely ] [ 2 Unlikely ] [ 3 As likely as not ] [ 4 Likely ] [ 5 Very likely ]
 
-*Say what you honestly think; your ratings are what move the board.* After choosing: “You rated it N: …”
+After choosing: “You rated it N: …”
 
 ### Page: Suppose Mr. Thomas did it.
 
 **How likely would I be to find a pruning knife under my chair?**
-*Rate it from 1 (very unlikely) to 5 (very likely). 3 means as likely as not. Judge this clue on its own, assuming this person did it.*
 
 > **GHOST** *(thought)*: If Thomas did it, he stood in this room tonight as well as this afternoon, so he had two chances to lose it. His story explains it a little better, not overwhelmingly.
 
 [ 1 Very unlikely ] [ 2 Unlikely ] [ 3 As likely as not ] [ 4 Likely ] [ 5 Very likely ]
 
-*Say what you honestly think; your ratings are what move the board.* After choosing: “You rated it N: …”
+After choosing: “You rated it N: …”
 
 ### Page: Update (the player steps through, on a square of possible worlds)
 

@@ -33,7 +33,7 @@ import {
   WINDOW_LINES,
 } from '../src/data/case1';
 import { CONCEPTS, numberWord } from '../src/data/lessons';
-import { KEEP_WORDS, RATE_FOOTER, RATE_PROMPT, RATING_VALUES, RATING_WORDS, UNCHANGED, UPDATE_STEPS } from '../src/data/ui';
+import { KEEP_WORDS, RATING_VALUES, RATING_WORDS, UNCHANGED, UPDATE_STEPS } from '../src/data/ui';
 import { ROOMS, SEARCHABLES, roomAt } from '../src/data/house';
 import { chain, update } from '../src/bayes/engine';
 
@@ -279,7 +279,7 @@ SUSPECTS.forEach((s, i) => {
   w(`Once right: *${s.name} was inside for ${s.hoursInside} hours.* The lit blocks are ${s.name}’s share of all the time anyone spent inside, ${s.hoursInside} out of ${PRIOR_SHEET.total} hours.${i === 0 ? ' More time inside means more chances to reach my tea, so a bigger starting share of suspicion.' : ''}`);
   w();
 });
-w(`**Where my suspicion starts**: ${PRIOR_SHEET.lesson} *(a single bar, names only)*`);
+w(`**Where my suspicion starts**: ${PRIOR_SHEET.lesson} *(the hour blocks from the two log pages slide into one row of five, the gaps close, and the row becomes the starting bar; each name sits under its share with “N of 5 hours”)**`);
 w();
 w(`> **Designer’s note (not shown in game):** prior = hours inside ÷ total: ${SUSPECTS.map((s, i) => `${s.name} ${s.hoursInside}/${PRIOR_SHEET.total} = ${pct(prior[i])}`).join(', ')}. Clara starts ahead purely on opportunity.`);
 w('>');
@@ -324,12 +324,11 @@ CLUES.forEach((c, k) => {
     w(`### Page: Suppose ${s.name} did it.`);
     w();
     w(`**How likely would I be to find ${c.short}?**`);
-    w(`*${RATE_PROMPT}*`);
     w();
     thoughts([c.hints[i]]);
     w(`[ ${RATING_WORDS.map((r, n) => `${n + 1} ${r}`).join(' ] [ ')} ]`);
     w();
-    w(`*${RATE_FOOTER}* After choosing: “You rated it N: …”`);
+    w('After choosing: “You rated it N: …”');
     w();
   });
   w('### Page: Update (the player steps through, on a square of possible worlds)');
