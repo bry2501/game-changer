@@ -59,13 +59,14 @@ export class ThoughtBubble {
    * Show lines. Two or more lines form a sequence the player steps through;
    * a single line is a passing thought. `onDone` fires after the last line.
    */
-  say(lines: string[], onDone?: () => void, onLine?: (index: number) => void) {
+  say(lines: string[], onDone?: () => void, onLine?: (index: number) => void, paced = false) {
     this.timer?.remove();
     this.onLine = onLine;
     this.lines = lines.filter(Boolean);
     this.index = 0;
     this.onDone = onDone;
-    this.sequence = this.lines.length > 1;
+    // two or more lines, or a cutscene beat, wait for the player; a lone passing thought fades by itself
+    this.sequence = this.lines.length > 1 || (paced && this.lines.length > 0);
     this.busy = this.lines.length > 0;
     if (!this.busy) {
       this.hide();

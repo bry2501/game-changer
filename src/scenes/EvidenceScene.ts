@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { Button, DIM, fadeThen, fitCamera, hex, INK, overlayBackground, share, stackedBar, txt, W, GHOST_RES, ZOOM, mathText } from '../ui/widgets';
+import { Button, DIM, fadeThen, fitCamera, hex, INK, overlayBackground, share, txt, W, GHOST_RES, ZOOM, mathText } from '../ui/widgets';
 import { CLUES, Evidence, LOG_ROWS, PRIOR_SHEET, SUSPECTS } from '../data/case1';
 import { GameState, StepRecord, truePrior } from '../state/GameState';
 import { update } from '../bayes/engine';
@@ -441,22 +441,6 @@ export class EvidenceScene extends Phaser.Scene {
     return y + h;
   }
 
-  /** Suspicion as one line shared between the suspects. Level 1 shows names only. */
-  private beliefStrip(y: number, dist: number[], label: string, width = 720) {
-    const x0 = W / 2 - width / 2;
-    const cap = this.para(W / 2, y, label, 18, DIM, 900, 0.5);
-    const barY = y + cap.height + 80;
-    this.put(stackedBar(this, x0, barY, width, 28, dist, SUSPECTS.map((s) => s.color)));
-    // a brace over each share, its tip pointing up at the name
-    let x = x0;
-    SUSPECTS.forEach((s, i) => {
-      const w = width * dist[i];
-      const inset = Math.min(3, w / 6);
-      const brace = this.put(new Brace(this, x + inset, x + w - inset, barY - 18, -1, s.color, 10));
-      this.put(txt(this, brace.tipX, barY - 32, s.name, 18, hex(s.color)).setOrigin(0.5, 1));
-      x += w;
-    });
-  }
 
   /** Silhouette and name on the left of a one-suspect page. */
   private suspectPortrait(i: number) {
@@ -731,8 +715,7 @@ export class EvidenceScene extends Phaser.Scene {
     const c = CONCEPTS[k];
     this.title(head);
     this.put(txt(this, W / 2, CONTENT_Y + 2, `Lesson ${k + 1}: ${c.title}`, 28, GOLD, { fontStyle: 'bold' }).setOrigin(0.5, 0));
-    const body = this.para(W / 2, CONTENT_Y + 52, c.body, 23, INK, 1000, 0.5);
-    this.beliefStrip(Math.max(body.y + body.height + 30, CONTENT_Y + 310), this.prior, `Before this clue, your suspicion is shared like this. ${this.fromLong}`);
+    this.para(W / 2, CONTENT_Y + 52, c.body, 23, INK, 1000, 0.5);
   }
 
   /** The player rates, from 1 to 5, how well this clue would fit if this person is the murderer. */

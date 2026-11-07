@@ -156,7 +156,7 @@ Two floors joined by the hallway stairs. Anything searchable shimmers identicall
 | The Office | Drawing board |  | Half-finished plans for a clock I will never finish. |
 | The Office | The safe |  | The safe is locked, as it should be. I never could remember the combination. Now I never will. |
 | Clara’s Room | Vanity table |  | Hairpins, and a train ticket home dated next Friday. She was leaving soon anyway. That proves nothing either way. |
-| Clara’s Room | Writing desk | **Clue: An Angry Letter** |  |
+| Clara’s Room | Writing desk | **Clue: An Unfinished Letter** |  |
 | Clara’s Room | Wardrobe |  | Dresses and a travelling coat, smelling of cedar. Nothing hidden here. |
 | The Landing | Linen chest |  | Linens that smell of lavender. Not evidence. Just clean sheets. |
 | The Library | A book that sticks out |  | A hollow book! Inside it... ...a pressed rose, and nothing else. A dead end. A sweet one. |
@@ -208,15 +208,15 @@ Once right: *Mr. Thomas was inside for 2 hours.* The lit blocks are Mr. Thomas�
 
 ---
 
-## Clue 1 of 7: An Angry Letter
+## Clue 1 of 7: An Unfinished Letter
 
 *Clara’s Room (upstairs): the player searches the writing desk. The drawer sticks, then slides out with a small wooden cry; a chime; the evidence screen opens.*
 
 ### Page: The clue
 
-*I found this letter at the back of Clara’s writing-desk drawer, folded small, then smaller. It is a draft, crossed out and rewritten, the nib pressed so hard on the last line that it nearly tore the paper.*
+*A letter at the back of Clara’s writing-desk drawer, folded small, then smaller. It is a draft, crossed out and rewritten, the nib pressed so hard on the last line that it nearly tore the paper.*
 
-**Evidence card: An Angry Letter**
+**Evidence card: An Unfinished Letter**
 
 ```
                                                     Tuesday
@@ -225,12 +225,12 @@ Uncle —
                                                     C.
 ```
 
-> **GHOST** *(thought)*: Tuesday. Three days ago: the day we quarrelled about my will. A letter in a drawer is a letter nobody read.
-> **GHOST** *(thought)*: It shows strong feelings, maybe even a motive. But someone really was poisoned tonight, so the question is not whether anger leads to murder. It is whether this letter fits one story better than the other.
+> **GHOST** *(thought)*: Three days ago: the day we quarrelled about my will. But the letter was never finished and sent to me.
+> **GHOST** *(thought)*: It shows strong feelings, maybe even a motive. But the question is not whether anger leads to murder. It is whether this letter fits one story better than the other.
 
 ### Page: Lesson 1: Think in stories
 
-Don’t ask “who does this evidence point to?” Instead, go one person at a time and imagine they are the murderer. Then ask: assuming they are the murderer, how likely is it that I would find this evidence? Imagine a hundred different possible worlds in which that person is the murderer: on how many of them would this clue turn up? Each suspect is a story, and a clue fits some stories better than others.
+Each suspect is a story, and a clue fits some stories better than others. The key is not to ask “who does this evidence point to?” Instead ask: in the story where this person is the murderer, how likely is it that I would find this evidence? To help conceptualize the likelihood, imagine ten different nights in which that person is the murderer: on how many of them would this clue turn up? 
 
 *(Below: the current suspicion bar, names only.)*
 
@@ -238,7 +238,7 @@ Don’t ask “who does this evidence point to?” Instead, go one person at a t
 
 **How likely would I be to find an angry letter like this?**
 
-> **GHOST** *(thought)*: If Clara is the murderer, the quarrel over my will would be her reason, and a furious letter is exactly the footprint that kind of anger leaves. But Clara writes furious letters all the time, and has never hurt a soul. So her guilt makes this letter more expected, though not by a huge margin.
+> **GHOST** *(thought)*: If Clara is the murderer, the quarrel over my will would be her motive. But Clara writes furious letters all the time, and has never hurt a soul. So her guilt makes this letter more expected, though not by a huge margin.
 
 [ 1 Very unlikely 10% ] [ 2 Unlikely 30% ] [ 3 As likely as not 50% ] [ 4 Likely 70% ] [ 5 Very likely 90% ]
 
@@ -248,7 +248,7 @@ After choosing: “You rated it N: …, a P% chance.”
 
 **How likely would I be to find an angry letter like this?**
 
-> **GHOST** *(thought)*: If Thomas is the murderer, nothing about that Tuesday changes. Clara and I still quarrelled, she still went upstairs and wrote the most savage thing she could think of, and she still didn’t send it to me. His guilt does not stop this letter existing, so it is only a little less expected here than in her story.
+> **GHOST** *(thought)*: If Thomas is the murderer, nothing about this letter changes. Clara and I still quarrelled, she still went upstairs and wrote the most savage thing she could think of, and she still didn’t send it to me. His guilt does not stop this letter existing, so it is only a little less expected here than in her story.
 
 [ 1 Very unlikely 10% ] [ 2 Unlikely 30% ] [ 3 As likely as not 50% ] [ 4 Likely 70% ] [ 5 Very likely 90% ]
 
@@ -287,7 +287,7 @@ An angry letter feels like a confession. But people write angry letters all the 
 
 > **GHOST** *(thought)*: Clara. She was so angry with me...
 > **GHOST** *(thought)*: Anger makes a vivid story. But a vivid story isn’t the same as a likely one.
-> **GHOST** *(thought)*: Clara’s letter was about my will. Let me see what I actually wrote. The draft should be in my desk drawer.
+> **GHOST** *(thought)*: Clara’s letter was about my will. Let me see what I actually wrote. The draft should be in my desk downstairs.
 
 ---
 
@@ -297,7 +297,7 @@ An angry letter feels like a confession. But people write angry letters all the 
 
 ### Page: The clue
 
-*I found my draft will under the pencils in my own desk drawer, folded in three. The handwriting is mine.*
+*I found my will under the pencils in my drawer, folded in three. The handwriting is mine.*
 
 **Evidence card: The Draft Will**
 
@@ -902,7 +902,7 @@ The board after each clue, if the player’s ratings match the intended ratings 
 | After | Ratings (Clara / Mr. Thomas) | Likelihood ratio | Clara | Mr. Thomas |
 |---|---|---|---|---|
 | Start (household log) | — | — | 60% | 40% |
-| 1. An Angry Letter | 4 / 3 | 1.4 : 1 for Clara (weak) | 68% | 32% |
+| 1. An Unfinished Letter | 4 / 3 | 1.4 : 1 for Clara (weak) | 68% | 32% |
 | 2. The Draft Will | 5 / 5 | 1 : 1 (old news) | 68% | 32% |
 | 3. A Muddy Boot Print | 1 / 3 | 5 : 1 for Thomas (strong) | 30% | 70% |
 | 4. The Foxgloves | 2 / 5 | 3 : 1 for Thomas (moderate) | 12% | 88% |

@@ -97,6 +97,9 @@ export class MemoryScene extends Phaser.Scene {
     });
     this.input.keyboard?.on('keydown-SPACE', () => this.next());
     this.input.keyboard?.on('keydown-ENTER', () => this.next());
+    // → moves on here too, as everywhere else
+    this.input.keyboard?.on('keydown-RIGHT', () => this.next());
+    this.input.keyboard?.on('keydown-D', () => this.next());
     this.show();
     this.cameras.main.fadeIn(900, 255, 230, 190);
   }

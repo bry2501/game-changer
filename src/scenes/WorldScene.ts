@@ -490,7 +490,8 @@ export class WorldScene extends Phaser.Scene {
    * `keepLocked` leaves movement locked afterwards (for chained story beats).
    */
   private think(lines: string[], onDone?: () => void, keepLocked = false, onLine?: (i: number) => void) {
-    const seq = lines.filter(Boolean).length > 1;
+    // a cutscene beat always waits for the player, even when it is a single line
+    const seq = lines.filter(Boolean).length > 1 || keepLocked;
     if (seq) this.lock();
     this.bubble.say(
       lines,
@@ -499,6 +500,7 @@ export class WorldScene extends Phaser.Scene {
         onDone?.();
       },
       onLine,
+      seq,
     );
   }
 
