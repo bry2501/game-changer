@@ -261,7 +261,7 @@ const CLUE_SOURCES: ClueSource[] = [
     ],
     trap: 'Old news doesn’t count much',
     lesson:
-      'What has to be true for this draft to be in the drawer? I must have written it before I was poisoned. So nobody’s guilt can reach back and change it. It will be in the drawer in every outcome. ', +
+      'What has to be true for this draft to be in the drawer? I must have written it before I was poisoned. So nobody’s guilt can reach back and change it. It will be in the drawer in every outcome. ' +
       'A will in my desk might feel like a motive for Clara and Thomas. But I knew about the will before I opened the drawer. ' +
       'So it changes nothing.',
     reaction: [

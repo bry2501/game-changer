@@ -360,9 +360,9 @@ After choosing: “You rated it N: …, a P% chance.”
 - **The denominator**, the clue at all: 68% × 90% + 32% × 90% = 61% + 29% = 90%
 - **Solved in place**: multiply, then add the bottom, then divide; the new board: Clara 68%, Mr. Thomas 32%
 
-### Page: Recap: Old news doesn’t count twice
+### Page: Recap: Old news doesn’t count much
 
-A will in my desk feels like a motive for Clara, and for Thomas. But I knew about the will before I opened the drawer, and the letter already carried it. The draft would be in this drawer whoever the murderer is, so it moves nothing. If your two ratings were far apart, you counted the same motive twice.
+What has to be true for this draft to be in the drawer? I must have written it before I was poisoned. So nobody’s guilt can reach back and change it. It will be in the drawer in every outcome. A will in my desk might feel like a motive for Clara and Thomas. But I knew about the will before I opened the drawer. So it changes nothing.
 
 *(Below: your board before this clue, and your board now, as two squares.)*
 
@@ -377,7 +377,6 @@ A will in my desk feels like a motive for Clara, and for Thomas. But I knew abou
 *The overlay closes. Back in the house.*
 
 > **GHOST** *(thought)*: Nothing moved. That feels wrong, but it isn’t: I knew about the will before I opened the drawer.
-> **GHOST** *(thought)*: *Talk to her.* I never did.
 > **GHOST** *(thought)*: There’s cold air moving through the house. It smells of wet earth, and it’s coming from the conservatory.
 
 ---
@@ -416,7 +415,7 @@ What moves suspicion is not how well a clue fits one story, but how much BETTER 
 
 **How likely would I be to find a muddy print hidden behind the fern?**
 
-> **GHOST** *(thought)*: If Clara is the murderer, why would she come in through the conservatory? She has been inside since seven, and the front door has always been open to her. And this print is large and fresh. A print like this is very hard to explain in her story.
+> **GHOST** *(thought)*: If Clara poisoned my tea, why would she come in through the conservatory? She has been inside since 7pm, and the front door has always been open to her. And this print is large and fresh. A print like this is very hard to explain in her story.
 
 [ 1 Very unlikely 10% ] [ 2 Unlikely 30% ] [ 3 As likely as not 50% ] [ 4 Likely 70% ] [ 5 Very likely 90% ]
 
@@ -426,7 +425,7 @@ After choosing: “You rated it N: …, a P% chance.”
 
 **How likely would I be to find a muddy print hidden behind the fern?**
 
-> **GHOST** *(thought)*: If Thomas is the murderer, he signed my log at eight and then had to get back in unseen. He leaves his bicycle by the garden gate, as he always does, and the beds lie between that gate and this window. A print like this is quite possible in his story, though he might have found another way in.
+> **GHOST** *(thought)*: If Thomas poisoned my tea: He signed out at eight, so to poison the tea he had to get back in unseen. A muddy print under this window is exactly what he would leave. But it isn’t guaranteed, because he might have come in another way and left no print.
 
 [ 1 Very unlikely 10% ] [ 2 Unlikely 30% ] [ 3 As likely as not 50% ] [ 4 Likely 70% ] [ 5 Very likely 90% ]
 
@@ -450,7 +449,7 @@ After choosing: “You rated it N: …, a P% chance.”
 
 ### Page: Recap: One lopsided clue can swing the board
 
-Only someone coming through the garden would leave this. Clara has been inside since seven; Thomas leaves his bicycle by the garden gate. When a clue fits one story far better than another, a single clue can swing the whole board.
+The print doesn’t prove Thomas did it. But it does mean Clara’s story needs for it to be a coincidence and his doesn’t. When a clue fits one story far better than another, a single clue can swing the whole board.
 
 *(Below: your board before this clue, and your board now, as two squares.)*
 
