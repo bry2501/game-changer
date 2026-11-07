@@ -173,24 +173,45 @@ export class MemoryScene extends Phaser.Scene {
         if (s.tonight) this.tonight(col, y, width, s.tonight, add);
       }
     } else {
-      // the memory ends: what it gave, and the resolve. "One of them did this" stands out.
-      const lines = MEMORY_OUTRO.map((line) => {
-        const key = line.startsWith('One of them did this');
-        return txt(this, W / 2, 0, line, key ? 38 : 23, key ? '#f2f2f2' : '#f3e2c4', {
-          fontStyle: key ? 'bold' : 'italic',
+      // the memory ends in three beats: what it gave, the gut feeling, and the resolve.
+      // The lines before and after "One of them did this" are set as two quiet paragraphs
+      // in a narrow column, with the gut feeling alone between two short rules.
+      const k = Math.max(0, MEMORY_OUTRO.findIndex((l) => l.startsWith('One of them did this')));
+      const para = (lines: string[]) =>
+        txt(this, W / 2, 0, lines.join(' '), 22, '#e2d2b4', {
+          fontStyle: 'italic',
           align: 'center',
-          wordWrap: { width: 1000 },
-          lineSpacing: 4,
+          wordWrap: { width: 720 },
+          lineSpacing: 8,
         }).setOrigin(0.5, 0);
+      const before = para(MEMORY_OUTRO.slice(0, k));
+      const key = txt(this, W / 2, 0, MEMORY_OUTRO[k], 34, '#f2f2f2', {
+        fontStyle: 'bold',
+        align: 'center',
+        wordWrap: { width: 1100 },
+      }).setOrigin(0.5, 0);
+      const after = para(MEMORY_OUTRO.slice(k + 1));
+      const rule = () => this.add.rectangle(W / 2, 0, 90, 1, 0xd9b98a, 0.55);
+      const items: [Phaser.GameObjects.Text | Phaser.GameObjects.Rectangle, number][] = [
+        [before, 40],
+        [rule(), 36],
+        [key, 36],
+        [rule(), 40],
+        [after, 0],
+      ];
+      const total = items.reduce((a, [o, gap]) => a + o.height + gap, 0);
+      let y = Math.max(80, (H - total) / 2 - 10);
+      items.forEach(([o, gap], i) => {
+        o.setY(y).setOrigin(0.5, 0);
+        this.layer.add(o);
+        // the beats arrive one after another
+        const beat = i === 0 ? 0 : i <= 2 ? 1 : 2;
+        if (beat > 0) {
+          o.setAlpha(0);
+          this.tweens.add({ targets: o, alpha: 1, duration: 700, delay: 600 + beat * 900 });
+        }
+        y += o.height + gap;
       });
-      const gap = 22;
-      const total = lines.reduce((a, t) => a + t.height, 0) + gap * (lines.length - 1);
-      let y = Math.max(80, (H - total) / 2 - 20);
-      for (const t of lines) {
-        t.setY(y);
-        this.layer.add(t);
-        y += t.height + gap;
-      }
     }
     this.tweens.add({ targets: this.layer, alpha: 1, duration: 600 });
   }
