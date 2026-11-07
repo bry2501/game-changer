@@ -124,8 +124,8 @@ export const AWAKEN_LINES: string[] = [
 ];
 
 /** Beat: drifting to the grandfather clock and reaching for it. */
-export const CLOCK_LINES: string[] = ['A grandfather clock? I know this clock.', 'Did I... build it?'];
-export const CLOCK_AFTER: string[] = ['I went straight through it...', 'As if the clock were the real thing, and I were a shadow.'];
+export const CLOCK_LINES: string[] = ['A grandfather clock?', 'Did I... build this?'];
+export const CLOCK_AFTER: string[] = ['I went straight through it...', 'As if the clock were the real thing, and I were not.'];
 
 /** Beat: the window that shows no reflection. */
 export const WINDOW_LINES: string[] = [
