@@ -21,7 +21,9 @@ Browsers can't run the TypeScript source, so Pages must serve a **built** copy. 
 - **Source: GitHub Actions** (recommended): `.github/workflows/deploy-pages.yml` tests, builds and publishes `dist/`.
 - **Source: Deploy from a branch** (root): `index.html` sees that it's the raw source page on github.io and redirects to the pre-built copy in `docs/`.
 
-After changing game code, run `npm run build:pages` and commit `docs/`. CI fails if `docs/` is out of date.
+After changing game code, run `npm run build:pages` and commit `docs/`. If a push leaves `docs/` out of date (for example a text edit made on GitHub), the workflow rebuilds it and commits it back.
+
+**Editing the text yourself:** see [EDITING.md](EDITING.md) for changing any of the game's wording directly on GitHub.
 
 The game is best played in landscape. Controls:
 - **Touch / mouse:** press and hold and the ghost drifts toward your finger. Tap the glowing clue to drift to it and examine it. **Suspects** opens the suspicion board.

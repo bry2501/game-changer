@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write # to commit the rebuilt docs/ copy after a text edit made on GitHub
   pages: write
   id-token: write
 
@@ -26,8 +26,19 @@ jobs:
       - run: npm ci
       - run: npm test
       - run: npm run build
-      - name: Check the committed docs/ copy is up to date
-        run: npm run build:pages && git diff --exit-code -- docs || (echo '::error::docs/ is stale. Run npm run build:pages and commit.' && exit 1)
+      # A text edit made in GitHub's web editor changes the source but not the built copy in
+      # docs/ (which GitHub's branch deployment serves). Rebuild it and, if it changed, commit it
+      # back. Pushes made with the workflow's own token don't start this workflow again.
+      - name: Rebuild the docs/ copy and commit it if it changed
+        run: |
+          npm run build:pages
+          if ! git diff --quiet -- docs; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add docs
+            git commit -m "Rebuild docs/ after a web edit"
+            git push origin HEAD:${{ github.ref_name }}
+          fi
       # GitHub's branch deployment serves the repo, where the game lives under docs/.
       # Publish the same paths here too (the game at the root and under docs/), so
       # every link works whichever deployment finishes last.
