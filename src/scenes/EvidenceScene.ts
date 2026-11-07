@@ -1040,7 +1040,8 @@ export class EvidenceScene extends Phaser.Scene {
     };
 
     type Slot = { parts: Part[]; x: number; y: number; w: number; src?: string[] };
-    const FY = CONTENT_Y + 170;
+    // the formula sits in the middle of the space between the crumbs and the buttons
+    const FY = Math.round((CONTENT_Y + NAV_Y - 50) / 2);
     const layout = (st: number) => {
       const sh = shape(st);
       const build = (sz: number) => {
@@ -1140,7 +1141,7 @@ export class EvidenceScene extends Phaser.Scene {
 
     // ---- the stage's name above, and its key below the first two stages
     const names = ['The rule', 'With the names', 'With your numbers', 'Multiply', 'Add', 'Divide'];
-    this.put(txt(this, W / 2, CONTENT_Y + 40, names[stage], 18, DIM, { fontStyle: 'italic' }).setOrigin(0.5));
+    this.put(txt(this, W / 2, FY - 110, names[stage], 18, DIM, { fontStyle: 'italic' }).setOrigin(0.5));
     const below: Phaser.GameObjects.GameObject[] = [];
     const keyY = FY + 92;
     if (stage === 0) {
