@@ -151,23 +151,22 @@ export const BODY_LINES: string[] = [
   'I see no bullet wounds. No knife. No broken bones.',
   'I remember drinking my evening tea...',
   'It tasted bitter tonight. I remember drinking it anyway.',
-  'Someone must have put something in my tea.',
+  'Someone must have put something in my tea.','But who?',
 ];
 
 /** After the flash: the memory starts to surface. */
 export const BODY_AFTER: string[] = [
-  'Another memory is piercing through the fog of my mind.',
-  'Faces. Voices. I am remembering something...',
+  'I am remembering something...',
 ];
 
-export const MEMORY_INTRO = 'Who was here tonight? Two of them.';
+export const MEMORY_INTRO = 'There were two of them..';
 
 export const MEMORY_OUTRO = [
-  'Everything after supper is still fog.',
-  'But memories seem to come back when I stand close to the things they belong to.',
+  'Everything is still a fog.',
+  'But memories seem to come back when I stand close to things.',
   'One of them did this. Already my gut whispers a name...',
   'But a gut feeling is how the living get things wrong. I am no longer living. Perhaps I can do better.',
-  'I will gather what evidence I can find, and weigh each piece honestly.',
+  'I will gather evidence, and weigh each clue honestly.',
 ];
 
 export const AFTER_MEMORY_THOUGHTS: string[] = [
