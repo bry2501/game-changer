@@ -8,7 +8,7 @@ export const UNCHANGED = 'Neither story fits this clue better, so nothing moves.
 export const UPDATE_STEPS: [string, string, string][] = [
   [
     'Before',
-    'Before the clue. The square holds every way tonight could have gone. Each person’s column is as wide as their share of my suspicion. Together they fill the whole square.',
+    'Each person’s column is as wide as their share of suspicion.',
     'Width of a column: that person’s share of suspicion.',
   ],
   [
