@@ -142,7 +142,7 @@ Two floors joined by the hallway stairs. Anything searchable shimmers identicall
 | The Study | Desk drawer | **Clue: The Will** |  |
 | The Study | Desk chair | **Clue: A Pruning Knife** |  |
 | The Study | Bookshelf |  | Clock-repair manuals, forty years of them. No secret compartments. I would know: I built this shelf. |
-| The Hallway | Coat stand | **Clue: The Chemist’s Slip** |  |
+| The Hallway | Coat stand | **Clue: The Pharmacy Receipt** |  |
 | The Hallway | Telephone table | **Clue: The Telephone Log** |  |
 | The Hallway | Hall console |  | Spare keys and a church bulletin from last Sunday. |
 | The Dining Room | Sideboard |  | The good silver, every piece accounted for. Whoever did this didn’t come for the spoons. |
@@ -150,7 +150,7 @@ Two floors joined by the hallway stairs. Anything searchable shimmers identicall
 | The Dining Room | China cabinet |  | The best china. It has been used twice in twenty years. Moving on. |
 | The Conservatory | Watering cans |  | Watering cans. One has a frog in it. The frog is not a suspect. |
 | The Conservatory | Big fern | **Clue: A Muddy Boot Print** |  |
-| The Conservatory | Potting bench | **Clue: The Foxgloves** |  |
+| The Conservatory | Potting bench | **Clue: The Foxglove Plants** |  |
 | The Conservatory | Potting cupboard |  | Seed packets, twine and a trowel, all neatly labelled. Nothing about tonight. |
 | The Office | Filing cabinet |  | Invoices for brass, glass and lamp oil. Ordinary business. Twenty years of it. |
 | The Office | Drawing board |  | Half-finished plans for a clock I will never finish. |
@@ -464,30 +464,30 @@ The print doesn’t prove Thomas did it. But it does mean Clara’s story needs 
 
 > **GHOST** *(thought)*: Garden mud, under the open window. Who walks through a garden at night?
 > **GHOST** *(thought)*: Clara has been inside since seven, and this print is large. But Thomas leaves his bicycle by the garden gate, and he knows every path in that garden.
-> **GHOST** *(thought)*: My tea tasted bitter. Foxgloves are bitter too, and they can kill. Thomas keeps them in pots on the potting bench.
+> **GHOST** *(thought)*: My tea tasted bitter. Foxglove plants are bitter too, and they can kill. Thomas keeps them in pots on the potting bench.
 
 ---
 
-## Clue 4 of 7: The Foxgloves
+## Clue 4 of 7: The Foxglove Plants
 
-*The Conservatory: the player searches the potting bench. A row of foxgloves stands in pots along the bench, their long leaves soft in the moonlight; a chime; the evidence screen opens.*
+*The Conservatory: the player searches the potting bench. A row of foxglove plants stands in pots along the bench, their long leaves soft in the moonlight; a chime; the evidence screen opens.*
 
 ### Page: The clue
 
-*I found the foxgloves on the potting bench. One pot in the row has been stripped of its lower leaves.*
+*I found the foxglove plants on the potting bench. One pot in the row has been stripped of its lower leaves.*
 
-**Evidence card: The Foxgloves**
+**Evidence card: The Foxglove Plants**
 
 | | |
 |---|---|
-| **Plant** | Foxglove (digitalis), in pots on the potting bench |
+| **Plant** | Foxglove plant (digitalis), in pots on the potting bench |
 | **Damage** | One pot stripped of its lower leaves |
 | **Cuts** | Clean, close to the stem |
 | **Other pots** | Untouched |
 
-> **GHOST** *(thought)*: Foxglove. Beautiful, and deadly. I never liked having them in the house.
+> **GHOST** *(thought)*: Foxglove plant. Beautiful, and deadly. I never liked having them in the house.
 > **GHOST** *(thought)*: One pot has been stripped of its lower leaves, cut clean, close to the stem. The other pots are untouched.
-> **GHOST** *(thought)*: Foxglove leaves, steeped in tea, would taste bitter. They could also stop a man’s heart. Or it may be nothing: Thomas is always trimming something. That is the question.
+> **GHOST** *(thought)*: Foxglove plant leaves, steeped in tea, would taste bitter. They could also stop a man’s heart. Or it may be nothing: Thomas is always trimming something. That is the question.
 
 ### Page: Lesson & ratings
 
@@ -499,9 +499,9 @@ A strong clue fits one story far better than the rest. Look for the lopsided one
 
 #### Suppose Clara is the murderer.
 
-**How likely would I be to find a foxglove stripped like this?**
+**How likely would I be to find a foxglove plant stripped like this?**
 
-> **GHOST** *(thought)*: If Clara is the murderer, the foxgloves have nothing to do with her. She has never so much as watered them. Then a stripped pot would only be Thomas’s ordinary pruning. Unlikely, though not impossible.
+> **GHOST** *(thought)*: If Clara is the murderer, the foxglove plants have nothing to do with her. She has never so much as watered them. Then a stripped pot would only be Thomas’s ordinary pruning. Unlikely, though not impossible.
 
 [ 1 Very unlikely 10% ] [ 2 Unlikely 30% ] [ 3 As likely as not 50% ] [ 4 Likely 70% ] [ 5 Very likely 90% ]
 
@@ -509,9 +509,9 @@ After choosing: “You rated it N: …, a P% chance.”
 
 #### Suppose Mr. Thomas is the murderer.
 
-**How likely would I be to find a foxglove stripped like this?**
+**How likely would I be to find a foxglove plant stripped like this?**
 
-> **GHOST** *(thought)*: If Thomas is the murderer, here is his poison, grown by his own hand: the foxgloves he has tended for years, which he knows better than anyone alive. In his story, a stripped pot like this is exactly what I’d expect to find.
+> **GHOST** *(thought)*: If Thomas is the murderer, here is his poison, grown by his own hand: the foxglove plants he has tended for years, which he knows better than anyone alive. In his story, a stripped pot like this is exactly what I’d expect to find.
 
 [ 1 Very unlikely 10% ] [ 2 Unlikely 30% ] [ 3 As likely as not 50% ] [ 4 Likely 70% ] [ 5 Very likely 90% ]
 
@@ -526,7 +526,7 @@ After choosing: “You rated it N: …, a P% chance.”
 
 ### Page: The math
 
-*(The same update as Bayes’ rule, one hypothesis per suspect: H1 “Clara is the murderer”, H2 “Mr. Thomas is the murderer”, and E finding a foxglove stripped like this. P(H1 | E) = P(H1) · P(E | H1) ÷ [P(H1) · P(E | H1) + P(H2) · P(E | H2)]. First the player chooses whose math to look at first (with two suspects the shares add to 100%, so one update gives the other). Then one formula transforms in place: the rule in symbols with a key; the same with names (“Clara Updated = Clara’s Prior · Boot Print given Clara / …”); the player’s numbers; then multiply, add and divide inside the formula; finally the other suspect (“Thomas Updated = 100% − Clara Updated”).)*
+*(The same update as Bayes’ rule, one hypothesis per suspect: H1 “Clara is the murderer”, H2 “Mr. Thomas is the murderer”, and E finding a foxglove plant stripped like this. P(H1 | E) = P(H1) · P(E | H1) ÷ [P(H1) · P(E | H1) + P(H2) · P(E | H2)]. First the player chooses whose math to look at first (with two suspects the shares add to 100%, so one update gives the other). Then one formula transforms in place: the rule in symbols with a key; the same with names (“Clara Updated = Clara’s Prior · Boot Print given Clara / …”); the player’s numbers; then multiply, add and divide inside the formula; finally the other suspect (“Thomas Updated = 100% − Clara Updated”).)*
 
 - **P(H1), P(H2)**, your board so far: Clara 30%, Mr. Thomas 70% *(numbers here follow the designed ratings)*
 - **P(E | H1), P(E | H2)**, your ratings: Clara 30%, Mr. Thomas 90%
@@ -551,34 +551,34 @@ This clue fits one person far better than anyone else. That is what strong evide
 
 > **GHOST** *(thought)*: Thomas. Twenty years in my garden. Could it be him?
 > **GHOST** *(thought)*: This clue fits one person far better than the other. That’s what strong evidence looks like.
-> **GHOST** *(thought)*: Careful, John. I rated how likely a stripped foxglove would be *if Thomas is the murderer*. That isn’t the same as how likely it is that Thomas is the murderer. The first is a rating; the second is the board, which also depends on where I started and on how well the foxgloves fit Clara’s story. Mixing the two up is called the prosecutor’s fallacy, and it has sent real people to prison.
+> **GHOST** *(thought)*: Careful, John. I rated how likely a stripped foxglove plant would be *if Thomas is the murderer*. That isn’t the same as how likely it is that Thomas is the murderer. The first is a rating; the second is the board, which also depends on where I started and on how well the foxglove plants fit Clara’s story. Mixing the two up is called the prosecutor’s fallacy, and it has sent real people to prison.
 > **GHOST** *(thought)*: Everything is pointing at Edmund. That is exactly when I should be most careful. I haven’t looked for anything that would count against him.
 > **GHOST** *(thought)*: Clara walked at seven, in her grey coat. It should be on the hall stand.
 
 ---
 
-## Clue 5 of 7: The Chemist’s Slip
+## Clue 5 of 7: The Pharmacy Receipt
 
-*The Hallway: the player searches the coat stand. Clara’s grey walking coat hangs among the others; the paper in its pocket stirs as the ghost’s hand passes through; a chime; the evidence screen opens.*
+*The Hallway: the player searches the coat stand. Clara’s grey walking coat hangs among the others; the receipt in its pocket stirs as the ghost’s hand passes through; a chime; the evidence screen opens.*
 
 ### Page: The clue
 
 *I found a small slip of paper, folded once, in the pocket of Clara’s grey walking coat on the hall stand.*
 
-**Evidence card: The Chemist’s Slip**
+**Evidence card: The Pharmacy Receipt**
 
 | | |
 |---|---|
-| **Shop** | Hartley & Son, Dispensing Chemists |
+| **Pharmacy** | Hartley & Son |
 | **Time** | Friday, 6:40 pm |
-| **Item** | One small bottle, sleeping drops (1 oz) |
+| **Item** | One small bottle, sleeping pills (1 oz) |
 | **Price** | 2s 6d |
 | **Name on slip** | None |
 
-> **GHOST** *(thought)*: Hartley’s, the chemist on the corner. Six-forty on Friday evening, twenty minutes before she came home.
-> **GHOST** *(thought)*: Sleeping drops. Poe fetches mine, on the first of the month, and I never asked Clara to fetch them. She has never needed any. Clara sleeps like the dead.
-> **GHOST** *(thought)*: Tonight I fell asleep and didn’t wake. The tea was bitter, and so are sleeping drops. I can’t tell whether it was drops or foxglove, so I have to weigh both.
-> **GHOST** *(thought)*: I’ve been so busy being clever about Thomas. Now I have a clue I didn’t want.
+> **GHOST** *(thought)*: Hartley’s, the pharmacy on the corner. 6:40 on Friday evening, twenty minutes before she came home.
+> **GHOST** *(thought)*: Sleeping pills. Poe fetches mine, on the first of the month, and I never asked Clara to fetch them. She has never needed any. Clara sleeps like a baby.
+> **GHOST** *(thought)*: Tonight I fell asleep and didn’t wake. The tea was bitter, and so are sleeping pills. I can’t tell whether it was the pills or foxglove plant leaves, so I have to weigh both.
+> **GHOST** *(thought)*: I’ve been so busy suspecting Thomas. Now I have a clue I didn’t expect.
 
 ### Page: Lesson & ratings
 
@@ -590,9 +590,9 @@ Once you lean one way, the clues that point the other way are the ones you will 
 
 #### Suppose Clara is the murderer.
 
-**How likely would I be to find a chemist’s slip like this in Clara’s coat?**
+**How likely would I be to find a Pharmacy Receipt like this in Clara’s coat?**
 
-> **GHOST** *(thought)*: If Clara is the murderer, she needed something to put a man to sleep and keep him there, and sleeping drops would do that. She might have kept the slip, because people forget what is in a pocket. It is quite likely, though she could as easily have thrown it away.
+> **GHOST** *(thought)*: If Clara poisoned me, she needed something to put me to sleep, and sleeping pills are exactly that. She bought them at 6:40, during her walk. Keeping the slip in her coat pocket is plausible, since people forget what’s in a pocket, but a careful poisoner might have thrown it away. So fairly likely.
 
 [ 1 Very unlikely 10% ] [ 2 Unlikely 30% ] [ 3 As likely as not 50% ] [ 4 Likely 70% ] [ 5 Very likely 90% ]
 
@@ -600,9 +600,9 @@ After choosing: “You rated it N: …, a P% chance.”
 
 #### Suppose Mr. Thomas is the murderer.
 
-**How likely would I be to find a chemist’s slip like this in Clara’s coat?**
+**How likely would I be to find a Pharmacy Receipt like this in Clara’s coat?**
 
-> **GHOST** *(thought)*: If Thomas is the murderer, Clara was simply out for a walk. She knows I sleep badly, and she has nagged me about it since the spring, so a kindness is possible. But I never asked her to fetch my drops, and she has never taken any herself. Sleeping drops on this very evening would be a coincidence. Unlikely, though not impossible.
+> **GHOST** *(thought)*: If Thomas poisoned the tea. Then Clara bought sleeping drops this evening for some other reason. I never asked her to fetch his, so this is a timing coincidence. Unlikely, though not impossible.
 
 [ 1 Very unlikely 10% ] [ 2 Unlikely 30% ] [ 3 As likely as not 50% ] [ 4 Likely 70% ] [ 5 Very likely 90% ]
 
@@ -617,7 +617,7 @@ After choosing: “You rated it N: …, a P% chance.”
 
 ### Page: The math
 
-*(The same update as Bayes’ rule, one hypothesis per suspect: H1 “Clara is the murderer”, H2 “Mr. Thomas is the murderer”, and E finding a chemist’s slip like this in Clara’s coat. P(H1 | E) = P(H1) · P(E | H1) ÷ [P(H1) · P(E | H1) + P(H2) · P(E | H2)]. First the player chooses whose math to look at first (with two suspects the shares add to 100%, so one update gives the other). Then one formula transforms in place: the rule in symbols with a key; the same with names (“Clara Updated = Clara’s Prior · Boot Print given Clara / …”); the player’s numbers; then multiply, add and divide inside the formula; finally the other suspect (“Thomas Updated = 100% − Clara Updated”).)*
+*(The same update as Bayes’ rule, one hypothesis per suspect: H1 “Clara is the murderer”, H2 “Mr. Thomas is the murderer”, and E finding a Pharmacy Receipt like this in Clara’s coat. P(H1 | E) = P(H1) · P(E | H1) ÷ [P(H1) · P(E | H1) + P(H2) · P(E | H2)]. First the player chooses whose math to look at first (with two suspects the shares add to 100%, so one update gives the other). Then one formula transforms in place: the rule in symbols with a key; the same with names (“Clara Updated = Clara’s Prior · Boot Print given Clara / …”); the player’s numbers; then multiply, add and divide inside the formula; finally the other suspect (“Thomas Updated = 100% − Clara Updated”).)*
 
 - **P(H1), P(H2)**, your board so far: Clara 12%, Mr. Thomas 88% *(numbers here follow the designed ratings)*
 - **P(E | H1), P(E | H2)**, your ratings: Clara 70%, Mr. Thomas 30%
@@ -626,7 +626,7 @@ After choosing: “You rated it N: …, a P% chance.”
 
 ### Page: Recap: Evidence against your favourite
 
-Thomas was running away with the board, and this slip pulls Clara back into the race. A clue does not care whom you suspect. It fits one story better than the other, and your job is to say which, even when you had stopped looking. The clues you want least are the ones you most need to weigh.
+Evidence doesn’t care whom you suspect. It fits one story better, and you have to say which, even when you’d stopped looking. The evidence was running toward Thomas, but this clue pushes the other way.
 
 *(Below: your board before this clue, and your board now, as two squares.)*
 
@@ -640,7 +640,6 @@ Thomas was running away with the board, and this slip pulls Clara back into the 
 *The overlay closes. Back in the house.*
 
 > **GHOST** *(thought)*: The board has swung back. Clara is a real suspect again, and I’m ashamed of how little I wanted that.
-> **GHOST** *(thought)*: Six-forty. Sleeping drops. Twenty minutes later she came through the front door and went upstairs.
 > **GHOST** *(thought)*: It all comes down to half past nine. The exchange writes down every call made from this house. That log is in the telephone table drawer, in the hallway.
 
 ---
@@ -844,7 +843,7 @@ Choose carefully. A ghost only gets one accusation.
 > **GHOST** *(imagining)*: Before he left at eight, Edmund lifted the latch of the conservatory window, the one I latch myself every autumn. I never noticed.
 > **GHOST** *(imagining)*: He signed my log, shook my hand, and went out smiling. He didn’t go home. He stood in the dark garden he knows better than I do, with the wet beds between him and my study window, and waited for me to make my tea.
 > **GHOST** *(imagining)*: At half past nine I carried my cup to the desk and set it down. Then I left the room for a few minutes, I think. That part is still fog.
-> **GHOST** *(imagining)*: Boots in the wet earth. The window rising. A hand, and a little brown bottle of foxglove, steeped strong, I’d guess. Then out the way he came, and a pruning knife left in the fringe of the rug. What was really in the bottle, I’ll never know.
+> **GHOST** *(imagining)*: Boots in the wet earth. The window rising. A hand, and a little brown bottle of foxglove plant, steeped strong, I’d guess. Then out the way he came, and a pruning knife left in the fringe of the rug. What was really in the bottle, I’ll never know.
 > **GHOST** *(imagining)*: And Clara, in the hall, on the telephone to Edinburgh for twenty-nine minutes, with her back to all of it.
 > **GHOST** *(imagining)*: Who rang him at 7:48, I’ll never know either. It was never on the scale, and the verdict doesn’t need it. A case doesn’t have to explain every scrap.
 
@@ -859,7 +858,7 @@ Choose carefully. A ghost only gets one accusation.
 > **GHOST** *(thought)*: The clue that nearly condemned her was an olive branch. I rated it unlikely, and it was unlikely, and it still happened. Unlikely doesn’t mean never.
 > **CLARA** *(whispering)*: I don’t care about the house. I never did. I’m sorry, Uncle. I’m so sorry.
 > **GHOST** *(thought)*: It was never about the house, Clara. You’ll find the will in my drawer, with my note in the margin: *Talk to her.* I’d tear it in half if I had hands.
-> **GHOST** *(thought)*: Tomorrow they’ll find the stripped foxglove, the print behind the fern, and a gardener without his knife. Tonight there’s only this: a girl on the floor of my study, talking to me as if I could hear.
+> **GHOST** *(thought)*: Tomorrow they’ll find the stripped foxglove plant, the print behind the fern, and a gardener without his knife. Tonight there’s only this: a girl on the floor of my study, talking to me as if I could hear.
 > **GHOST** *(thought)*: Perhaps I can.
 
 *The clocks fall silent one by one. The ghost rises and fades.*
@@ -910,8 +909,8 @@ The board after each clue, if the player’s ratings match the intended ratings 
 | 1. An Unfinished Letter | 4 / 3 | 1.4 : 1 for Clara (weak) | 68% | 32% |
 | 2. The Will | 5 / 5 | 1 : 1 (old news) | 68% | 32% |
 | 3. A Muddy Boot Print | 1 / 3 | 5 : 1 for Thomas (strong) | 30% | 70% |
-| 4. The Foxgloves | 2 / 5 | 3 : 1 for Thomas (moderate) | 12% | 88% |
-| 5. The Chemist’s Slip | 4 / 2 | 2.33 : 1 for Clara (moderate) | 25% | 75% |
+| 4. The Foxglove Plants | 2 / 5 | 3 : 1 for Thomas (moderate) | 12% | 88% |
+| 5. The Pharmacy Receipt | 4 / 2 | 2.33 : 1 for Clara (moderate) | 25% | 75% |
 | 6. The Telephone Log | 1 / 3 | 5 : 1 for Thomas (strong) | 6% | 94% |
 | 7. A Pruning Knife | 3 / 4 | 1.4 : 1 for Thomas (weak) | 4% | 96% |
 

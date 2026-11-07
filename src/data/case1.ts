@@ -305,24 +305,24 @@ const CLUE_SOURCES: ClueSource[] = [
     ],
   },
   {
-    id: 'foxglove plants',
-    title: 'The foxglove plants',
-    leadIn: 'My tea tasted bitter. foxglove plants are bitter too, and they can kill. Thomas keeps them in pots on the potting bench.',
+    id: 'foxgloves',
+    title: 'The Foxglove Plants',
+    leadIn: 'My tea tasted bitter. Foxglove plants are bitter too, and they can kill. Thomas keeps them in pots on the potting bench.',
     searchCue: 'A row of foxglove plants stands in pots along the bench, their long leaves soft in the moonlight',
     found: 'I found the foxglove plants on the potting bench. One pot in the row has been stripped of its lower leaves.',
     evidence: {
       kind: 'facts',
       rows: [
-        ['Plant', 'foxglove plant (digitalis), in pots on the potting bench'],
+        ['Plant', 'Foxglove plant (digitalis), in pots on the potting bench'],
         ['Damage', 'One pot stripped of its lower leaves'],
         ['Cuts', 'Clean, close to the stem'],
         ['Other pots', 'Untouched'],
       ],
     },
     context: [
-      'foxglove plant. Beautiful, and deadly. I never liked having them in the house.',
+      'Foxglove plant. Beautiful, and deadly. I never liked having them in the house.',
       'One pot has been stripped of its lower leaves, cut clean, close to the stem. The other pots are untouched.',
-      'foxglove plant leaves, steeped in tea, would taste bitter. They could also stop a man’s heart. Or it may be nothing: Thomas is always trimming something. That is the question.',
+      'Foxglove plant leaves, steeped in tea, would taste bitter. They could also stop a man’s heart. Or it may be nothing: Thomas is always trimming something. That is the question.',
     ],
     short: 'a foxglove plant stripped like this',
     noun: 'the stripped foxglove plant',
@@ -373,7 +373,7 @@ const CLUE_SOURCES: ClueSource[] = [
     ],
     trap: 'Evidence against your favourite',
     lesson:
-      'Evidence doesn’t care whom you suspect. It fits one story better, and you have to say which, even when you’d stopped looking. The evidence was running toward Thomas, but this clue pushes the other way. '
+      'Evidence doesn’t care whom you suspect. It fits one story better, and you have to say which, even when you’d stopped looking. The evidence was running toward Thomas, but this clue pushes the other way.',
     reaction: [
       'The board has swung back. Clara is a real suspect again, and I’m ashamed of how little I wanted that.',
     ],
