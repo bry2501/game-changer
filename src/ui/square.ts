@@ -170,7 +170,7 @@ export class BayesSquare extends Phaser.GameObjects.Container {
       if (y1 - y0 < 14) return;
       // the bracket marks the evidence: the part of this story in which the clue turns up
       const b = new Brace(this.scene, y0, y1, base, dir as 1 | -1, this.colors[i], depth, true);
-      const label = txt(this.scene, labelX, (y0 + y1) / 2, 'evidence', fs, '#9fc4ff', { fontStyle: 'italic' }).setOrigin(dir < 0 ? 1 : 0, 0.5);
+      const label = txt(this.scene, labelX, (y0 + y1) / 2, 'evidence', fs, hex(this.colors[i]), { fontStyle: 'italic' }).setOrigin(dir < 0 ? 1 : 0, 0.5);
       this.add([b, label]);
       this.sides.push(b, label);
       [b, label].forEach((o) => {
