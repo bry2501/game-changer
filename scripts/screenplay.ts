@@ -341,7 +341,7 @@ CLUES.forEach((c, k) => {
   w();
   w('### Page: The math');
   w();
-  w(`*(The same update as Bayes’ rule, one hypothesis per suspect: ${SUSPECTS.map((s, i) => `H${i + 1} “${s.name} is the murderer”`).join(', ')}, and E finding ${c.short}. P(H1 | E) = P(H1) · P(E | H1) ÷ [P(H1) · P(E | H1) + P(H2) · P(E | H2)]. First the player chooses whose story to follow (with two suspects the shares add to 100%, so one update gives the other). Then one formula transforms in place: the rule in symbols with a key; the same with names (“Clara’s Update = Clara’s Prior · Boot Print in Clara’s story / …”); the player’s numbers; then multiply, add and divide inside the formula; finally the other suspect’s update as 100% minus the first.)*`);
+  w(`*(The same update as Bayes’ rule, one hypothesis per suspect: ${SUSPECTS.map((s, i) => `H${i + 1} “${s.name} is the murderer”`).join(', ')}, and E finding ${c.short}. P(H1 | E) = P(H1) · P(E | H1) ÷ [P(H1) · P(E | H1) + P(H2) · P(E | H2)]. First the player chooses whose math to look at first (with two suspects the shares add to 100%, so one update gives the other). Then one formula transforms in place: the rule in symbols with a key; the same with names (“Clara Updated = Clara’s Prior · Boot Print given Clara / …”); the player’s numbers; then multiply, add and divide inside the formula; finally the other suspect (“Thomas Updated = 100% − Clara Updated”).)*`);
   {
     const lik = c.likelihoods;
     const j = belief.map((p, i) => p * lik[i]);

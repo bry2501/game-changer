@@ -949,7 +949,7 @@ export class EvidenceScene extends Phaser.Scene {
    * First the player chooses whose story to follow (with two suspects the shares add to 100%,
    * so one update gives the other). Then:
    *   1. symbols: one hypothesis per suspect (H₁, H₂) and the evidence E
-   *   2. names: "Clara's Update = Clara's Prior · Boot Print in Clara's story / …"
+   *   2. names: "Clara Updated = Clara's Prior · Boot Print given Clara / …"
    *   3. numbers: each term becomes the player's own number
    *   4. multiply, 5. add, 6. divide: the arithmetic done inside the formula itself
    *   7. the rest: the other suspect's update is what is left of 100%
@@ -1006,7 +1006,7 @@ export class EvidenceScene extends Phaser.Scene {
 
     // ---- stage 0: whose story do we follow?
     if (stage === 0) {
-      this.put(txt(this, W / 2, FY - 150, 'Whose story shall we follow?', 30, GOLD, { fontStyle: 'bold' }).setOrigin(0.5));
+      this.put(txt(this, W / 2, FY - 150, 'Whose math should we look at first?', 30, GOLD, { fontStyle: 'bold' }).setOrigin(0.5));
       this.para(
         W / 2,
         FY - 108,
@@ -1048,12 +1048,12 @@ export class EvidenceScene extends Phaser.Scene {
           rate: (i: number): Part[] => P(E, [' | ', WC], H(i)),
           dot: [' · ', WC] as Part,
         };
-      const lhs: Part[] = [poss(focus), [' Update', WC], [' = ', WC]];
+      const lhs: Part[] = [[short(focus), col(focus)], [' Updated', WC], [' = ', WC]];
       if (f === 1)
         return {
           lhs,
           prior: (i: number): Part[] => [poss(i), [' Prior', WC]],
-          rate: (i: number): Part[] => [[Noun, EC], [' in ', WC], poss(i), [' story', WC]],
+          rate: (i: number): Part[] => [[Noun, EC], [' given ', WC], [short(i), col(i)]],
           dot: [' · ', WC] as Part,
         };
       return {
@@ -1192,7 +1192,7 @@ export class EvidenceScene extends Phaser.Scene {
     } else if (stage === 2) {
       const note: Part[] = [
         poss(focus), [' Prior: your board before this clue      ', '#9a9a9a'],
-        [Noun, EC], [' in ', '#9a9a9a'], poss(focus), [' story: your rating for ', '#9a9a9a'], [short(focus), col(focus)],
+        [Noun, EC], [' given ', '#9a9a9a'], [short(focus), col(focus)], [': your rating for ', '#9a9a9a'], [short(focus), col(focus)],
       ];
       below.push(draw({ parts: note, x: W / 2 - measure(note, 16) / 2, y: keyY }, 16));
     } else if (stage === LAST && SUSPECTS.length === 2) {
@@ -1201,7 +1201,7 @@ export class EvidenceScene extends Phaser.Scene {
       // worked from the rounded figure on screen, so the subtraction always adds up
       const shown = parseFloat(share(after[focus])) / 100;
       const line: Part[] = [
-        poss(other), [' Update', WC], [' = 100% − ', WC], poss(focus), [' Update', WC],
+        [short(other), col(other)], [' Updated', WC], [' = 100% − ', WC], [short(focus), col(focus)], [' Updated', WC],
         [' = 100% − ', WC], [share(after[focus]), col(focus)], [' = ', WC], [share(1 - shown), col(other)],
       ];
       below.push(draw({ parts: line, x: W / 2 - measure(line, 24) / 2, y: FY + 100 }, 24));
