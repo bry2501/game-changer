@@ -184,19 +184,19 @@ export const PRIOR_SHEET = {
   title: 'The Household Log',
   total: TOTAL_HOURS,
   text:
-    'This was my own rule, and I remember the day I made it: everyone signs the household log when they come and go, the vicar included. A house should know who is in it. ' +
-    'It shows who was inside tonight between 6 pm and 10 pm, and for how long. Poe had asked for the evening off to visit his sister; I remember saying yes. That is why I made my own tea. ' +
-    'Edgar went home at six, as he always does. That leaves two people who were in this house with my tea: Clara and Mr. Thomas. The question is, which of the two?',
+    'This was my own rule: everyone signs the household log when they come and go. A house should know who is in it. ' +
+    'This shows who was inside tonight between 6 pm and 10 pm, and for how long. I remember Poe had asked for the evening off to visit his sister;' +
+    'Edgar went home at six, as he always does. That leaves two people who were in this house with my tea: Clara and Mr. Thomas. The question is, who did it?',
   context:
-    'Before I examine a single clue, I need a starting point to stand on. If I had no information to go on, each suspect would begin with an equal 50/50 chance of guilt. ' +
+    'I need a starting point. If I had no information to go on, I would give each suspect an equal 50/50 chance of guilt. ' +
     'But I can use the log to count the hours each of them spent under this roof: the longer someone was here, the more chances they had. ' +
-    'That starting belief is called the PRIOR. It is a judgment, not a fact.',
+    'That starting belief is called the PRIOR.',
   /** The Start page: where suspicion begins. */
   lesson:
     'Each person’s share of the time inside becomes their starting share of suspicion: whoever spent longest in the house starts highest. That’s my starting point.',
   reaction: [
     'Clara was here the longest, so she starts as the likeliest. But that doesn’t mean she’s guilty yet.',
-    'Every piece of evidence from now on will shift these odds. By how much is the whole question.',
+    'Every piece of evidence from now on will shift these odds.',
   ],
   nextThought: '',
 };
