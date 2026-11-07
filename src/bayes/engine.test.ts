@@ -30,10 +30,10 @@ describe('the case', () => {
   const prior = truePrior();
   const steps = chain(prior, CLUES.map((c) => c.likelihoods));
 
-  it('has two suspects, seven clues, and Voss as the culprit', () => {
-    expect(SUSPECTS.map((s) => s.name)).toEqual(['Clara', 'Mr. Voss']);
-    expect(CLUES.map((c) => c.id)).toEqual(['letter', 'will', 'boot', 'ledger', 'slip', 'phone', 'cufflink']);
-    expect(SUSPECTS[CULPRIT_INDEX].id).toBe('partner');
+  it('has two suspects, seven clues, and Thomas as the culprit', () => {
+    expect(SUSPECTS.map((s) => s.name)).toEqual(['Clara', 'Mr. Thomas']);
+    expect(CLUES.map((c) => c.id)).toEqual(['letter', 'will', 'boot', 'foxgloves', 'slip', 'phone', 'knife']);
+    expect(SUSPECTS[CULPRIT_INDEX].id).toBe('gardener');
   });
 
   it('starts from opportunity: 3 hours against 2', () => {
@@ -44,7 +44,7 @@ describe('the case', () => {
     const R = [0.1, 0.3, 0.5, 0.7, 0.9];
     const intended = [[4, 3], [5, 5], [1, 3], [2, 5], [4, 2], [1, 3], [3, 4]].map((r) => r.map((k) => R[k - 1]));
     expect(CLUES.map((c) => c.likelihoods)).toEqual(intended);
-    // Clara leads, the will changes nothing, Voss pulls ahead, the slip brings Clara back, the alibi clears her
+    // Clara leads, the will changes nothing, Thomas pulls ahead, the slip brings Clara back, the alibi clears her
     expect(steps.map((p) => Math.round(p[0] * 100))).toEqual([60, 68, 68, 30, 12, 25, 6, 4]);
     expect(argmax(steps[1])).toBe(0);
     expect(steps[steps.length - 1][CULPRIT_INDEX]).toBeGreaterThan(0.9);

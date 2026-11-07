@@ -391,7 +391,7 @@ export class EvidenceScene extends Phaser.Scene {
           this.para(470, CONTENT_Y + 30, `${s.name} was inside for ${s.hoursInside} hours.`, 30, hex(s.color), 760);
           this.para(470, CONTENT_Y + 90, 'Each block below is half an hour.', 21, DIM, 760);
           this.hourBlocks(470, CONTENT_Y + 160, i);
-          this.para(470, CONTENT_Y + 270, `The lit blocks are ${s.name}’s share of all the time anyone spent inside.`, 24, INK, 760);
+          this.para(470, CONTENT_Y + 270, `The lit blocks are ${s.name}’s share of all the time anyone spent inside, ${s.hoursInside} out of ${PRIOR_SHEET.total} hours.`, 24, INK, 760);
           if (i === 0)
             this.para(470, CONTENT_Y + 340, 'More time inside means more chances to reach my tea, so a bigger starting share of suspicion.', 21, '#dcdcdc', 760);
         },
@@ -401,16 +401,9 @@ export class EvidenceScene extends Phaser.Scene {
       crumb: 'Start',
       build: () => {
         this.title('Where my suspicion starts');
-        this.para(W / 2, CONTENT_Y + 20, 'Each person’s share of the time inside becomes their starting share of suspicion.', 23, '#dcdcdc', 1000, 0.5);
+        this.para(W / 2, CONTENT_Y + 20, PRIOR_SHEET.lesson, 23, '#dcdcdc', 1000, 0.5);
         this.beliefStrip(CONTENT_Y + 120, truth, 'Before any clue:', 820);
         this.commitPrior(truth);
-      },
-    });
-    steps.push({
-      crumb: 'Lesson',
-      build: () => {
-        this.title('What the starting point means');
-        this.para(W / 2, CONTENT_Y + 80, PRIOR_SHEET.lesson, 26, INK, 960, 0.5);
       },
     });
     return steps;

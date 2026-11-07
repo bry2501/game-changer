@@ -32,36 +32,36 @@ export const ROOMS: RoomDef[] = [
   { id: 'study', name: 'The Study', floor: 0, x0: 0, x1: 1700, wallTop: 0x1b2233, wallBottom: 0x0a0d14, thought: '' },
   {
     id: 'hallway', name: 'The Hallway', floor: 0, x0: 1700, x1: 3500, wallTop: 0x221c2b, wallBottom: 0x0c0a10,
-    thought: 'The hallway. Portraits of ancestors long gone. Soon, I suppose, mine will hang here too.',
+    thought: 'Portraits of ancestors long gone. Soon, I suppose, mine will hang here too.',
   },
   {
     id: 'dining', name: 'The Dining Room', floor: 0, x0: 3500, x1: 5100, wallTop: 0x2a1a1c, wallBottom: 0x0e0809,
-    thought: 'The dining room. Twelve chairs, and for years only two of them were used.',
+    thought: 'Twelve chairs, and for years only two of them were used.',
   },
   {
     id: 'conservatory', name: 'The Conservatory', floor: 0, x0: 5100, x1: 6800, wallTop: 0x14261f, wallBottom: 0x070d0a,
-    thought: 'The conservatory. Cold glass, sleeping plants, Margaret’s ferns. That window is open. It never is. I latch it myself every autumn.',
+    thought: 'That window is open. It never is. I latch it myself every autumn.',
   },
   {
     id: 'office', name: 'The Office', floor: 0, x0: 6800, x1: 8400, wallTop: 0x2a2018, wallBottom: 0x0e0a07,
-    thought: 'The office. Twenty years of Bayes & Voss in these cabinets, and the smell of paper and lamp oil.',
+    thought: 'Twenty years of Bayes Clockworks in these cabinets, and the smell of paper and lamp oil.',
   },
   // upstairs
   {
     id: 'clara', name: 'Clara’s Room', floor: 1, x0: 1100, x1: 2300, wallTop: 0x2b1b2a, wallBottom: 0x0f0910,
-    thought: 'Clara’s room. It still smells of her perfume. She was a little girl in this room, once.',
+    thought: 'She was a little girl in this room, once.',
   },
   {
     id: 'landing', name: 'The Landing', floor: 1, x0: 2300, x1: 3500, wallTop: 0x1f1d2c, wallBottom: 0x0b0a10,
-    thought: 'The landing. The third board always creaks. I cross it and it says nothing. Not for me. Not any more.',
+    thought: 'The third board always creaks. I cross it and it says nothing. Not for me. Not any more.',
   },
   {
     id: 'library', name: 'The Library', floor: 1, x0: 3500, x1: 5100, wallTop: 0x1d2420, wallBottom: 0x090c0a,
-    thought: 'The library. Every book in here is about time. I never found one about how to have more of it.',
+    thought: 'Every book in here is about time. I never found one about how to have more of it.',
   },
   {
     id: 'boxroom', name: 'The Box Room', floor: 1, x0: 5100, x1: 6400, wallTop: 0x23201c, wallBottom: 0x0c0b09,
-    thought: 'The box room. Everything we could not bear to throw away, and could not bear to look at.',
+    thought: 'Everything we could not bear to throw away, and could not bear to look at.',
   },
 ];
 
@@ -118,7 +118,7 @@ export const SEARCHABLES: Searchable[] = [
     noise: ['Pencils, a jeweller’s loupe, spare mainsprings.'],
   },
   {
-    id: 'chair', floor: 0, x: 1320, kind: 'move', label: 'Desk chair', holds: 'cufflink', w: 70, h: 120,
+    id: 'chair', floor: 0, x: 1320, kind: 'move', label: 'Desk chair', holds: 'knife', w: 70, h: 120,
     noise: ['Just my chair. Nothing under it.'],
   },
   {
@@ -129,7 +129,7 @@ export const SEARCHABLES: Searchable[] = [
   // ---------------------------------------------------------------- hallway
   {
     id: 'coats', floor: 0, x: 2050, kind: 'move', label: 'Coat stand', holds: 'slip', w: 60, h: 200,
-    noise: ['Coats, and Graves’s umbrella.'],
+    noise: ['Coats, and Poe’s umbrella.'],
   },
   {
     id: 'phone-table', floor: 0, x: 2420, kind: 'drawer', label: 'Telephone table', holds: 'phone', w: 110, h: 30,
@@ -152,7 +152,7 @@ export const SEARCHABLES: Searchable[] = [
   },
   {
     id: 'china', floor: 0, x: 4800, kind: 'cabinet', label: 'China cabinet', w: 130, h: 300,
-    noise: ['Our wedding china. We only used it twice.', 'Moving on.'],
+    noise: ['The best china. It has been used twice in twenty years.', 'Moving on.'],
   },
 
   // ---------------------------------------------------------------- conservatory
@@ -164,9 +164,10 @@ export const SEARCHABLES: Searchable[] = [
     id: 'fern', floor: 0, x: 5750, kind: 'move', label: 'Big fern', holds: 'boot', w: 90, h: 70,
     noise: ['Only the fern’s roots, curling out of the pot.'],
   },
+  { id: 'potting-bench', floor: 0, x: 6060, kind: 'plain', label: 'Potting bench', holds: 'foxgloves' },
   {
     id: 'potting', floor: 0, x: 6350, kind: 'cabinet', label: 'Potting cupboard', w: 110, h: 170,
-    noise: ['Seed packets, twine and a trowel, all in Margaret’s labelled order. Nothing about tonight.'],
+    noise: ['Seed packets, twine and a trowel, all neatly labelled. Nothing about tonight.'],
   },
 
   // ---------------------------------------------------------------- office
@@ -175,8 +176,8 @@ export const SEARCHABLES: Searchable[] = [
     noise: ['Invoices for brass, glass and lamp oil.', 'Ordinary business. Twenty years of it.'],
   },
   {
-    id: 'voss-desk', floor: 0, x: 7500, kind: 'drawer', label: 'Voss’s desk', holds: 'ledger', w: 130, h: 30,
-    noise: ['Voss’s fountain pens, lined up perfectly. He was always so tidy.'],
+    id: 'drawing-board', floor: 0, x: 7500, kind: 'drawer', label: 'Drawing board', w: 130, h: 30,
+    noise: ['Half-finished plans for a clock I will never finish.'],
   },
   {
     id: 'safe', floor: 0, x: 8150, kind: 'cabinet', label: 'The safe', w: 110, h: 130,
@@ -201,13 +202,13 @@ export const SEARCHABLES: Searchable[] = [
   { id: 'stairs-down', floor: 1, x: STAIRS_X, kind: 'stairs', label: 'Float downstairs' },
   {
     id: 'linen', floor: 1, x: 3250, kind: 'cabinet', label: 'Linen chest', w: 150, h: 90,
-    noise: ['Linens that smell of lavender. My wife chose that smell.', 'Not evidence. Just something I had forgotten I missed.'],
+    noise: ['Linens that smell of lavender.', 'Not evidence. Just clean sheets.'],
   },
 
   // ---------------------------------------------------------------- upstairs: library
   {
     id: 'hollow-book', floor: 1, x: 3850, kind: 'move', label: 'A book that sticks out', w: 40, h: 60,
-    noise: ['A hollow book! Inside it...', '...a pressed rose, and a note in my own hand: “For Margaret.”', 'A dead end. A sweet one.'],
+    noise: ['A hollow book! Inside it...', '...a pressed rose, and nothing else.', 'A dead end. A sweet one.'],
   },
   {
     id: 'reading-desk', floor: 1, x: 4550, kind: 'drawer', label: 'Reading desk', w: 140, h: 30,

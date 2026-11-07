@@ -47,19 +47,25 @@ const NOTES: Record<string, { ratio?: string; trapLabel?: string; trap?: string;
     trapLabel: 'Double counting (old news)',
     trap: '. A player who rates 5 / 2 jumps to about {swing52} Clara on a fact the board already carried.',
     extra: [
-      'Symmetry: both suspects have a Monday appointment (Mr. Penrose at ten, the books at eleven), so the schedule favours neither. The ghost says so.',
+      'Symmetry: both suspects lose under the new will (Clara the house, Thomas his cottage and his garden), and the single signing on Monday at ten threatens them equally, so the schedule favours neither. The ghost says so.',
       'Independence: the draft’s existence depends on John, not on the culprit, so it is rated on its own.',
     ],
   },
   boot: {
     extra: [
-      'Background fact “Voss parks by the garden gate” is stated in Scene 3, before the clue, so the likelihood is judged against known background, not invented after the fact.',
+      'Background fact “Thomas leaves his bicycle by the garden gate” is stated in Scene 3, before the clue. “Edgar mops the floor every evening before six” is first stated on this clue’s page; the household-log line “Edgar went home at six” is the natural place to add it if you want it known beforehand.',
     ],
   },
-  ledger: { trap: ', plus the real prosecutor’s fallacy (rating ≠ board), taught in the ghost’s line after the recap.' },
+  foxgloves: {
+    trap: ', plus the real prosecutor’s fallacy (rating ≠ board), taught in the ghost’s line after the recap.',
+    extra: [
+      'The innocent explanation is built in: a gardener trims plants all the time, which is why this is 3 : 1 and not stronger.',
+      'Independence: rated on its own. It does not lean on the boot print, even though the ghost walks from one to the other.',
+    ],
+  },
   slip: {
     trapLabel: 'Myside bias: evidence that cuts against your favourite',
-    trap: '. A player who stops searching after the ledger never finds this clue. A player who dismisses it (3 / 3) ends the game with Clara at {dismiss} instead of {final}.',
+    trap: '. A player who stops searching after the foxgloves never finds this clue. A player who dismisses it (3 / 3) ends the game with Clara at {dismiss} instead of {final}.',
     extra: [
       'The innocent explanation is planted, not invented afterwards: Scene 3 says Clara has nagged John about his sleep since the spring. The ending reveals the slip was a peace offering. A rating of 2 (unlikely, not impossible) is the model answer for what the ghost knows at this point.',
     ],
@@ -67,13 +73,13 @@ const NOTES: Record<string, { ratio?: string; trapLabel?: string; trap?: string;
   phone: {
     extra: [
       'Timeline: the call covers the whole window the cup stood on the desk (9:30 to a little before 10).',
-      'The 7:48 call for Voss is deliberately unmodelled (likelihood ratio 1). The ending closes it on purpose: some scraps stay unexplained, and the verdict does not need them.',
+      'The 7:48 call for Thomas is deliberately unmodelled (likelihood ratio 1). The ending closes it on purpose: some scraps stay unexplained, and the verdict does not need them.',
     ],
   },
-  cufflink: {
-    trap: '. The old label “Prosecutor’s fallacy” was a misnomer: that fallacy is confusing P(evidence | guilt) with P(guilt | evidence). It is taught where it actually occurs, at the ledger and at the accusation.',
+  knife: {
+    trap: '. The old label “Prosecutor’s fallacy” was a misnomer: that fallacy is confusing P(evidence | guilt) with P(guilt | evidence). It is taught where it actually occurs, at the foxgloves and at the accusation.',
     extra: [
-      'Independence check: the Voss page rests only on his two chances to lose the cufflink, not on “he came back in a hurry”, which the boot print already used.',
+      'Independence check: the Thomas page rests only on his two chances to lose the knife. It does not lean on the boot print or the foxgloves, which would make the clues dependent given Thomas did it.',
     ],
   },
 };
@@ -207,8 +213,10 @@ SUSPECTS.forEach((s, k) => {
       w();
     }
   }
-  w(`**Tonight:** ${s.tonight}`);
-  w();
+  if (s.tonight) {
+    w(`**Tonight:** ${s.tonight}`);
+    w();
+  }
   if (k < SUSPECTS.length - 1) {
     dir('The amber fogs over. Another face comes up through it.');
     w();
@@ -248,7 +256,7 @@ for (const s of SEARCHABLES.filter((x) => x.kind !== 'stairs')) {
   w(`| ${roomAt(s.floor, s.x).name} | ${s.label} | ${holds} | ${holds ? '' : (s.noise ?? []).join(' ')} |`);
 }
 w();
-w('> **Designer’s note (not shown in game):** the kitchen and morning room are not explorable. Clara spends the whole hour in the kitchen, which is why her room and the landing are empty; the light under the kitchen door is visible in the ending.');
+w('> **Designer’s note (not shown in game):** the kitchen and morning room are not explorable. Clara spends the whole hour in the kitchen, which is why her room and the landing are empty; the light under the kitchen door is visible in the ending. The office holds no clue in this version; it is atmosphere only.');
 w();
 w('---');
 w();
@@ -267,12 +275,10 @@ w(`> **GHOST** *(thought)*: ${PRIOR_SHEET.context}`);
 w();
 SUSPECTS.forEach((s, i) => {
   w(`**${s.name}** · *${s.name} was inside for ${s.hoursInside} hours.* (shown as half-hour blocks, ${s.name}’s lit).`);
-  w(`The lit blocks are ${s.name}’s share of all the time anyone spent inside.${i === 0 ? ' More time inside means more chances to reach my tea, so a bigger starting share of suspicion.' : ''}`);
+  w(`The lit blocks are ${s.name}’s share of all the time anyone spent inside, ${s.hoursInside} out of ${PRIOR_SHEET.total} hours.${i === 0 ? ' More time inside means more chances to reach my tea, so a bigger starting share of suspicion.' : ''}`);
   w();
 });
-w('**Where my suspicion starts**: Each person’s share of the time inside becomes their starting share of suspicion. *(a single bar, names only)*');
-w();
-w(`**What the starting point means**: ${PRIOR_SHEET.lesson}`);
+w(`**Where my suspicion starts**: ${PRIOR_SHEET.lesson} *(a single bar, names only)*`);
 w();
 w(`> **Designer’s note (not shown in game):** prior = hours inside ÷ total: ${SUSPECTS.map((s, i) => `${s.name} ${s.hoursInside}/${PRIOR_SHEET.total} = ${pct(prior[i])}`).join(', ')}. Clara starts ahead purely on opportunity.`);
 w('>');
@@ -414,7 +420,7 @@ w('“Your board moved most at clue N, (title). Every rating you made was yours,
 w();
 w('[ **See the math** ] [ Read all lessons ] [ Play again ] [ Title ]');
 w();
-w('> **Designer’s note (not shown in game): the “See the math” screen.** Optional, shown on request after the verdict. For each clue it replays the player’s own ratings as counted worlds, beside the square: column widths are the shares, shaded heights the ratings. Example for the letter, if the player rated Clara 4 and Voss 3: “Picture 60 worlds in which Clara did it and 40 in which Voss did. A 4 means the clue turns up in 70 of every 100 of Clara’s worlds; a 3 means 50 of every 100 of Voss’s. That is 42 worlds with the clue for Clara and 20 for Voss, 62 in all. 42 of those 62 are Clara’s: 68%.” Then the same step as odds (prior odds × ratio = new odds). The last page lists the seven lessons and shows, from the player’s own ratings, that a different starting point would have changed the final board only a little.');
+w('> **Designer’s note (not shown in game): the “See the math” screen.** Optional, shown on request after the verdict. For each clue it replays the player’s own ratings as counted worlds, beside the square: column widths are the shares, shaded heights the ratings. Example for the letter, if the player rated Clara 4 and Thomas 3: “Picture 60 worlds in which Clara did it and 40 in which Thomas did. A 4 means the clue turns up in 70 of every 100 of Clara’s worlds; a 3 means 50 of every 100 of Thomas’s. That is 42 worlds with the clue for Clara and 20 for Thomas, 62 in all. 42 of those 62 are Clara’s: 68%.” Then the same step as odds (prior odds × ratio = new odds). The last page lists the seven lessons and shows, from the player’s own ratings, that a different starting point would have changed the final board only a little.');
 w();
 w('> **Designer’s note (not shown in game): closing text depends on two things, whom the player named and whom the player’s own board favoured.**');
 w('>');
@@ -445,9 +451,9 @@ w(`| After | Ratings (${SUSPECTS.map((s) => s.name).join(' / ')}) | Likelihood r
 w(`|---|---|---|${SUSPECTS.map(() => '---').join('|')}|`);
 for (const r of chainRows) w(r);
 w();
-w('**Arc.** Clara leads, then loses ground to the print and the ledger, then comes back with the slip just when the player thinks it is settled, then is cleared by the alibi. The two clues that move the board least (the will, the cufflink) teach the lessons about old news and about clues that fit both stories. The twist and the alibi are what make the ending earn its relief.');
+w('**Arc.** Clara leads, then loses ground to the print and the foxgloves, then comes back with the slip just when the player thinks it is settled, then is cleared by the alibi. The two clues that move the board least (the will, the knife) teach the lessons about old news and about clues that fit both stories. The twist and the alibi are what make the ending earn its relief.');
 w();
-w('**Timeline.** The investigation takes place between ten and eleven. Clara is in the kitchen for the whole hour and comes to the study at eleven, as she does every night. Tea at 9:30; drunk a little before ten; Clara’s call 9:28 to 9:57; Voss signed out at eight; the chemist at 6:40; Clara signed in at seven; the quarrel and the letter on Tuesday; the signing on Monday at ten and the books at eleven.');
+w('**Timeline.** The investigation takes place between ten and eleven. Clara is in the kitchen for the whole hour and comes to the study at eleven, as she does every night. Tea at 9:30; drunk a little before ten; Clara’s call 9:28 to 9:57; Thomas signed out at eight; the chemist at 6:40; Clara signed in at seven; the quarrel and the letter on Tuesday; the signing on Monday at ten. Edgar mops the conservatory floor before he leaves at six, so any print there after six is from tonight.');
 w();
 // checks, computed rather than asserted
 const perms = <T,>(xs: T[]): T[][] => (xs.length < 2 ? [xs] : xs.flatMap((x, i) => perms([...xs.slice(0, i), ...xs.slice(i + 1)]).map((p) => [x, ...p])));
@@ -470,10 +476,10 @@ w('**Assumptions the game makes.**');
 w();
 w(`1. One culprit, and the ${numberWord(SUSPECTS.length)} suspects cover every possibility, so the stretch step is valid.`);
 w('2. Each clue’s likelihood depends only on who did it, not on other clues found (conditional independence given the culprit). The letter and the will concern the same quarrel, so the will is deliberately rated as old news rather than as new motive evidence.');
-w('3. Background facts (Voss parks by the garden gate; Graves and Pip were out; Clara nags about John’s sleep; both appointments fall on Monday) are established before a clue uses them.');
+w('3. Background facts (Thomas leaves his bicycle by the garden gate; Poe and Edgar were out; Clara nags about John’s sleep; the single Monday signing threatens Clara and Thomas equally) are established before a clue uses them.');
 w('4. Verbal labels map to fixed numbers for every player. People read “likely” differently, so the labels and numbers must stay locked together.');
-w('5. The ghost searches where he already suspects, so clues are not a random sample. Likelihoods should be judged as “would I have found this here whoever did it?” The ledger reaction has the ghost admit he has not looked for evidence against Voss, and the slip is found because he then does.');
-w('6. The ghost’s unmodelled facts (the 7:48 call, where the bottle came from) stay unexplained on purpose. The verdict does not need them.');
+w('5. The ghost searches where he already suspects, so clues are not a random sample. Likelihoods should be judged as “would I have found this here whoever did it?” The foxglove reaction has the ghost admit he has not looked for evidence against Thomas, and the slip is found because he then does.');
+w('6. The ghost’s unmodelled facts (the 7:48 call, what was really in the bottle) stay unexplained on purpose. The verdict does not need them.');
 w();
 
 mkdirSync('screenplay', { recursive: true });

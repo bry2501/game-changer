@@ -20,7 +20,7 @@ export const CONCEPTS: Concept[] = [
   {
     title: 'Don’t count the same thing twice',
     body:
-      'A clue can feel new and still be old news. You already knew about the quarrel over the will, and the letter already carried it. ' +
+      'A clue can feel new and still be old news. You already knew about the will and who it would hurt, and the letter already carried it. ' +
       'If a clue would turn up just as readily in either story, it tells you nothing new. Counting the same thing twice makes a few clues look like a mountain.',
   },
   {

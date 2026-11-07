@@ -1,6 +1,6 @@
 /**
  * "The Clockmaker's Last Hour": the whole game's story and probability model, as data.
- * One night, one hour, two suspects (Clara and Voss), seven clues.
+ * One night, one hour, two suspects (Clara and Thomas), seven clues.
  * The screenplay (npm run screenplay) is generated from this file.
  */
 
@@ -15,8 +15,8 @@ export interface Suspect {
   memory: string;
   /** Who they are to John, and what they might have to gain or lose. */
   backstory: string;
-  /** What they did tonight (consistent with the household log). */
-  tonight: string;
+  /** What they did tonight (consistent with the household log), if the memory recalls it. */
+  tonight?: string;
   /** The household log entry. Must span hoursInside within 6–10 pm. */
   logIn: string;
   logOut: string;
@@ -87,39 +87,25 @@ export const SUSPECTS: Suspect[] = [
       'Now she studies law in the city and argues like a barrister, which is a polite way of saying she argues like me. ' +
       'She is the only one who noticed that I have stopped sleeping properly, and she has nagged me about it since the spring. ' +
       'This week I told her I meant to leave the house to the Clockmakers’ Guild instead of to her. We both said things we regret.',
-    tonight: 'She came back from a long walk at seven and went upstairs. After supper I did not see her again.',
     logIn: '7:00 pm', logOut: '10:00 pm (still in)', pronoun: 'she',
-    voices: {
-      cue: 'The memory sharpens into voices, an argument carried down a staircase.',
-      lines: [
-        ['Clara', 'To a *guild*, Uncle?'],
-        ['John', 'It’s a house, Clara. It’s bricks.'],
-        ['Clara', 'It’s the last place they were here.'],
-      ],
-    },
   },
   {
-    id: 'partner', name: 'Mr. Voss', role: 'the business partner', color: 0xffd27a, hoursInside: 2,
-    memory: 'Edmund Voss, my partner at Bayes & Voss Clockworks. He smiles a little too much.',
+    id: 'gardener', name: 'Mr. Thomas', role: 'the gardener', color: 0xffd27a, hoursInside: 2,
+    memory: 'Edmund Thomas, my gardener. He smiles a little too much.',
     backstory:
-      'We founded the business twenty years ago: my hands, his head for numbers. It made us both comfortable. ' +
-      'But lately the accounts stopped making sense to me, and last week I told him I wanted to go through the books myself, on Monday, at eleven.',
-    tonight: 'He came at four with papers to sign and parked, as he always does, by the garden gate. He stayed to supper and signed out at eight.',
+      'Thomas has been my gardener for twenty years. He keeps the garden and the grounds, and lives in the cottage at the end of them. ' +
+      'Last week I told him the Guild would likely sell the grounds once I sign my will on Monday, and that the cottage would go with them.',
+    tonight: 'He came at four to go over the repairs to the glass and left his bicycle, as he always does, by the garden gate. He stayed to supper and signed out at eight.',
     logIn: '4:00 pm (before the window)', logOut: '8:00 pm', pronoun: 'he',
-    voices: {
-      cue: 'A second voice, warm and unhurried.',
-      lines: [['Voss', 'The books? Of course, John. Whenever you like.']],
-      after: 'He said it smiling. He says everything smiling.',
-    },
   },
 ];
 
 /** The whole household log: the suspects, and the two who were out tonight. [name, in, out, inside] */
 export const LOG_ROWS: string[][] = [
-  ['Graves', '—', 'not in tonight (evening off)', '—'],
+  ['Poe', '—', 'not in tonight (evening off)', '—'],
   ['Clara', '7:00 pm', '10:00 pm (still in)', '3 h'],
-  ['Mr. Voss', '4:00 pm (before the window)', '8:00 pm', '2 h'],
-  ['Pip', '—', 'out 6:00 pm (went home)', '—'],
+  ['Mr. Thomas', '4:00 pm (before the window)', '8:00 pm', '2 h'],
+  ['Edgar', '—', 'out 6:00 pm (went home)', '—'],
 ];
 
 export const CULPRIT_INDEX = 1;
@@ -131,71 +117,61 @@ export const AWAKEN_LINES: string[] = [
   '...',
   'It’s dark.',
   'And cold. Too cold...',
-  'I hear a clock ticking. No... many clocks. Familiar yet unfamiliar.',
   'I don’t remember getting here.',
-  'I don’t remember anything at all. My name feels like an itch I can’t scratch.',
+  'I don’t remember anything at all. My name feels slightly out of reach.',
 ];
 
 /** Beat: drifting to the grandfather clock and reaching for it. */
-export const CLOCK_LINES: string[] = [
-  'A grandfather clock. I know this clock.',
-  'As if my hands know something my head has lost.',
-  'Did I... build it?',
-];
-export const CLOCK_AFTER: string[] = ['My hand went straight through the wood...', 'As if the clock were the real thing, and I were a shadow.'];
+export const CLOCK_LINES: string[] = ['A grandfather clock? I know this clock.', 'Did I... build it?'];
+export const CLOCK_AFTER: string[] = ['I went straight through it...', 'As if the clock were the real thing, and I were a shadow.'];
 
 /** Beat: the window that shows no reflection. */
 export const WINDOW_LINES: string[] = [
   'The window...',
-  'There should be a face reflected in this glass.',
-  'I see nothing. Only the room behind me, and the moon.',
+  'I should see my face reflected in the glass.',
+  'But I see nothing. Only the room behind me and the moon.',
   'What... am I?',
 ];
 
 /** Shown once the player can move again. */
-export const DRIFT_HINT: string[] = ['I see something lying on the rug. Very still.', 'I do not want to look at it. But I must.'];
+export const DRIFT_HINT: string[] = ['I see something lying on the rug. Very still.', 'But I cannot tell what it is from here.'];
 
 /** Discovering the body: paced with silences. */
 export const BODY_LINES: string[] = [
-  'Someone is lying here.',
-  'So still. Like a reflection of me.',
-  'That coat. Those hands. The ink stain on the left cuff, the one that never washed out.',
-  'Margaret. The name comes up out of nowhere, and with it a kitchen, a bottle of vinegar, then salt, then her laughing and giving up and calling it my signature. My wife. A scrap of memory, small as a coin, and gone again.',
+  'A person is lying there.',
+  'So still.',
+  'That coat. Those hands. It all feels so familiar.',
   '...',
-  '...it’s me.',
-  'That is my body. I am standing over my own body, like a man who has come in out of the rain and found a stranger in his chair, and the stranger has his face.',
-  'My name... my name is John Bayes. I make clocks.',
-  'I made clocks.',
-  'I see no bullet wounds. No knife in me. Nothing is broken. Just... asleep, and never waking.',
-  'Wait, I remember my evening tea...',
-  'It is coming back to me. I made it myself. When, exactly, I cannot say; that part is still fog. But it tasted bitter tonight. I remember thinking so. I remember thinking it tasted a bit foul, and drinking it anyway.',
+  '...it’s me!',
+  'That is my body. I am standing over my own body.',
+  'My name... my name was John Bayes.',
+  'I was a watchmaker.',
+  'But I see no bullet wounds. No knife. No broken bones. Just... stillness.',
+  'Wait, I remember having my evening tea...',
+  'The memory is coming back to me. It tasted bitter tonight. I remember drinking it anyway.',
   'Someone must have put something in my tea.',
   'Someone in this house did this to me.',
 ];
 
 /** After the flash: the memory starts to surface. */
 export const BODY_AFTER: string[] = [
-  'A memory is coming up through the fog of my mind.',
-  'Faces. Voices. I am remembering something... let it come.',
+  'Another memory is piercing through the fog of my mind.',
+  'Faces. Voices. I am remembering something...',
 ];
 
-export const MEMORY_INTRO = 'I’m remembering something. Who was here tonight. Two of them.';
+export const MEMORY_INTRO = 'Who was here tonight? Two of them.';
 
 export const MEMORY_OUTRO = [
-  'That is all it will give me. Names, faces, the shape of an evening. Everything after supper is still fog.',
-  'But memories seem to come back when I stand close to the things they belong to. I felt it with the stain on my cuff. If I find the right things, perhaps more will come.',
-  'The hall clock struck ten as I woke. I can feel what is left of this night the way you feel a tide turning: there is an hour in it, no more.',
-  'Every night since she was twelve, Clara has come down at eleven to say goodnight. I remember that much. Even when we are not speaking. Especially then.',
-  'At eleven she will find me, and after that I think I will be gone, and whoever did this will have the whole world to hide in.',
-  'One of them did this.',
-  'Already my gut whispers a name. I have spent my life distrusting any part that fits too easily.',
-  'A gut feeling is how the living get things wrong. I am no longer living. Perhaps I can do better.',
-  'I will gather what I can find, and weigh each piece honestly.',
+  'Everything after supper is still fog.',
+  'But memories seem to come back when I stand close to the things they belong to. I felt it with the stain on my cuff.',
+  'One of them did this. Already my gut whispers a name...',
+  'But a gut feeling is how the living get things wrong. I am no longer living. Perhaps I can do better.',
+  'I will gather what evidence I can find, and weigh each piece honestly.',
 ];
 
 export const AFTER_MEMORY_THOUGHTS: string[] = [
-  'One hour. Where to begin...',
-  'Even dead, I am a man who begins with the paperwork. Everyone who comes and goes signs the household log; I remember insisting on it. It should be on the side table.',
+  'Where to begin...',
+  'Everyone who comes and goes signs the household log. It should be on the side table.',
 ];
 
 // ---------------------------------------------------------------- the prior
@@ -209,19 +185,18 @@ export const PRIOR_SHEET = {
   total: TOTAL_HOURS,
   text:
     'This was my own rule, and I remember the day I made it: everyone signs the household log when they come and go, the vicar included. A house should know who is in it. ' +
-    'It shows who was inside tonight between 6 pm and 10 pm, and for how long. Graves had asked for the evening off to visit his sister; I remember saying yes. That is why I made my own tea. ' +
-    'Pip went home at six, as he always does. That leaves two people who were in this house with my tea: Clara and Mr. Voss. Everything I weigh from here on is a contest between those two. ' +
-    'If I have overlooked a third, none of it will be worth much. If you had asked me this morning whether Clara or Edmund would poison my tea, I would have laughed at either. ' +
-    'But someone did, so the question is no longer whether such a person exists. It is which of the two.',
+    'It shows who was inside tonight between 6 pm and 10 pm, and for how long. Poe had asked for the evening off to visit his sister; I remember saying yes. That is why I made my own tea. ' +
+    'Edgar went home at six, as he always does. That leaves two people who were in this house with my tea: Clara and Mr. Thomas. The question is, which of the two?',
   context:
-    'Before I weigh a single clue, I need somewhere to stand. I do not yet know when anyone could have reached my tea, so I will count the hours each of them spent under this roof: ' +
-    'the longer someone was here, the more chances they had. That starting belief is called the PRIOR. It is a judgment, not a fact. ' +
-    `In total, the log shows ${TOTAL_HOURS} hours’ worth of visitors in my mansion.`,
+    'Before I examine a single clue, I need a starting point to stand on. If I had no information to go on, each suspect would begin with an equal 50/50 chance of guilt. ' +
+    'But I can use the log to count the hours each of them spent under this roof: the longer someone was here, the more chances they had. ' +
+    'That starting belief is called the PRIOR. It is a judgment, not a fact.',
+  /** The Start page: where suspicion begins. */
   lesson:
-    'Before finding any clues, suspicion starts where the opportunity was: whoever spent longest in the house starts highest. That’s my starting point. Every clue from here on out will update and shift it.',
+    'Each person’s share of the time inside becomes their starting share of suspicion: whoever spent longest in the house starts highest. That’s my starting point.',
   reaction: [
-    'Clara was here the longest, so she starts as the likeliest. But that doesn’t mean guiltiest yet.',
-    'Every piece of evidence from now on should shift these shares. By how much is the whole question.',
+    'Clara was here the longest, so she starts as the likeliest. But that doesn’t mean she’s guilty yet.',
+    'Every piece of evidence from now on will shift these odds. By how much is the whole question.',
   ],
   nextThought: '',
 };
@@ -234,8 +209,7 @@ const CLUE_SOURCES: ClueSource[] = [
   {
     id: 'letter',
     title: 'An Angry Letter',
-    leadIn:
-      'Clara’s room is upstairs. I know my niece. When she is angry, Clara writes. She always has: pages of it, scorching, and then she never sends them. If she wrote to me after our quarrel, the draft will be in her writing desk.',
+    leadIn: 'Clara’s room is upstairs. I know my niece. If she wrote something, the draft will be in her writing desk.',
     searchCue: 'The drawer sticks, then slides out with a small wooden cry',
     found: 'Folded small, then smaller, at the back of Clara’s writing-desk drawer. A draft, crossed out and rewritten, the nib pressed so hard on the last line that it nearly tore the paper.',
     evidence: { kind: 'letter', date: 'Tuesday', lines: ['Uncle —', 'If you change your will, I will NEVER forgive you!'], sign: 'C.' },
@@ -247,7 +221,7 @@ const CLUE_SOURCES: ClueSource[] = [
     likelihoods: [0.7, 0.5],
     hints: [
       'If Clara did it, the quarrel over my will would be her reason, and a furious letter is exactly the footprint that kind of anger leaves. But Clara writes furious letters all the time, and has never hurt a soul. So her guilt makes this letter more expected, though not by a huge margin.',
-      'If Voss did it, nothing about that Tuesday changes. Clara and I still quarrelled, she still went upstairs and wrote the most savage thing she could think of, and she still didn’t send it to me. His guilt does not stop this letter existing, so it is only a little less expected here than in her story.',
+      'If Thomas did it, nothing about that Tuesday changes. Clara and I still quarrelled, she still went upstairs and wrote the most savage thing she could think of, and she still didn’t send it to me. His guilt does not stop this letter existing, so it is only a little less expected here than in her story.',
     ],
     trap: 'Vivid but weak evidence',
     lesson:
@@ -265,28 +239,29 @@ const CLUE_SOURCES: ClueSource[] = [
       kind: 'facts',
       rows: [
         ['Document', 'A will in my hand, unsigned'],
-        ['The house', 'To the Clockmakers’ Guild'],
+        ['The house and grounds', 'To the Clockmakers’ Guild'],
         ['To Clara', 'The grandfather clock and my watch'],
+        ['To E. Thomas', 'Six months’ notice to leave the cottage'],
         ['Signing', 'Monday, 10 a.m., Mr. Penrose, solicitor'],
         ['Pencilled in the margin', '“C. — think first. Talk to her.”'],
       ],
     },
     context: [
-      'The will. Exactly as I told her: the house to the Guild, and to Clara a clock and a watch. No wonder she was angry.',
-      'It’s unsigned. Mr. Penrose is due on Monday at ten, and Edmund and the books at eleven. Two appointments, and two people with a reason to stop me keeping them.',
+      'The will. Exactly as I told them: the house and grounds to the Guild, a clock and a watch for Clara, and six months’ notice for Thomas. No wonder Clara was angry. And Thomas, though he didn’t show it.',
+      'It’s unsigned. Mr. Penrose is due on Monday at ten. One signature, and two people with everything to lose.',
       'And the note in the margin: *Talk to her.* I wasn’t sure. I never told her I wasn’t sure.',
-      'But is this news? I knew about the quarrel before I opened the drawer.',
+      'But is this news? I knew all of this before I opened the drawer.',
     ],
     short: 'a draft will like this in my desk',
     likelihoods: [0.9, 0.9],
     hints: [
       'If Clara did it, I still told her about the will on Tuesday, and I still drafted it. A draft in my own desk is very likely.',
-      'If Voss did it, nothing about the will changes. I still told Clara, and I still drafted it. A draft in my own desk is just as likely.',
+      'If Thomas did it, nothing about the will changes. I still told them both, and I still drafted it. A draft in my own desk is just as likely.',
     ],
     trap: 'Old news doesn’t count twice',
     lesson:
-      'A will in my desk feels like a motive for Clara. But I knew about the quarrel before I opened the drawer, and the letter already carried it. ' +
-      'The draft would be in this drawer whoever did this, so it moves nothing. If your two ratings were far apart, you counted the same quarrel twice.',
+      'A will in my desk feels like a motive for Clara, and for Thomas. But I knew about the will before I opened the drawer, and the letter already carried it. ' +
+      'The draft would be in this drawer whoever did this, so it moves nothing. If your two ratings were far apart, you counted the same motive twice.',
     reaction: [
       'Nothing moved. That feels wrong, but it isn’t: I knew about the will before I opened the drawer.',
       '*Talk to her.* I never did.',
@@ -310,59 +285,56 @@ const CLUE_SOURCES: ClueSource[] = [
     },
     context: [
       'One boot print. Wet garden mud, the heel worn down on one side.',
-      'It points into the house, so whoever left it was coming in. And the mud is still soft. It was made recently.',
+      'It points into the house, so whoever left it was coming in. Edgar mops this floor every evening before he goes home at six, so this print is from tonight. And the mud is still soft.',
       'The window above it is unlatched. I latch that window myself every autumn. Someone came in through the garden tonight. Who would be likely to leave a print like this?',
     ],
     short: 'a muddy print hidden behind the fern',
     likelihoods: [0.1, 0.5],
     hints: [
       'If Clara did it, why would she come in through the conservatory? She has been inside since seven, and the front door has always been open to her. And this print is large and fresh. A print like this is very hard to explain in her story.',
-      'If Voss did it, he signed my log at eight and then had to get back in unseen. He parks by the garden gate, as he always does, and the beds lie between that gate and this window. A print like this is quite possible in his story, though he might have found another way in.',
+      'If Thomas did it, he signed my log at eight and then had to get back in unseen. He leaves his bicycle by the garden gate, as he always does, and the beds lie between that gate and this window. A print like this is quite possible in his story, though he might have found another way in.',
     ],
     trap: 'One lopsided clue can swing the board',
     lesson:
-      'Only someone coming through the garden would leave this. Clara has been inside since seven; Voss parks by the garden gate. When a clue fits one story far better than another, a single clue can swing the whole board.',
+      'Only someone coming through the garden would leave this. Clara has been inside since seven; Thomas leaves his bicycle by the garden gate. When a clue fits one story far better than another, a single clue can swing the whole board.',
     reaction: [
       'Garden mud, under the open window. Who walks through a garden at night?',
-      'Clara has been inside since seven, and this print is large. But Voss parks by the garden gate...',
+      'Clara has been inside since seven, and this print is large. But Thomas leaves his bicycle by the garden gate, and he knows every path in that garden.',
     ],
   },
   {
-    id: 'ledger',
-    title: 'The Partnership Ledger',
-    leadIn: 'Voss kept the partnership books in his desk, in the office. In twenty years I never once opened it.',
-    searchCue: 'The bottom drawer is stiff; it gives all at once',
-    found: 'In the bottom drawer of Voss’s desk, under a stack of blank invoices. Not in the cabinet with the other books. A thin ledger, kept apart.',
+    id: 'foxgloves',
+    title: 'The Foxgloves',
+    leadIn: 'My tea tasted bitter. Foxgloves are bitter too, and they can kill. Thomas keeps them in pots on the potting bench.',
+    searchCue: 'A row of foxgloves stands in pots along the bench, their long leaves soft in the moonlight',
+    found: 'On the potting bench, in the row of foxgloves. One pot has been stripped of its lower leaves.',
     evidence: {
-      kind: 'table',
-      columns: ['Date', 'Paid to', 'Amount'],
+      kind: 'facts',
       rows: [
-        ['3 March', 'Harrow & Pike Ltd', '£340'],
-        ['11 April', 'Harrow & Pike Ltd', '£415'],
-        ['2 June', 'Harrow & Pike Ltd', '£520'],
-        ['19 August', 'Harrow & Pike Ltd', '£610'],
-        ['7 October', 'Harrow & Pike Ltd', '£280'],
+        ['Plant', 'Foxglove (digitalis), in pots on the potting bench'],
+        ['Damage', 'One pot stripped of its lower leaves'],
+        ['Cuts', 'Clean, close to the stem'],
+        ['Other pots', 'Untouched'],
       ],
-      foot: 'Total this year: £2,165. Five payments to a firm I have never dealt with, entered in Voss’s tidy hand and kept beneath a stack of blank invoices.',
     },
     context: [
-      'Harrow & Pike Ltd. Five payments this year, from £340 up to £610, then down to £280. I know every supplier this firm has dealt with in twenty years, and I’ve never heard of Harrow & Pike.',
-      'The entries are in Voss’s hand, and the ledger wasn’t with the other books. It was hidden under blank invoices.',
-      'If someone was stealing from the business and feared I was about to go through the books, that would be a reason to silence me. Or it may be an honest supplier I never met, and an untidy partner. That is the question.',
+      'Foxglove. Beautiful, and deadly. I never liked having them in the house.',
+      'One pot has been stripped of its lower leaves, cut clean, close to the stem. The other pots are untouched.',
+      'Foxglove leaves, steeped in tea, would taste bitter. They could also stop a man’s heart. Or it may be nothing: Thomas is always trimming something. That is the question.',
     ],
-    short: 'a ledger like this',
+    short: 'a foxglove stripped like this',
     likelihoods: [0.3, 0.9],
     hints: [
-      'If Clara did it, the business accounts have nothing to do with her. She has never once asked what Bayes & Voss earns. So this ledger would only be a coincidence: an odd supplier, a partner who files badly. Unlikely, though not impossible.',
-      'If Voss did it, here is his reason: payments to a company I have never heard of, entered by him, and a partner who had just said he wanted to see the books. In his story, a hidden ledger like this is exactly what I’d expect to find.',
+      'If Clara did it, the foxgloves have nothing to do with her. She has never so much as watered them. Then a stripped pot would only be Thomas’s ordinary pruning. Unlikely, though not impossible.',
+      'If Thomas did it, here is his poison, grown by his own hand: the foxgloves he has tended for years, which he knows better than anyone alive. In his story, a stripped pot like this is exactly what I’d expect to find.',
     ],
-    trap: 'Motive evidence (genuinely diagnostic)',
+    trap: 'Means evidence (diagnostic, not decisive)',
     lesson: 'This clue fits one person far better than anyone else. That is what strong evidence looks like: not loud, just lopsided.',
     reaction: [
-      'Voss. My partner. Stealing from me?',
+      'Thomas. Twenty years in my garden. Could it be him?',
       'This clue fits one person far better than the other. That’s what strong evidence looks like.',
-      'Careful, John. I rated how likely this ledger would be *if Voss did it*. That isn’t the same as how likely it is that Voss did it. ' +
-        'The first is a rating; the second is the board, which also depends on where I started and on how well the ledger fits Clara’s story. ' +
+      'Careful, John. I rated how likely a stripped foxglove would be *if Thomas did it*. That isn’t the same as how likely it is that Thomas did it. ' +
+        'The first is a rating; the second is the board, which also depends on where I started and on how well the foxgloves fit Clara’s story. ' +
         'Mixing the two up is called the prosecutor’s fallacy, and it has sent real people to prison.',
       'Everything is pointing at Edmund. That is exactly when I should be most careful. I haven’t looked for anything that would count against him.',
     ],
@@ -385,19 +357,19 @@ const CLUE_SOURCES: ClueSource[] = [
     },
     context: [
       'Hartley’s, the chemist on the corner. Six-forty on Friday evening, twenty minutes before she came home.',
-      'Sleeping drops. Graves fetches mine, on the first of the month, and I never asked Clara to fetch them. She has never needed any. Clara sleeps like the dead.',
-      'Tonight I fell asleep and didn’t wake. The tea was bitter. So are sleeping drops.',
-      'I’ve been so busy being clever about Voss. Now I have a clue I didn’t want.',
+      'Sleeping drops. Poe fetches mine, on the first of the month, and I never asked Clara to fetch them. She has never needed any. Clara sleeps like the dead.',
+      'Tonight I fell asleep and didn’t wake. The tea was bitter, and so are sleeping drops. I can’t tell whether it was drops or foxglove, so I have to weigh both.',
+      'I’ve been so busy being clever about Thomas. Now I have a clue I didn’t want.',
     ],
     short: 'a chemist’s slip like this in Clara’s coat',
     likelihoods: [0.7, 0.3],
     hints: [
       'If Clara did it, she needed something to put a man to sleep and keep him there, and sleeping drops would do that. She might have kept the slip, because people forget what is in a pocket. It is quite likely, though she could as easily have thrown it away.',
-      'If Voss did it, Clara was simply out for a walk. She knows I sleep badly, and she has nagged me about it since the spring, so a kindness is possible. But I never asked her to fetch my drops, and she has never taken any herself. Sleeping drops on this very evening would be a coincidence. Unlikely, though not impossible.',
+      'If Thomas did it, Clara was simply out for a walk. She knows I sleep badly, and she has nagged me about it since the spring, so a kindness is possible. But I never asked her to fetch my drops, and she has never taken any herself. Sleeping drops on this very evening would be a coincidence. Unlikely, though not impossible.',
     ],
     trap: 'Evidence against your favourite',
     lesson:
-      'Voss was running away with the board, and this slip pulls Clara back into the race. A clue does not care whom you suspect. ' +
+      'Thomas was running away with the board, and this slip pulls Clara back into the race. A clue does not care whom you suspect. ' +
       'It fits one story better than the other, and your job is to say which, even when you had stopped looking. The clues you want least are the ones you most need to weigh.',
     reaction: [
       'The board has swung back. Clara is a real suspect again, and I’m ashamed of how little I wanted that.',
@@ -415,7 +387,7 @@ const CLUE_SOURCES: ClueSource[] = [
       columns: ['Time', 'Caller', 'Called', 'Length'],
       rows: [
         ['4:12 pm', 'Mr J. Bayes', 'Hollis Brass Co.', '6 min'],
-        ['7:48 pm', '(incoming)', 'for Mr E. Voss', '2 min'],
+        ['7:48 pm', '(incoming)', 'for Mr E. Thomas', '2 min'],
         ['9:28 pm', 'Miss C. Bayes', 'Edinburgh 4471', '29 min'],
       ],
     },
@@ -424,13 +396,13 @@ const CLUE_SOURCES: ClueSource[] = [
       'I’m remembering something. Half past nine. I carried my tea to the desk myself and set it down beside the blotter. A little before ten I drank it. Whoever put something in it did so in that half hour, while the cup stood there.',
     context: [
       'Now the log. The first line is mine: brass, for the Hollis order. Nothing there. But Clara rings Edinburgh at 9:28 and stays on the line for twenty-nine minutes. Anyone on the phone for all of that time could hardly have been in my study.',
-      'And here, at 7:48, a call for Voss. Two minutes. Twelve minutes later he signed out. I can’t tell what that means. It fits either story equally well, so it stays off the scale. A clue I can’t weigh is one I mustn’t pretend to weigh.',
+      'And here, at 7:48, a call for Thomas. Two minutes. Twelve minutes later he signed out. I can’t tell what that means. It fits either story equally well, so it stays off the scale. A clue I can’t weigh is one I mustn’t pretend to weigh.',
     ],
     short: 'this telephone log',
     likelihoods: [0.1, 0.5],
     hints: [
       'If Clara put something in my tea, she had to stand at my desk some time between half past nine and ten. The log has her on the line to Edinburgh for that whole half hour. Her guilt and this log hardly fit together. Either the exchange got twenty-nine minutes wrong, or she left the receiver on the table and slipped away. Both could happen. Neither is likely.',
-      'If Voss did it, Clara’s call is just Clara phoning someone from the hallway. A call this long, at this hour, isn’t guaranteed, but his guilt changes nothing about whether she made it. It neither helps nor hurts his story much.',
+      'If Thomas did it, Clara’s call is just Clara phoning someone from the hallway. A call this long, at this hour, isn’t guaranteed, but his guilt changes nothing about whether she made it. It neither helps nor hurts his story much.',
     ],
     trap: 'Exculpatory evidence',
     lesson:
@@ -442,36 +414,36 @@ const CLUE_SOURCES: ClueSource[] = [
     ],
   },
   {
-    id: 'cufflink',
-    title: 'A Cufflink Engraved "V"',
+    id: 'knife',
+    title: 'A Pruning Knife',
     leadIn: 'Back to the study. My desk chair has been pushed back from the desk. Was something underneath it?',
     searchCue: 'Something small catches the moonlight in the fringe of the rug',
     found: 'Under my desk chair, caught in the fringe of the rug.',
     evidence: {
       kind: 'facts',
       rows: [
-        ['Object', 'One silver cufflink'],
-        ['Engraving', 'A looping “V”'],
-        ['Its partner', 'Missing'],
+        ['Object', 'A folding pruning knife, bone handle'],
+        ['Marking', '“E.T.” scratched into the handle'],
+        ['Blade', 'Closed'],
       ],
     },
     context: [
-      'A cufflink. Silver, with a looping V. Voss wears a pair just like it. He wore them today, at our meeting and at supper; I remember them flashing when he signed.',
-      'The other one is missing. But he also sat in this very chair this afternoon, hours before anything happened.',
+      'A pruning knife. Bone handle, with E.T. scratched into it. Thomas has carried one like it in his pocket for twenty years. He had it today, when he came to see me about the glass; I remember him cutting twine with it.',
+      'But he also stood at this very desk this afternoon, hours before anything happened.',
     ],
-    short: 'a “V” cufflink under my chair',
+    short: 'a pruning knife under my chair',
     likelihoods: [0.5, 0.7],
     hints: [
-      'If Clara did it, the cufflink is still easy to explain. Voss sat in this very chair at our meeting this afternoon, and cufflinks fall off. It is as likely as not.',
-      'If Voss did it, he stood in this room tonight as well as this afternoon, so he had two chances to lose it. His story explains it a little better, not overwhelmingly.',
+      'If Clara did it, the knife is still easy to explain. Thomas stood at this desk this afternoon while we went over the repairs to the glass, and things fall out of pockets. It is as likely as not.',
+      'If Thomas did it, he stood in this room tonight as well as this afternoon, so he had two chances to lose it. His story explains it a little better, not overwhelmingly.',
     ],
     trap: 'A clue that fits both stories',
     lesson:
-      'Voss’s cufflink sounds like proof, but he sat at this desk this afternoon, so it would turn up in nearly any story. ' +
+      'Thomas’s knife sounds like proof, but he stood at this desk this afternoon, so it would turn up in nearly any story. ' +
       'On its own it is a modest clue: when a clue would be found in both stories, it hardly moves the board, however much it feels like a smoking gun. ' +
       'A clue can be likely in a story and still prove little, if it would turn up almost anywhere. What decides a case is everything together.',
     reaction: [
-      'Voss’s cufflink. It looks like an accusation. But he sat at this desk this afternoon...',
+      'Thomas’s knife. It looks like an accusation. But he stood at this desk this afternoon...',
       'On its own it proves little. Together with everything else, the picture is clear.',
       'The great clock in the hall is about to strike eleven.',
     ],
@@ -508,16 +480,17 @@ export interface EndLine {
 
 export const ENDING_CORRECT: EndLine[] = [
   { who: 'direction', beat: 'strike', text: 'The great clock begins to strike eleven. The music brightens.' },
-  { who: 'ghost', text: 'Voss. My partner of twenty years.' },
+  { who: 'ghost', text: 'Thomas. My gardener of twenty years.' },
   { who: 'ghost', text: 'Let me tell it the way it must have gone. I wasn’t there for it. I can only say what the evidence leaves standing.' },
   {
     who: 'direction', beat: 'reconstruct',
     text: 'RECONSTRUCTION. The amber returns, but this isn’t memory: the ghost is piecing it together from what he found. Everything in this scene is imagined, and the ghost says so.',
   },
+  { who: 'imagining', text: 'The garden and the cottage were all Edmund had. On Monday morning I would have signed them away.' },
   { who: 'imagining', text: 'Before he left at eight, Edmund lifted the latch of the conservatory window, the one I latch myself every autumn. I never noticed.' },
-  { who: 'imagining', text: 'He signed my log, shook my hand, and went out smiling. He didn’t go home. He sat in his car by the garden gate, with the wet beds between him and my study window, and waited for me to make my tea.' },
+  { who: 'imagining', text: 'He signed my log, shook my hand, and went out smiling. He didn’t go home. He stood in the dark garden he knows better than I do, with the wet beds between him and my study window, and waited for me to make my tea.' },
   { who: 'imagining', text: 'At half past nine I carried my cup to the desk and set it down. Then I left the room for a few minutes, I think. That part is still fog.' },
-  { who: 'imagining', text: 'Boots in the wet earth. The window rising. A hand with a silver cuff, and a little brown bottle. Then out the way he came, and one cufflink left in the fringe of the rug. Where he got the bottle, I’ll never know.' },
+  { who: 'imagining', text: 'Boots in the wet earth. The window rising. A hand, and a little brown bottle of foxglove, steeped strong, I’d guess. Then out the way he came, and a pruning knife left in the fringe of the rug. What was really in the bottle, I’ll never know.' },
   { who: 'imagining', text: 'And Clara, in the hall, on the telephone to Edinburgh for twenty-nine minutes, with her back to all of it.' },
   { who: 'imagining', text: 'Who rang him at 7:48, I’ll never know either. It was never on the scale, and the verdict doesn’t need it. A case doesn’t have to explain every scrap.' },
   {
@@ -533,9 +506,9 @@ export const ENDING_CORRECT: EndLine[] = [
   { who: 'ghost', text: 'Eleven o’clock. She always says goodnight.' },
   { who: 'ghost', text: 'The parcel. Brown paper and string, and a card in her handwriting: *For sleeping. I’m sorry about the house. C.* A small bottle from Hartley’s, bought at six-forty. She’s been in that kitchen for an hour, working up the courage to give it to me.' },
   { who: 'ghost', text: 'The clue that nearly condemned her was an olive branch. I rated it unlikely, and it was unlikely, and it still happened. Unlikely doesn’t mean never.' },
-  { who: 'clara', how: 'whispering', text: 'You were right. It’s only bricks. I don’t care about the bricks. I’m sorry, Uncle. I’m so sorry.' },
-  { who: 'ghost', text: 'It was never about the bricks, Clara. You’ll find the will in my drawer, with my note in the margin: *Talk to her.* I’d tear it in half if I had hands.' },
-  { who: 'ghost', text: 'Tomorrow they’ll find the ledger under the blank invoices, the print behind the fern, and a man with one cufflink. Tonight there’s only this: a girl on the floor of my study, talking to me as if I could hear.' },
+  { who: 'clara', how: 'whispering', text: 'I don’t care about the house. I never did. I’m sorry, Uncle. I’m so sorry.' },
+  { who: 'ghost', text: 'It was never about the house, Clara. You’ll find the will in my drawer, with my note in the margin: *Talk to her.* I’d tear it in half if I had hands.' },
+  { who: 'ghost', text: 'Tomorrow they’ll find the stripped foxglove, the print behind the fern, and a gardener without his knife. Tonight there’s only this: a girl on the floor of my study, talking to me as if I could hear.' },
   { who: 'ghost', text: 'Perhaps I can.' },
   { who: 'direction', beat: 'silence', text: 'The clocks fall silent one by one. The ghost rises and fades.' },
   { who: 'ghost', text: 'For the first time tonight, I can rest.' },

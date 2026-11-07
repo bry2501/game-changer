@@ -159,7 +159,7 @@ export class MemoryScene extends Phaser.Scene {
         add(txt(this, col, y, s.role, 22, '#d9b98a', { fontStyle: 'italic' }), 18);
         add(txt(this, col, y, `\u201C${s.memory}\u201D`, 23, '#f3e2c4', { fontStyle: 'italic', wordWrap: { width }, lineSpacing: 5 }), 16);
         add(txt(this, col, y, s.backstory, 20, '#e2d2b4', { wordWrap: { width }, lineSpacing: 5 }), 16);
-        if (!s.voices) this.tonight(col, y, width, s.tonight, add);
+        if (!s.voices && s.tonight) this.tonight(col, y, width, s.tonight, add);
       } else {
         // the memory sharpens into voices, then what they did tonight
         y = 120;
@@ -170,12 +170,12 @@ export class MemoryScene extends Phaser.Scene {
         }
         if (s.voices!.after) add(txt(this, col, y, s.voices!.after, 21, '#e2d2b4', { fontStyle: 'italic', wordWrap: { width } }), 26);
         else y += 6;
-        this.tonight(col, y, width, s.tonight, add);
+        if (s.tonight) this.tonight(col, y, width, s.tonight, add);
       }
     } else {
-      // the memory ends: what it gave, and the resolve. "One of them did this." stands out.
+      // the memory ends: what it gave, and the resolve. "One of them did this" stands out.
       const lines = MEMORY_OUTRO.map((line) => {
-        const key = line === 'One of them did this.';
+        const key = line.startsWith('One of them did this');
         return txt(this, W / 2, 0, line, key ? 38 : 23, key ? '#f2f2f2' : '#f3e2c4', {
           fontStyle: key ? 'bold' : 'italic',
           align: 'center',
