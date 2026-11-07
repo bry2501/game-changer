@@ -271,7 +271,8 @@ export class WorldScene extends Phaser.Scene {
       else want = Math.sign(dx) * Math.min(1, Math.abs(dx) / 80);
     }
     if (this.cutscene) want = 0;
-    this.vx = Phaser.Math.Linear(this.vx, want * SPEED, Math.min(1, dt * 8));
+    // ease into a drift, but come to rest quickly once the key, finger or button is released
+    this.vx = Phaser.Math.Linear(this.vx, want * SPEED, Math.min(1, dt * (want === 0 ? 24 : 8)));
     if (Math.abs(this.vx) > 1) {
       const b = floorBounds(this.floor);
       this.ghost.x = Phaser.Math.Clamp(this.ghost.x + this.vx * dt, b.min, b.max);

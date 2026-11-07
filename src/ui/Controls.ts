@@ -3,8 +3,9 @@ import Phaser from 'phaser';
 /**
  * Desktop controls (touch still works the same way).
  * - Keyboard: ← → / A D to drift, Space / E / Enter to examine, W / S for the stairs, B or Tab for the suspects board.
- * - Mouse: click and hold anywhere and the ghost drifts toward the pointer; a click sends the
- *   ghost to that spot. Clicking something searchable sends the ghost there and examines it on arrival.
+ * - Mouse or touch: press and hold anywhere and the ghost drifts toward the pointer for as long
+ *   as it is held, stopping on release. Clicking something searchable sends the ghost there and
+ *   examines it on arrival.
  */
 export class Controls {
   /** World x the ghost is drifting toward, if any. */
@@ -29,9 +30,19 @@ export class Controls {
       this.pendingInspect = this.isOnClue(p.worldX, p.worldY);
       this.targetX = p.worldX;
     });
-    scene.input.on('pointerup', (p: Phaser.Input.Pointer) => {
-      if (p === this.holding) this.holding = undefined;
-    });
+    // press and hold: the ghost drifts only while the finger or button is down, and stops on
+    // release. (A tap on something searchable still sends the ghost over to examine it.)
+    const release = (p: Phaser.Input.Pointer) => {
+      if (p !== this.holding) return;
+      this.holding = undefined;
+      if (!this.pendingInspect) this.targetX = null;
+    };
+    scene.input.on('pointerup', release);
+    scene.input.on('pointerupoutside', release);
+    // leaving the window mid-press counts as letting go
+    const onBlur = () => this.holding && release(this.holding);
+    scene.game.events.on(Phaser.Core.Events.BLUR, onBlur);
+    scene.events.once(Phaser.Scenes.Events.SHUTDOWN, () => scene.game.events.off(Phaser.Core.Events.BLUR, onBlur));
 
     const kb = scene.input.keyboard;
     if (kb) {
