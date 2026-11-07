@@ -208,21 +208,21 @@ type ClueSource = Omit<Clue, 'nextThought'> & { leadIn: string };
 const CLUE_SOURCES: ClueSource[] = [
   {
     id: 'letter',
-    title: 'An Angry Letter',
+    title: 'An Unfinished Letter',
     leadIn: 'Clara’s room is upstairs. I know my niece. If she wrote something, the draft will be in her writing desk.',
     searchCue: 'The drawer sticks, then slides out with a small wooden cry',
-    found: 'I found this letter at the back of Clara’s writing-desk drawer, folded small, then smaller. It is a draft, crossed out and rewritten, the nib pressed so hard on the last line that it nearly tore the paper.',
+    found: 'A letter at the back of Clara’s writing-desk drawer, folded small, then smaller. It is a draft, crossed out and rewritten, the nib pressed so hard on the last line that it nearly tore the paper.',
     evidence: { kind: 'letter', date: 'Tuesday', lines: ['Uncle —', 'If you change your will, I will NEVER forgive you!'], sign: 'C.' },
     context: [
-      'Tuesday. Three days ago: the day we quarrelled about my will. A letter in a drawer is a letter nobody read.',
-      'It shows strong feelings, maybe even a motive. But someone really was poisoned tonight, so the question is not whether anger leads to murder. It is whether this letter fits one story better than the other.',
+      'Three days ago: the day we quarrelled about my will. But the letter was never finished and sent to me.',
+      'It shows strong feelings, maybe even a motive. But the question is not whether anger leads to murder. It is whether this letter fits one story better than the other.',
     ],
     short: 'an angry letter like this',
     noun: 'the letter',
     likelihoods: [0.7, 0.5],
     hints: [
-      'If Clara is the murderer, the quarrel over my will would be her reason, and a furious letter is exactly the footprint that kind of anger leaves. But Clara writes furious letters all the time, and has never hurt a soul. So her guilt makes this letter more expected, though not by a huge margin.',
-      'If Thomas is the murderer, nothing about that Tuesday changes. Clara and I still quarrelled, she still went upstairs and wrote the most savage thing she could think of, and she still didn’t send it to me. His guilt does not stop this letter existing, so it is only a little less expected here than in her story.',
+      'If Clara is the murderer, the quarrel over my will would be her motive. But Clara writes furious letters all the time, and has never hurt a soul. So her guilt makes this letter more expected, though not by a huge margin.',
+      'If Thomas is the murderer, nothing about this letter changes. Clara and I still quarrelled, she still went upstairs and wrote the most savage thing she could think of, and she still didn’t send it to me. His guilt does not stop this letter existing, so it is only a little less expected here than in her story.',
     ],
     trap: 'Vivid but weak evidence',
     lesson:
@@ -233,9 +233,9 @@ const CLUE_SOURCES: ClueSource[] = [
   {
     id: 'will',
     title: 'The Draft Will',
-    leadIn: 'Clara’s letter was about my will. Let me see what I actually wrote. The draft should be in my desk drawer.',
+    leadIn: 'Clara’s letter was about my will. Let me see what I actually wrote. The draft should be in my desk downstairs.',
     searchCue: 'Beneath the pencils and the coiled mainsprings lies a page folded in three',
-    found: 'I found my draft will under the pencils in my own desk drawer, folded in three. The handwriting is mine.',
+    found: 'I found my will under the pencils in my drawer, folded in three. The handwriting is mine.',
     evidence: {
       kind: 'facts',
       rows: [
