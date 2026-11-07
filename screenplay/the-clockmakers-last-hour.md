@@ -228,13 +228,15 @@ Uncle —
 > **GHOST** *(thought)*: Three days ago: the day we quarrelled about my will. But the letter was never finished and sent to me.
 > **GHOST** *(thought)*: It shows strong feelings, maybe even a motive. But the question is not whether anger leads to murder. It is whether this letter fits one story better than the other.
 
-### Page: Lesson 1: Think in stories
+### Page: Lesson & ratings
+
+*(One page that builds up: the lesson first; Next brings in the first suspect’s question beneath it; rating them brings in the next. It scrolls when it grows taller than the screen.)*
+
+**Lesson 1: Think in stories**
 
 Each suspect is a story, and a clue fits some stories better than others. The key is not to ask “who does this evidence point to?” Instead ask: in the story where this person is the murderer, how likely is it that I would find this evidence? To help conceptualize the likelihood, imagine ten different nights in which that person is the murderer: on how many of them would this clue turn up? 
 
-*(Below: the current suspicion bar, names only.)*
-
-### Page: Suppose Clara is the murderer.
+#### Suppose Clara is the murderer.
 
 **How likely would I be to find an angry letter like this?**
 
@@ -244,7 +246,7 @@ Each suspect is a story, and a clue fits some stories better than others. The ke
 
 After choosing: “You rated it N: …, a P% chance.”
 
-### Page: Suppose Mr. Thomas is the murderer.
+#### Suppose Mr. Thomas is the murderer.
 
 **How likely would I be to find an angry letter like this?**
 
@@ -315,13 +317,15 @@ An angry letter feels like a confession. But people write angry letters all the 
 > **GHOST** *(thought)*: And the note in the margin: *Talk to her.* I wasn’t sure. I never told her I wasn’t sure.
 > **GHOST** *(thought)*: But is this news? I knew all of this before I opened the drawer.
 
-### Page: Lesson 2: Don’t count the same thing twice
+### Page: Lesson & ratings
+
+*(One page that builds up: the lesson first; Next brings in the first suspect’s question beneath it; rating them brings in the next. It scrolls when it grows taller than the screen.)*
+
+**Lesson 2: Don’t count the same thing twice**
 
 A clue can feel new and still be old news. You already knew about the will and who it would hurt, and the letter already carried it. If a clue would turn up just as readily in either story, it tells you nothing new. Counting the same thing twice makes a few clues look like a mountain.
 
-*(Below: the current suspicion bar, names only.)*
-
-### Page: Suppose Clara is the murderer.
+#### Suppose Clara is the murderer.
 
 **How likely would I be to find a draft will like this in my desk?**
 
@@ -331,7 +335,7 @@ A clue can feel new and still be old news. You already knew about the will and w
 
 After choosing: “You rated it N: …, a P% chance.”
 
-### Page: Suppose Mr. Thomas is the murderer.
+#### Suppose Mr. Thomas is the murderer.
 
 **How likely would I be to find a draft will like this in my desk?**
 
@@ -403,13 +407,15 @@ A will in my desk feels like a motive for Clara, and for Thomas. But I knew abou
 > **GHOST** *(thought)*: It points into the house, so whoever left it was coming in. Edgar mops this floor every evening before he goes home at six, so this print is from tonight. And the mud is still soft.
 > **GHOST** *(thought)*: The window above it is unlatched. I latch that window myself every autumn. Someone came in through the garden tonight. Who would be likely to leave a print like this?
 
-### Page: Lesson 3: Compare the fits
+### Page: Lesson & ratings
+
+*(One page that builds up: the lesson first; Next brings in the first suspect’s question beneath it; rating them brings in the next. It scrolls when it grows taller than the screen.)*
+
+**Lesson 3: Compare the fits**
 
 What moves suspicion is not how well a clue fits one story, but how much BETTER it fits that story than the others. A clue that fits everyone’s story equally well changes nothing, however dramatic it looks.
 
-*(Below: the current suspicion bar, names only.)*
-
-### Page: Suppose Clara is the murderer.
+#### Suppose Clara is the murderer.
 
 **How likely would I be to find a muddy print hidden behind the fern?**
 
@@ -419,7 +425,7 @@ What moves suspicion is not how well a clue fits one story, but how much BETTER 
 
 After choosing: “You rated it N: …, a P% chance.”
 
-### Page: Suppose Mr. Thomas is the murderer.
+#### Suppose Mr. Thomas is the murderer.
 
 **How likely would I be to find a muddy print hidden behind the fern?**
 
@@ -488,13 +494,15 @@ Only someone coming through the garden would leave this. Clara has been inside s
 > **GHOST** *(thought)*: One pot has been stripped of its lower leaves, cut clean, close to the stem. The other pots are untouched.
 > **GHOST** *(thought)*: Foxglove leaves, steeped in tea, would taste bitter. They could also stop a man’s heart. Or it may be nothing: Thomas is always trimming something. That is the question.
 
-### Page: Lesson 4: Strong clues are lopsided
+### Page: Lesson & ratings
+
+*(One page that builds up: the lesson first; Next brings in the first suspect’s question beneath it; rating them brings in the next. It scrolls when it grows taller than the screen.)*
+
+**Lesson 4: Strong clues are lopsided**
 
 A strong clue fits one story far better than the rest. Look for the lopsided ones: they move suspicion the most, even when they are quiet and undramatic. A clue that seems to scream a name can still be weak if it would turn up in other stories too.
 
-*(Below: the current suspicion bar, names only.)*
-
-### Page: Suppose Clara is the murderer.
+#### Suppose Clara is the murderer.
 
 **How likely would I be to find a foxglove stripped like this?**
 
@@ -504,7 +512,7 @@ A strong clue fits one story far better than the rest. Look for the lopsided one
 
 After choosing: “You rated it N: …, a P% chance.”
 
-### Page: Suppose Mr. Thomas is the murderer.
+#### Suppose Mr. Thomas is the murderer.
 
 **How likely would I be to find a foxglove stripped like this?**
 
@@ -578,13 +586,15 @@ This clue fits one person far better than anyone else. That is what strong evide
 > **GHOST** *(thought)*: Tonight I fell asleep and didn’t wake. The tea was bitter, and so are sleeping drops. I can’t tell whether it was drops or foxglove, so I have to weigh both.
 > **GHOST** *(thought)*: I’ve been so busy being clever about Thomas. Now I have a clue I didn’t want.
 
-### Page: Lesson 5: Weigh what cuts against your favourite
+### Page: Lesson & ratings
+
+*(One page that builds up: the lesson first; Next brings in the first suspect’s question beneath it; rating them brings in the next. It scrolls when it grows taller than the screen.)*
+
+**Lesson 5: Weigh what cuts against your favourite**
 
 Once you lean one way, the clues that point the other way are the ones you will want to wave off. They count exactly as much as the ones you like. Give each the same honest rating, and let the board move, even when it moves toward the person you had stopped suspecting.
 
-*(Below: the current suspicion bar, names only.)*
-
-### Page: Suppose Clara is the murderer.
+#### Suppose Clara is the murderer.
 
 **How likely would I be to find a chemist’s slip like this in Clara’s coat?**
 
@@ -594,7 +604,7 @@ Once you lean one way, the clues that point the other way are the ones you will 
 
 After choosing: “You rated it N: …, a P% chance.”
 
-### Page: Suppose Mr. Thomas is the murderer.
+#### Suppose Mr. Thomas is the murderer.
 
 **How likely would I be to find a chemist’s slip like this in Clara’s coat?**
 
@@ -663,13 +673,15 @@ Thomas was running away with the board, and this slip pulls Clara back into the 
 > **GHOST** *(thought)*: Now the log. The first line is mine: brass, for the Hollis order. Nothing there. But Clara rings Edinburgh at 9:28 and stays on the line for twenty-nine minutes. Anyone on the phone for all of that time could hardly have been in my study.
 > **GHOST** *(thought)*: And here, at 7:48, a call for Thomas. Two minutes. Twelve minutes later he signed out. I can’t tell what that means. It fits either story equally well, so it stays off the scale. A clue I can’t weigh is one I mustn’t pretend to weigh.
 
-### Page: Lesson 6: Clues can clear people
+### Page: Lesson & ratings
+
+*(One page that builds up: the lesson first; Next brings in the first suspect’s question beneath it; rating them brings in the next. It scrolls when it grows taller than the screen.)*
+
+**Lesson 6: Clues can clear people**
 
 If a clue fits someone’s story badly, their share shrinks, and what they lose is shared out among the other suspects still standing. (Here that is one person, because the log left only two names.) An alibi is evidence too: it can push suspicion away from one person and onto the others.
 
-*(Below: the current suspicion bar, names only.)*
-
-### Page: Suppose Clara is the murderer.
+#### Suppose Clara is the murderer.
 
 **How likely would I be to find this telephone log?**
 
@@ -679,7 +691,7 @@ If a clue fits someone’s story badly, their share shrinks, and what they lose 
 
 After choosing: “You rated it N: …, a P% chance.”
 
-### Page: Suppose Mr. Thomas is the murderer.
+#### Suppose Mr. Thomas is the murderer.
 
 **How likely would I be to find this telephone log?**
 
@@ -747,13 +759,15 @@ Evidence can clear people too. If Clara was on the telephone the whole time the 
 > **GHOST** *(thought)*: A pruning knife. Bone handle, with E.T. scratched into it. Thomas has carried one like it in his pocket for twenty years. He had it today, when he came to see me about the glass; I remember him cutting twine with it.
 > **GHOST** *(thought)*: But he also stood at this very desk this afternoon, hours before anything happened.
 
-### Page: Lesson 7: Clues add up, and cancel out
+### Page: Lesson & ratings
+
+*(One page that builds up: the lesson first; Next brings in the first suspect’s question beneath it; rating them brings in the next. It scrolls when it grows taller than the screen.)*
+
+**Lesson 7: Clues add up, and cancel out**
 
 Each clue starts from where the last one left you: today’s board is tomorrow’s starting point. Clues build on each other, and a later clue can undo an earlier one. And because each clue simply multiplies what came before, the order does not matter: find the same seven clues in any order and you end up in the same place.
 
-*(Below: the current suspicion bar, names only.)*
-
-### Page: Suppose Clara is the murderer.
+#### Suppose Clara is the murderer.
 
 **How likely would I be to find a pruning knife under my chair?**
 
@@ -763,7 +777,7 @@ Each clue starts from where the last one left you: today’s board is tomorrow�
 
 After choosing: “You rated it N: …, a P% chance.”
 
-### Page: Suppose Mr. Thomas is the murderer.
+#### Suppose Mr. Thomas is the murderer.
 
 **How likely would I be to find a pruning knife under my chair?**
 

@@ -314,14 +314,16 @@ CLUES.forEach((c, k) => {
     dir(c.memoryCue ?? 'MEMORY.');
     thoughts([c.memory, ...c.context]);
   } else thoughts(c.context);
-  w(`### Page: Lesson ${k + 1}: ${concept.title}`);
+  w('### Page: Lesson & ratings');
+  w();
+  w('*(One page that builds up: the lesson first; Next brings in the first suspect’s question beneath it; rating them brings in the next. It scrolls when it grows taller than the screen.)*');
+  w();
+  w(`**Lesson ${k + 1}: ${concept.title}**`);
   w();
   w(concept.body);
   w();
-  w('*(Below: the current suspicion bar, names only.)*');
-  w();
   SUSPECTS.forEach((s, i) => {
-    w(`### Page: Suppose ${s.name} is the murderer.`);
+    w(`#### Suppose ${s.name} is the murderer.`);
     w();
     w(`**How likely would I be to find ${c.short}?**`);
     w();

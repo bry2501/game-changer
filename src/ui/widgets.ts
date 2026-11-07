@@ -115,6 +115,12 @@ export class Button extends Phaser.GameObjects.Container {
     this.setAlpha(on ? 1 : 0.4);
     return this;
   }
+
+  /** Accept clicks or not, without changing the look (for buttons scrolled out of view). */
+  setClickable(on: boolean) {
+    if (this.bg.input) this.bg.input.enabled = on;
+    return this;
+  }
 }
 
 /**

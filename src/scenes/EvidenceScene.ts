@@ -77,6 +77,16 @@ export class EvidenceScene extends Phaser.Scene {
   /** Where this clue's starting shares came from, in full and in a few words. */
   private fromLong = '';
   private fromShort = '';
+  /** How many suspects' rating blocks are showing under the lesson (0 = the lesson alone). */
+  private weighStage = 0;
+  /** True for one redraw after a rating block is revealed, so it slides in and is scrolled to. */
+  private weighArrived = false;
+  /** After rating the last block, show the page's end (its "You rated it…" line). */
+  private weighToEnd = false;
+  /** On the lesson & ratings page: rate the suspect waiting for a rating (keys 1–5). */
+  private ratingKey?: (n: number) => void;
+  /** While set, put() adds to this container instead of the page (for scrolling content). */
+  private putInto?: Phaser.GameObjects.Container;
   /** Which stage of the math page is showing: symbols, words, numbers (0–2). */
   private mathStage = 0;
   /** The math stage just left, so the next one can transform out of it. */
@@ -104,6 +114,8 @@ export class EvidenceScene extends Phaser.Scene {
     this.chimed = false;
     this.phase = 0;
     this.mathStage = 0;
+    this.weighStage = 0;
+    this.weighArrived = false;
   }
 
   create() {
@@ -117,6 +129,10 @@ export class EvidenceScene extends Phaser.Scene {
     // scrolling a tall stack of thoughts: wheel, arrow keys, or dragging
     this.input.on('wheel', (_p: unknown, _o: unknown, _dx: number, dy: number) => this.noteScroller?.(dy * 0.6));
     this.input.keyboard?.on('keydown-UP', () => this.noteScroller?.(-60));
+    this.input.keyboard?.on('keydown', (e: KeyboardEvent) => {
+      const d = Number(e.key);
+      if (d >= 1 && d <= 5 && !e.repeat) this.ratingKey?.(d);
+    });
     this.input.keyboard?.on('keydown-DOWN', () => this.noteScroller?.(60));
     let dragY: number | undefined;
     this.input.on('pointerdown', (p: Phaser.Input.Pointer) => (dragY = p.y));
@@ -145,6 +161,7 @@ export class EvidenceScene extends Phaser.Scene {
       this.noteIdx = delta < 0 ? Number.MAX_SAFE_INTEGER : 0;
       this.noteScroll = undefined;
       this.mathStage = delta < 0 ? 2 : 0;
+      this.weighStage = delta < 0 ? SUSPECTS.length : 0;
       this.chimed = false;
     }
     this.index = next;
@@ -178,6 +195,7 @@ export class EvidenceScene extends Phaser.Scene {
     this.page.list.forEach((o) => o instanceof Phaser.GameObjects.Container && this.tweens.killTweensOf(o.list));
     this.page.removeAll(true);
     this.noteScroller = undefined;
+    this.ratingKey = undefined;
     this.page.setAlpha(soft ? 1 : 0);
     this.setNext('Next ›', true);
     this.backOverride = undefined;
@@ -222,7 +240,7 @@ export class EvidenceScene extends Phaser.Scene {
   // ================================================================== page helpers
 
   private put<T extends Phaser.GameObjects.GameObject>(o: T): T {
-    this.page.add(o);
+    (this.putInto ?? this.page).add(o);
     return o;
   }
 
@@ -700,54 +718,155 @@ export class EvidenceScene extends Phaser.Scene {
           ]);
         },
       },
-      { crumb: 'Lesson', build: () => this.conceptPage(head) },
+      { crumb: 'Lesson & ratings', build: () => this.weighPage(clue, head) },
     ];
-    SUSPECTS.forEach((s, i) => steps.push({ crumb: s.name, build: () => this.ratePage(i, clue, head) }));
     steps.push({ crumb: 'Update', build: () => this.updatePage(head) });
     steps.push({ crumb: 'The math', build: () => this.mathPage(head, clue) });
     steps.push({ crumb: 'Recap', build: () => this.recapPage(head, clue) });
     return steps;
   }
 
-  /** The concept for this point in the case: one new idea per clue, building as you go. */
-  private conceptPage(head: string) {
+  /**
+   * The lesson and the ratings on one page that builds up as the player goes: the lesson
+   * first; Next (or →) brings in the first suspect's question underneath; rating them brings
+   * in the next suspect's. Everything stays on the page and scrolls when it grows taller
+   * than the space above the buttons.
+   */
+  private weighPage(clue: (typeof CLUES)[number], head: string) {
+    this.title(head);
+    const n = SUSPECTS.length;
+    const stage = Math.min(this.weighStage, n);
+    const arrived = this.weighArrived;
+    this.weighArrived = false;
+    const reveal = () => {
+      this.weighStage = stage + 1;
+      this.weighArrived = true;
+      this.noteScroll = undefined;
+      Sound.blip();
+      this.show(true);
+    };
+
+    const viewTop = CONTENT_Y - 8;
+    const viewBottom = NAV_Y - 50;
+    const box = this.put(this.add.container(0, 0));
+    this.putInto = box;
+    const X = 260;
+    const WIDTH = 760;
+
+    // the lesson
     const k = Math.min(GameState.data.found, CONCEPTS.length - 1);
     const c = CONCEPTS[k];
-    this.title(head);
-    this.put(txt(this, W / 2, CONTENT_Y + 2, `Lesson ${k + 1}: ${c.title}`, 28, GOLD, { fontStyle: 'bold' }).setOrigin(0.5, 0));
-    this.para(W / 2, CONTENT_Y + 52, c.body, 23, INK, 1000, 0.5);
-  }
+    const lt = this.put(txt(this, W / 2, CONTENT_Y + 2, `Lesson ${k + 1}: ${c.title}`, 28, GOLD, { fontStyle: 'bold' }).setOrigin(0.5, 0));
+    const body = this.para(W / 2, lt.y + lt.height + 14, c.body, 23, INK, 1000, 0.5);
+    let y = body.y + body.height;
 
-  /** The player rates, from 1 to 5, how well this clue would fit if this person is the murderer. */
-  private ratePage(i: number, clue: (typeof CLUES)[number], head: string) {
-    const s = SUSPECTS[i];
-    this.title(head);
-    this.suspectPortrait(i);
-    this.para(470, CONTENT_Y + 6, `Suppose ${s.name} is the murderer.`, 31, hex(s.color), 760);
-    this.para(470, CONTENT_Y + 54, `How likely would I be to find ${clue.short}?`, 24, INK, 760);
-
-    // the ghost thinks out loud about this story
-    const hintBottom = this.ghostHint(470, CONTENT_Y + 104, clue.hints[i]);
-    const chosen = this.picks[i];
-    const by = hintBottom + 64;
-    RATINGS.forEach((r, k) => {
-      const b = this.put(
-        new Button(this, 470 + 74 + k * 154, by, `${r.n}\n${r.word}\n${share(r.v)}`, () => {
-          if (this.committed) return;
-          this.picks[i] = r.v;
-          Sound.blip();
-          this.show();
-        }, { width: 146, height: 96, size: 17, stroke: chosen === r.v ? 0xd8d8d8 : 0x5a5a5a }),
-      );
-      b.label.setAlign('center').setLineSpacing(4);
-      if (chosen !== undefined && chosen !== r.v) b.setAlpha(0.5);
-    });
-    if (chosen === undefined) {
-      this.setNext('Next ›', false);
-      return;
+    // one block per suspect revealed so far
+    const buttons: Button[] = [];
+    let newestFrom = box.list.length;
+    for (let i = 0; i < stage; i++) {
+      const s = SUSPECTS[i];
+      if (i === stage - 1) newestFrom = box.list.length;
+      y += 34;
+      this.put(this.add.rectangle(W / 2, y, 900, 1, 0x4a4a4a));
+      y += 26;
+      const h1 = this.para(X, y, `Suppose ${s.name} is the murderer.`, 30, hex(s.color), WIDTH);
+      y += h1.height + 6;
+      const q = this.para(X, y, `How likely would I be to find ${clue.short}?`, 23, INK, WIDTH);
+      y += q.height + 12;
+      y = this.ghostHint(X, y, clue.hints[i]) + 64;
+      const chosen = this.picks[i];
+      RATINGS.forEach((r, j) => {
+        const b = this.put(
+          new Button(this, X + 74 + j * 154, y, `${r.n}\n${r.word}\n${share(r.v)}`, () => {
+            if (this.committed) return;
+            const first = this.picks[i] === undefined;
+            this.picks[i] = r.v;
+            // rating the newest suspect brings in the next one
+            if (first && i === stage - 1 && stage < n) return reveal();
+            if (i === stage - 1) this.weighToEnd = true;
+            Sound.blip();
+            this.show(true);
+          }, { width: 146, height: 96, size: 17, stroke: chosen === r.v ? 0xd8d8d8 : 0x5a5a5a }),
+        );
+        b.label.setAlign('center').setLineSpacing(4);
+        if (chosen !== undefined && chosen !== r.v) b.setAlpha(0.5);
+        buttons.push(b);
+      });
+      y += 60;
+      if (chosen !== undefined) {
+        const r = ratingOf(chosen);
+        const done = this.para(X, y, `You rated it ${r.n}: ${r.word.toLowerCase()}, a ${share(r.v)} chance.`, 20, '#f0f0f0', WIDTH);
+        y += done.height;
+      }
     }
-    const r = ratingOf(chosen);
-    this.para(470, by + 64, `You rated it ${r.n}: ${r.word.toLowerCase()}, a ${share(r.v)} chance.`, 20, '#f0f0f0', 760);
+    this.putInto = undefined;
+    const bottom = y + 24;
+
+    // scrolling: the page is clipped to the space between the crumbs and the buttons
+    const viewH = viewBottom - viewTop;
+    const minOff = Math.min(0, viewH - (bottom - viewTop));
+    const maskShape = this.make.graphics({}, false);
+    maskShape.fillStyle(0xffffff).fillRect(0, viewTop, W, viewH);
+    box.setMask(maskShape.createGeometryMask());
+    const band = 26;
+    const fadeTop = this.put(this.add.graphics());
+    fadeTop.fillGradientStyle(0x060606, 0x060606, 0x060606, 0x060606, 1, 1, 0, 0);
+    fadeTop.fillRect(24, viewTop, W - 48, band);
+    const fadeBottom = this.put(this.add.graphics());
+    fadeBottom.fillGradientStyle(0x060606, 0x060606, 0x060606, 0x060606, 0, 0, 1, 1);
+    fadeBottom.fillRect(24, viewBottom - band, W - 48, band);
+    const arrowX = W / 2 + 560;
+    const upArrow = this.put(txt(this, arrowX, viewTop + 4, '\u02c4', 26, '#8a8a8a').setOrigin(0.5, 0));
+    const downArrow = this.put(txt(this, arrowX, viewBottom - 4, '\u02c5', 26, '#8a8a8a').setOrigin(0.5, 1));
+    const scrollTo = (off: number) => {
+      this.noteScroll = Phaser.Math.Clamp(off, minOff, 0);
+      box.y = this.noteScroll;
+      fadeTop.setVisible(this.noteScroll < 0);
+      upArrow.setVisible(this.noteScroll < 0);
+      fadeBottom.setVisible(this.noteScroll > minOff + 0.5);
+      downArrow.setVisible(this.noteScroll > minOff + 0.5);
+      // a button scrolled out of sight can't be clicked through the title or the fade
+      buttons.forEach((b) => {
+        const by = b.y + box.y;
+        b.setClickable(by - 40 > viewTop && by + 40 < viewBottom);
+      });
+    };
+    const toEnd = this.weighToEnd;
+    this.weighToEnd = false;
+    scrollTo(arrived || toEnd ? minOff : (this.noteScroll ?? 0));
+    this.noteScroller = minOff < 0 ? (dy: number) => scrollTo(this.noteScroll! - dy) : undefined;
+
+    // the block just revealed slides in, and the page glides down to it
+    if (arrived) {
+      const fresh = box.list.slice(newestFrom) as unknown as (Phaser.GameObjects.Components.Alpha & Phaser.GameObjects.Components.Transform)[];
+      fresh.forEach((o) => {
+        o.setAlpha(0);
+        o.y += 16;
+        this.tweens.add({ targets: o, alpha: 1, y: o.y - 16, duration: 380, ease: 'Sine.easeOut' });
+      });
+      if (minOff < 0) {
+        box.y = Math.min(0, minOff + 220);
+        this.tweens.add({ targets: box, y: minOff, duration: 450, ease: 'Sine.easeInOut', onComplete: () => scrollTo(minOff) });
+      }
+    }
+
+    // Next brings in the first suspect, then waits until everyone is rated
+    if (stage === 0) this.setNext('Next ›', true, reveal);
+    else if (stage < n || SUSPECTS.some((_, i) => this.picks[i] === undefined)) this.setNext('Next ›', false);
+    // the number keys 1–5 rate the newest suspect still waiting for a rating
+    const waiting = Array.from({ length: stage }, (_, i) => i).find((i) => this.picks[i] === undefined);
+    this.ratingKey =
+      waiting === undefined
+        ? undefined
+        : (num: number) => {
+            const r = RATINGS.find((x) => x.n === num);
+            if (!r || this.committed) return;
+            this.picks[waiting] = r.v;
+            if (waiting === stage - 1 && stage < n) return reveal();
+            if (waiting === stage - 1) this.weighToEnd = true;
+            Sound.blip();
+            this.show(true);
+          };
   }
 
   private get lik(): number[] {
