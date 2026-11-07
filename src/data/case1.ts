@@ -88,7 +88,7 @@ export const SUSPECTS: Suspect[] = [
       'Her parents died when she was twelve, and she grew up in this house, all elbows and questions. At nine she took apart my pocket watch and put it back together, and it ran. ' +
       'Now she studies law in the city and argues like a barrister, which is a polite way of saying she argues like me. ' +
       'She is the only one who noticed that I have stopped sleeping properly, and she has nagged me about it since the spring. ' +
-      'This week I told her I meant to leave the house to the Clockmakers’ Guild instead of to her. We both said things we regret.',
+      'This week I told her I meant to leave the house to the Clockmakers’ Club instead of to her. We both said things we regret.',
     logIn: '7:00 pm', logOut: '10:00 pm', pronoun: 'she',
   },
   {
@@ -96,7 +96,7 @@ export const SUSPECTS: Suspect[] = [
     memory: 'Edmund Thomas, my gardener. He smiles a little too much.',
     backstory:
       'Thomas has been my gardener for twenty years. He keeps the garden and the grounds, and lives in the cottage at the end of them. ' +
-      'Last week I told him the Guild would likely sell the grounds once I sign my will on Monday, and that the cottage would go with them.',
+      'Last week I told him the Club would likely sell the grounds once I sign my will on Monday, and that the cottage would go with them.',
     tonight: 'He came at four to go over the repairs to the glass and left his bicycle, as he always does, by the garden gate. He stayed to supper and signed out at eight.',
     logIn: '4:00 pm', logOut: '8:00 pm', pronoun: 'he',
   },
@@ -189,14 +189,14 @@ export const PRIOR_SHEET = {
     'Edgar went home at six, as he always does. That leaves two people who were in this house with my tea: Clara and Mr. Thomas. The question is, who did it?',
   context:
     'I need a starting point. If I had no information to go on, I would give each suspect an equal 50/50 chance of guilt. ' +
-    'But I can use the log to count the hours each of them spent under this roof: the longer someone was here, the more chances they had. ' +
+    'But I can use this log to count the hours each of them spent under this roof: the longer someone was here, the more chances they had. ' +
     'That starting belief is called the PRIOR.',
   /** The Start page: where suspicion begins. */
   lesson:
-    'Each person’s share of the time inside becomes their starting share of suspicion: whoever spent longest in the house starts highest. That’s my starting point.',
+    'Each person’s time in the house becomes their prior suspicion: whoever spent the most time has the highest probability. That’s my starting point.',
   reaction: [
-    'Clara was here the longest, so she starts as the likeliest. But that doesn’t mean she’s guilty yet.',
-    'Every piece of evidence from now on will shift these odds.',
+    'Clara was here the longest, so she starts as the likeliest culprit.',
+    'Every new piece of evidence I find will shift this suspicion.',
   ],
   nextThought: '',
 };
@@ -209,7 +209,7 @@ const CLUE_SOURCES: ClueSource[] = [
   {
     id: 'letter',
     title: 'An Unfinished Letter',
-    leadIn: 'Clara’s room is upstairs. I know my niece. If she wrote something, the draft will be in her writing desk.',
+    leadIn: 'Clara’s room is upstairs. I know my niece. If she wrote something, the Will be in her writing desk.',
     searchCue: 'The drawer sticks, then slides out with a small wooden cry',
     found: 'A letter at the back of Clara’s writing-desk drawer, folded small, then smaller. It is a draft, crossed out and rewritten, the nib pressed so hard on the last line that it nearly tore the paper.',
     evidence: { kind: 'letter', date: 'Tuesday', lines: ['Uncle —', 'If you change your will, I will NEVER forgive you!'], sign: 'C.' },
@@ -221,8 +221,8 @@ const CLUE_SOURCES: ClueSource[] = [
     noun: 'the letter',
     likelihoods: [0.7, 0.5],
     hints: [
-      'If Clara is the murderer, the quarrel over my will would be her motive. But Clara writes furious letters all the time, and has never hurt a soul. So her guilt makes this letter more expected, though not by a huge margin.',
-      'If Thomas is the murderer, nothing about this letter changes. Clara and I still quarrelled, she still went upstairs and wrote the most savage thing she could think of, and she still didn’t send it to me. His guilt does not stop this letter existing, so it is only a little less expected here than in her story.',
+      'If Clara is the murderer, the quarrel over my will would be her likely motive. But Clara writes like this all the time and has never hurt a soul. So that makes this letter more expected, but not by a huge margin.',
+      'If Thomas is the murderer, nothing about this event changes. Clara and I still quarrelled, and she still went upstairs and wrote this angry letter. His guilt does not prevent this letter from existing, it only makes it less expected here than in her story.',
     ],
     trap: 'Vivid but weak evidence',
     lesson:
@@ -232,15 +232,15 @@ const CLUE_SOURCES: ClueSource[] = [
   },
   {
     id: 'will',
-    title: 'The Draft Will',
+    title: 'The Will',
     leadIn: 'Clara’s letter was about my will. Let me see what I actually wrote. The draft should be in my desk downstairs.',
     searchCue: 'Beneath the pencils and the coiled mainsprings lies a page folded in three',
     found: 'I found my will under the pencils in my drawer, folded in three. The handwriting is mine.',
     evidence: {
       kind: 'facts',
       rows: [
-        ['Document', 'A will in my hand, unsigned'],
-        ['The house and grounds', 'To the Clockmakers’ Guild'],
+        ['Document', 'A draft of my will, still unsigned'],
+        ['The house', 'To the Clockmakers’ Club'],
         ['To Clara', 'The grandfather clock and my watch'],
         ['To E. Thomas', 'Six months’ notice to leave the cottage'],
         ['Signing', 'Monday, 10 a.m., Mr. Penrose, solicitor'],
@@ -248,17 +248,16 @@ const CLUE_SOURCES: ClueSource[] = [
       ],
     },
     context: [
-      'The will. Exactly as I told them: the house and grounds to the Guild, a clock and a watch for Clara, and six months’ notice for Thomas. No wonder Clara was angry. And Thomas, though he didn’t show it.',
-      'It’s unsigned. Mr. Penrose is due on Monday at ten. One signature, and two people with everything to lose.',
-      'And the note in the margin: *Talk to her.* I wasn’t sure. I never told her I wasn’t sure.',
+      'My will. The house was to be given to the Club, a clock and a watch for Clara, and six months’ notice for Thomas. No wonder Clara was angry. And Thomas, though he didn’t show it.',
+      'It’s unsigned..',
       'But is this news? I knew all of this before I opened the drawer.',
     ],
-    short: 'a draft will like this in my desk',
-    noun: 'the draft will',
+    short: 'a Will like this in my desk',
+    noun: 'the Will',
     likelihoods: [0.9, 0.9],
     hints: [
-      'If Clara is the murderer, I still told her about the will on Tuesday, and I still drafted it. A draft in my own desk is very likely.',
-      'If Thomas is the murderer, nothing about the will changes. I still told them both, and I still drafted it. A draft in my own desk is just as likely.',
+      'In a world where Clara is the murderer, my will would still exist. So finding a draft in my own desk is very likely.',
+      'In a world where Thomas is the murderer, my will would also still exist. So finding a draft in my own desk is just as likely as it was in Clara's story.',
     ],
     trap: 'Old news doesn’t count twice',
     lesson:
