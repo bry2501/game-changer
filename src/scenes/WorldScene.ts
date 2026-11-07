@@ -828,15 +828,19 @@ export class WorldScene extends Phaser.Scene {
     }
     // the moon: fixed high in the sky, drifting only a little
     const moon = this.add.graphics().setScrollFactor(0.03, 0).setDepth(10.52);
-    for (let r = 120; r > 46; r -= 12) {
+    // it hangs in the upper pane of the study window, where the ghost first looks out
+    // (the camera rests at the start of the house then, so screen x is world x)
+    const mx = WINDOW_X + 46;
+    const my = 178;
+    for (let r = 110; r > 40; r -= 12) {
       moon.fillStyle(0xdfe8ff, 0.05);
-      moon.fillCircle(820, 170, r);
+      moon.fillCircle(mx, my, r);
     }
     moon.fillStyle(0xeef2ff, 1);
-    moon.fillCircle(820, 170, 46);
+    moon.fillCircle(mx, my, 40);
     moon.fillStyle(0xc9d2e4, 0.7);
-    moon.fillCircle(805, 158, 8);
-    moon.fillCircle(836, 186, 6);
+    moon.fillCircle(mx - 13, my - 10, 7);
+    moon.fillCircle(mx + 14, my + 14, 5);
     // far trees, then nearer ones, leafy silhouettes sliding past at different speeds
     const tree = (g: Phaser.GameObjects.Graphics, x: number, s: number, color: number) => {
       g.fillStyle(color, 1);
@@ -857,7 +861,7 @@ export class WorldScene extends Phaser.Scene {
     // The tree rows are thousands of small shapes, far too many to redraw every frame, so each
     // row is painted once into a texture that repeats along the house, and shown as images.
     const far = this.treeRow('sky-far', 4, 620, (g, k, x) => tree(g, x + ((k * 4340) % 180), 1, 0x0a0f14), 0.25, 10.54, 200);
-    const near = this.treeRow('sky-near', 2, 1150, (g, _k, x) => tree(g, x, 1.6, 0x030506), 0.55, 10.56, 500);
+    const near = this.treeRow('sky-near', 2, 1150, (g, _k, x) => tree(g, x, 1.6, 0x030506), 0.55, 10.56, 1150);
     for (const o of [sky, moon, ...far, ...near]) o.setMask(geo);
   }
 
