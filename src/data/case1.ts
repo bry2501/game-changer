@@ -33,11 +33,24 @@ export interface Suspect {
  * - letter: a handwritten note
  * - table: a log or ledger (rows of columns)
  * - facts: plain observations of a physical object
+ * - will: a will, drawn as the document (title, numbered clauses, an empty signature line, a pencilled margin note)
+ * - receipt: a shop receipt, drawn as the slip itself (leave customer '' for a blank name line)
  */
 export type Evidence =
   | { kind: 'letter'; date: string; lines: string[]; sign: string }
   | { kind: 'table'; columns: string[]; rows: string[][]; foot?: string; widths?: number[] }
-  | { kind: 'facts'; rows: [string, string][] };
+  | { kind: 'facts'; rows: [string, string][] }
+  | { kind: 'will'; title: string; of: string; opening: string; clauses: string[]; signing: string; margin?: string }
+  | {
+      kind: 'receipt';
+      shop: string;
+      trade: string;
+      when: string;
+      items: [string, string][];
+      total: string;
+      customer: string;
+      foot?: string;
+    };
 
 export interface Clue {
   id: string;
@@ -237,15 +250,17 @@ const CLUE_SOURCES: ClueSource[] = [
     searchCue: 'Beneath the pencils and the coiled mainsprings lies a page folded in three',
     found: 'I found my will under the pencils in my drawer, folded in three. The handwriting is mine.',
     evidence: {
-      kind: 'facts',
-      rows: [
-        ['Document', 'A draft of my will, still unsigned'],
-        ['The house', 'To the Clockmakers’ Club'],
-        ['To Clara', 'The grandfather clock and my watch'],
-        ['To E. Thomas', 'Six months’ notice to leave the cottage'],
-        ['Signing', 'Monday, 10 a.m., Mr. Penrose, solicitor'],
-        ['Pencilled in the margin', '“C. — think first. Talk to her.”'],
+      kind: 'will',
+      title: 'Last Will and Testament',
+      of: 'of John Bayes, Clockmaker',
+      opening: 'I, John Bayes, being of sound mind, leave what I own as follows:',
+      clauses: [
+        'My house, and all that is in it save what follows, to the Clockmakers’ Club.',
+        'To my niece, Clara, the grandfather clock and my watch.',
+        'To Edmund Thomas, my gardener, six months’ notice to leave the cottage.',
       ],
+      signing: 'To be signed Monday, 10 a.m., before Mr. Penrose, solicitor.',
+      margin: 'C. — think first. Talk to her.',
     },
     context: [
       'My will. The house was to be given to the Club, a clock and a watch for Clara, and six months’ notice for Thomas. No wonder Clara was angry. And Thomas, though he didn’t show it.',
@@ -349,14 +364,14 @@ const CLUE_SOURCES: ClueSource[] = [
     searchCue: 'Clara’s grey walking coat hangs among the others; the receipt in its pocket stirs as the ghost’s hand passes through',
     found: 'I found a small slip of paper, folded once, in the pocket of Clara’s grey walking coat on the hall stand.',
     evidence: {
-      kind: 'facts',
-      rows: [
-        ['Pharmacy', 'Hartley & Son'],
-        ['Time', 'Friday, 6:40 pm'],
-        ['Item', 'One small bottle, sleeping pills (1 oz)'],
-        ['Price', '2s 6d'],
-        ['Name on slip', 'None'],
-      ],
+      kind: 'receipt',
+      shop: 'HARTLEY & SON',
+      trade: 'Pharmacy',
+      when: 'Friday   6:40 pm',
+      items: [['Sleeping pills, 1 oz', '2s 6d']],
+      total: '2s 6d',
+      customer: '',
+      foot: 'Thank you',
     },
     context: [
       'Hartley’s, the pharmacy on the corner. 6:40 on Friday evening, twenty minutes before she came home.',

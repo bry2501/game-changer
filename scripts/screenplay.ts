@@ -106,6 +106,34 @@ function evidence(doc: Evidence) {
     doc.lines.forEach((l, k) => w(`${k ? '    ' : ''}${l}`));
     w(`                                                    ${doc.sign}`);
     w('```');
+  } else if (doc.kind === 'will') {
+    w('```');
+    w(`            ${doc.title.toUpperCase()}`);
+    w(`            ${doc.of}`);
+    w();
+    w(doc.opening);
+    doc.clauses.forEach((c, k) => w(`  ${k + 1}. ${c}`));
+    w();
+    w('Signed: ____________________                DRAFT');
+    w(doc.signing);
+    if (doc.margin) w(`\n(pencilled in the margin: “${doc.margin}”)`);
+    w('```');
+  } else if (doc.kind === 'receipt') {
+    const width = 34;
+    const centre = (t: string) => ' '.repeat(Math.max(0, Math.floor((width - t.length) / 2))) + t;
+    const row = (a: string, b: string) => `${a} ${'.'.repeat(Math.max(1, width - a.length - b.length - 2))} ${b}`;
+    w('```');
+    w(centre(doc.shop));
+    w(centre(doc.trade));
+    w('-'.repeat(width));
+    w(doc.when);
+    w('-'.repeat(width));
+    for (const [a, b] of doc.items) w(row(a, b));
+    w('-'.repeat(width));
+    w(row('TOTAL', doc.total));
+    w(`Name: ${doc.customer || '_'.repeat(width - 6)}`);
+    if (doc.foot) w(centre(doc.foot));
+    w('```');
   } else if (doc.kind === 'facts') {
     w('| | |');
     w('|---|---|');

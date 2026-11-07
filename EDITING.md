@@ -12,7 +12,7 @@ All the text is in four files in `src/data/`:
 | `case1.ts` | The story: the ghost's thoughts in the opening scenes, the memories of Clara and Mr. Thomas, every clue (the "I found…" line, the evidence card, the ghost's thoughts, the rating hints, the recap), and both endings. |
 | `house.ts` | The room names and room thoughts, and what the ghost says when searching each piece of furniture. |
 | `lessons.ts` | The lesson pages (Lesson 1: Think in stories, and so on). |
-| `ui.ts` | Fixed captions: the update steps (Before, shrink, together, stretch) and the rating words. |
+| `ui.ts` | Fixed captions: the update steps (The Priors, shrink, stretch) and the rating words. |
 
 To find a line, open the file and press **Ctrl+F** (or **Cmd+F**) and search for a few words of it.
 
@@ -31,6 +31,10 @@ To find a line, open the file and press **Ctrl+F** (or **Cmd+F**) and search for
 - **Don't rename the suspects or change anything that isn't text between quotes** (names like `id`, the numbers, the brackets). The automatic checks rely on them.
 
 To add a new thought to a list, copy a whole line (quotes and comma included) and change its words.
+
+**Find and replace:** check each match before replacing. A word inside an `id: '…'` is a name the game looks things up by, not text the player sees; replacing it there hides the clue.
+
+**Evidence cards** are written as the documents themselves. The will (`kind: 'will'`) has a title, numbered `clauses` and a pencilled `margin` note, and its signature line is drawn empty. The pharmacy receipt (`kind: 'receipt'`) has the shop, the time, the `items` with prices and the total; leave `customer: ''` and the Name line prints blank.
 
 ## Seeing the result
 

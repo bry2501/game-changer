@@ -302,14 +302,20 @@ An angry letter feels like a confession. But people write angry letters all the 
 
 **Evidence card: The Will**
 
-| | |
-|---|---|
-| **Document** | A draft of my will, still unsigned |
-| **The house** | To the Clockmakers’ Club |
-| **To Clara** | The grandfather clock and my watch |
-| **To E. Thomas** | Six months’ notice to leave the cottage |
-| **Signing** | Monday, 10 a.m., Mr. Penrose, solicitor |
-| **Pencilled in the margin** | “C. — think first. Talk to her.” |
+```
+            LAST WILL AND TESTAMENT
+            of John Bayes, Clockmaker
+
+I, John Bayes, being of sound mind, leave what I own as follows:
+  1. My house, and all that is in it save what follows, to the Clockmakers’ Club.
+  2. To my niece, Clara, the grandfather clock and my watch.
+  3. To Edmund Thomas, my gardener, six months’ notice to leave the cottage.
+
+Signed: ____________________                DRAFT
+To be signed Monday, 10 a.m., before Mr. Penrose, solicitor.
+
+(pencilled in the margin: “C. — think first. Talk to her.”)
+```
 
 > **GHOST** *(thought)*: My will. The house was to be given to the Club, a clock and a watch for Clara, and six months’ notice for Thomas. No wonder Clara was angry. And Thomas, though he didn’t show it.
 > **GHOST** *(thought)*: It’s unsigned.
@@ -567,13 +573,18 @@ This clue fits one person far better than anyone else. That is what strong evide
 
 **Evidence card: The Pharmacy Receipt**
 
-| | |
-|---|---|
-| **Pharmacy** | Hartley & Son |
-| **Time** | Friday, 6:40 pm |
-| **Item** | One small bottle, sleeping pills (1 oz) |
-| **Price** | 2s 6d |
-| **Name on slip** | None |
+```
+          HARTLEY & SON
+             Pharmacy
+----------------------------------
+Friday   6:40 pm
+----------------------------------
+Sleeping pills, 1 oz ....... 2s 6d
+----------------------------------
+TOTAL ...................... 2s 6d
+Name: ____________________________
+            Thank you
+```
 
 > **GHOST** *(thought)*: Hartley’s, the pharmacy on the corner. 6:40 on Friday evening, twenty minutes before she came home.
 > **GHOST** *(thought)*: Sleeping pills. Poe fetches mine, on the first of the month, and I never asked Clara to fetch them. She has never needed any. Clara sleeps like a baby.

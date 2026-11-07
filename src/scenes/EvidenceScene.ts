@@ -280,6 +280,10 @@ export class EvidenceScene extends Phaser.Scene {
         add(txt(this, x0 + pad + (k ? 30 : 0), cy, l, k ? 27 : 23, ink, { fontStyle: 'italic', wordWrap: { width: w - pad * 2 - 30 } }), 8),
       );
       add(txt(this, x0 + w - pad - 40, cy, doc.sign, 25, ink, { fontStyle: 'italic' }).setOrigin(1, 0), 4);
+    } else if (doc.kind === 'will') {
+      return this.willCard(card, bg, x0, y, w, pad, doc);
+    } else if (doc.kind === 'receipt') {
+      return this.receiptCard(card, bg, y, doc);
     } else if (doc.kind === 'facts') {
       // the key column fits its longest label
       const keys = doc.rows.map(([k]) => txt(this, x0 + pad, cy, k, 20, '#3a3a3a', { fontStyle: 'bold' }));
@@ -320,6 +324,167 @@ export class EvidenceScene extends Phaser.Scene {
     bg.strokeRoundedRect(x0, y, w, h, 6);
     card.sendToBack(bg);
     return y + h;
+  }
+
+  /** A will, drawn as the paper itself: a bordered legal sheet, numbered clauses, no signature. */
+  private willCard(
+    card: Phaser.GameObjects.Container,
+    bg: Phaser.GameObjects.Graphics,
+    x0: number,
+    y: number,
+    w: number,
+    pad: number,
+    doc: Extract<Evidence, { kind: 'will' }>,
+  ): number {
+    const ink = '#111111';
+    const ln = this.add.graphics();
+    card.add(ln);
+    const marginW = doc.margin ? 220 : 0;
+    const left = x0 + pad + 24;
+    const right = x0 + w - pad - 24 - marginW;
+    const mid = (left + right) / 2;
+    let cy = y + 56;
+    const add = (t: Phaser.GameObjects.Text, gap: number) => {
+      card.add(t);
+      cy += t.height + gap;
+      return t;
+    };
+    add(txt(this, mid, cy, doc.title.toUpperCase(), 26, ink, { fontStyle: 'bold' }).setOrigin(0.5, 0).setLetterSpacing(4), 2);
+    add(txt(this, mid, cy, doc.of, 19, '#333333', { fontStyle: 'italic' }).setOrigin(0.5, 0), 10);
+    ln.lineStyle(1, 0x777770, 1);
+    ln.lineBetween(mid - 120, cy, mid + 120, cy);
+    cy += 10;
+    add(txt(this, left, cy, doc.opening, 20, ink, { wordWrap: { width: right - left } }), 6);
+    const clauseTop = cy;
+    doc.clauses.forEach((c, k) => {
+      card.add(txt(this, left + 10, cy, `${k + 1}.`, 20, ink));
+      add(txt(this, left + 44, cy, c, 20, ink, { wordWrap: { width: right - left - 44 } }), 5);
+    });
+    const clauseBottom = cy;
+    cy += 12;
+    // an empty signature line: nobody has signed it
+    const sig = txt(this, left, cy, 'Signed:', 20, ink);
+    card.add(sig);
+    ln.lineStyle(1, 0x333333, 1);
+    ln.lineBetween(left + sig.width + 12, cy + sig.height - 3, left + sig.width + 300, cy + sig.height - 3);
+    cy += sig.height + 8;
+    add(txt(this, left, cy, doc.signing, 17, '#333333', { fontStyle: 'italic', wordWrap: { width: right - left } }), 6);
+
+    const h = cy - y + pad - 6;
+    // the draft stamp, faint and askew, beside the empty signature
+    card.add(
+      txt(this, left + 580, cy - 34, 'DRAFT', 44, '#9c9c94', { fontStyle: 'bold' })
+        .setOrigin(0.5)
+        .setAngle(-10)
+        .setLetterSpacing(6)
+        .setAlpha(0.6),
+    );
+    // the pencilled note, in the margin beside the clauses
+    if (doc.margin) {
+      const note = txt(this, x0 + w - pad - marginW / 2 + 4, (clauseTop + clauseBottom) / 2, doc.margin, 21, '#5c5c5c', {
+        fontStyle: 'italic',
+        align: 'center',
+        wordWrap: { width: marginW - 30 },
+      })
+        .setOrigin(0.5)
+        .setAngle(-6);
+      card.add(note);
+    }
+
+    bg.fillStyle(0x000000, 0.35);
+    bg.fillRoundedRect(x0 + 6, y + 8, w, h, 4);
+    bg.fillStyle(0xf1f0ea, 0.98);
+    bg.fillRoundedRect(x0, y, w, h, 4);
+    // a double rule inside the edge, like a printed legal form
+    bg.lineStyle(2, 0x8a8a82, 1);
+    bg.strokeRect(x0 + 12, y + 40, w - 24, h - 52);
+    bg.lineStyle(1, 0x8a8a82, 1);
+    bg.strokeRect(x0 + 18, y + 46, w - 36, h - 64);
+    bg.lineStyle(1, 0xb8b8b0, 1);
+    bg.strokeRoundedRect(x0, y, w, h, 4);
+    card.sendToBack(bg);
+    return y + h;
+  }
+
+  /** A shop receipt, drawn as the slip itself: narrow, typed, torn off at the bottom. */
+  private receiptCard(
+    card: Phaser.GameObjects.Container,
+    bg: Phaser.GameObjects.Graphics,
+    y: number,
+    doc: Extract<Evidence, { kind: 'receipt' }>,
+  ): number {
+    const mono = { fontFamily: '"Courier New", Courier, monospace' };
+    const ink = '#1a1a1a';
+    const ln = this.add.graphics();
+    card.add(ln);
+    const w = 460;
+    const x0 = W / 2 - w / 2;
+    const pad = 30;
+    const left = x0 + pad;
+    const right = x0 + w - pad;
+    // the evidence label sits on the slip, so move it in
+    const label = card.list[1] as Phaser.GameObjects.Text;
+    label.setPosition(W / 2, y + 16).setOrigin(0.5, 0);
+    let cy = y + 50;
+    const line = (t: Phaser.GameObjects.Text, gap = 4) => {
+      card.add(t);
+      cy += t.height + gap;
+    };
+    const rule = () => {
+      cy += 6;
+      for (let x = left; x < right; x += 12) ln.lineBetween(x, cy, Math.min(x + 6, right), cy);
+      cy += 12;
+    };
+    // a row with the amount pushed to the right and dots between
+    const row = (a: string, b: string, size: number, bold = false) => {
+      const ta = txt(this, left, cy, a, size, ink, { ...mono, fontStyle: bold ? 'bold' : 'normal' });
+      const tb = txt(this, right, cy, b, size, ink, { ...mono, fontStyle: bold ? 'bold' : 'normal' }).setOrigin(1, 0);
+      const gap = tb.x - tb.width - (ta.x + ta.width) - 16;
+      const dotW = txt(this, 0, 0, '.', size, ink, mono);
+      const n = Math.max(0, Math.floor(gap / dotW.width));
+      dotW.destroy();
+      const dots = txt(this, ta.x + ta.width + 8, cy, '.'.repeat(n), size, '#666666', mono);
+      card.add([ta, dots, tb]);
+      cy += ta.height + 6;
+    };
+    line(txt(this, W / 2, cy, doc.shop, 28, ink, { ...mono, fontStyle: 'bold' }).setOrigin(0.5, 0).setLetterSpacing(2), 0);
+    line(txt(this, W / 2, cy, doc.trade, 19, '#333333', mono).setOrigin(0.5, 0), 4);
+    ln.lineStyle(1, 0x555555, 1);
+    rule();
+    line(txt(this, left, cy, doc.when, 19, ink, mono), 2);
+    rule();
+    for (const [a, b] of doc.items) row(a, b, 19);
+    rule();
+    row('TOTAL', doc.total, 20, true);
+    cy += 10;
+    // the name line, blank if nobody wrote on it
+    const nm = txt(this, left, cy, 'Name:', 19, ink, mono);
+    card.add(nm);
+    if (doc.customer) card.add(txt(this, nm.x + nm.width + 12, cy - 2, doc.customer, 22, ink, { fontStyle: 'italic' }));
+    ln.lineBetween(nm.x + nm.width + 10, cy + nm.height - 2, right, cy + nm.height - 2);
+    cy += nm.height + 14;
+    if (doc.foot) line(txt(this, W / 2, cy, doc.foot, 18, '#333333', { ...mono, fontStyle: 'italic' }).setOrigin(0.5, 0), 4);
+
+    // paper with a torn, zig-zag bottom edge
+    const bottom = cy + 16;
+    const tooth = 12;
+    const pts: Phaser.Types.Math.Vector2Like[] = [
+      { x: x0, y },
+      { x: x0 + w, y },
+    ];
+    for (let x = x0 + w, k = 0; x >= x0; x -= tooth, k++) pts.push({ x: Math.max(x, x0), y: bottom + (k % 2 ? tooth * 0.7 : 0) });
+    pts.push({ x: x0, y: bottom });
+    bg.fillStyle(0x000000, 0.35);
+    bg.fillPoints(
+      pts.map((p) => ({ x: p.x + 6, y: p.y + 8 })),
+      true,
+    );
+    bg.fillStyle(0xf3f2ec, 0.98);
+    bg.fillPoints(pts, true);
+    bg.lineStyle(1, 0xb8b8b0, 1);
+    bg.strokePoints(pts, true);
+    card.sendToBack(bg);
+    return bottom + tooth;
   }
 
   /**
