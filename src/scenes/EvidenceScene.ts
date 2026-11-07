@@ -87,6 +87,8 @@ export class EvidenceScene extends Phaser.Scene {
   private putInto?: Phaser.GameObjects.Container;
   /** Which stage of the math page is showing: symbols, names, numbers, multiply, add, divide (0–5). */
   private mathStage = 0;
+  /** Whose update the math page follows (index into SUSPECTS). */
+  private mathFocus = 0;
   /** The math stage just left, so the next one can transform out of it. */
   private mathFrom?: number;
 
@@ -158,7 +160,7 @@ export class EvidenceScene extends Phaser.Scene {
       // arriving from behind shows a page's last thought; arriving fresh shows its first
       this.noteIdx = delta < 0 ? Number.MAX_SAFE_INTEGER : 0;
       this.noteScroll = undefined;
-      this.mathStage = delta < 0 ? 5 : 0;
+      this.mathStage = delta < 0 ? 7 : 0;
       this.weighStage = delta < 0 ? SUSPECTS.length : 0;
       this.chimed = false;
     }
@@ -943,20 +945,25 @@ export class EvidenceScene extends Phaser.Scene {
   }
 
   /**
-   * The same update as Bayes' rule, in one formula that rewrites itself stage by stage:
-   *   0. symbols: one hypothesis per suspect (H₁, H₂) and the evidence E
-   *   1. names: each symbol becomes the person or the clue it stands for
-   *   2. numbers: each term becomes the player's own number
-   *   3. multiply, 4. add, 5. divide: the arithmetic done inside the formula itself
+   * The same update as Bayes' rule, in one formula that rewrites itself stage by stage.
+   * First the player chooses whose story to follow (with two suspects the shares add to 100%,
+   * so one update gives the other). Then:
+   *   1. symbols: one hypothesis per suspect (H₁, H₂) and the evidence E
+   *   2. names: "Clara's Update = Clara's Prior · Boot Print in Clara's story / …"
+   *   3. numbers: each term becomes the player's own number
+   *   4. multiply, 5. add, 6. divide: the arithmetic done inside the formula itself
+   *   7. the rest: the other suspect's update is what is left of 100%
    * Stepping forward transforms the formula in place: every term slides to its new place
    * while the old wording dissolves into the new, and the fraction bar stretches to fit.
    */
   private mathPage(head: string, clue: (typeof CLUES)[number]) {
     this.title(head);
     this.commitClue();
-    const stage = Math.min(this.mathStage, 5);
+    const LAST = 7;
+    const stage = Math.min(this.mathStage, LAST);
     const from = this.mathFrom;
     this.mathFrom = undefined;
+    const focus = this.mathFocus;
     const EC = '#9fc4ff'; // the evidence
     const WC = '#f2f2f2';
     const SUB = ['₁', '₂', '₃', '₄'];
@@ -966,7 +973,10 @@ export class EvidenceScene extends Phaser.Scene {
     const after = joint.map((j) => j / pE);
     const col = (i: number) => hex(SUSPECTS[i].color);
     const short = (i: number) => SUSPECTS[i].name.replace(/^Mr\. /, '');
-    const noun = clue.noun.replace(/^the /, '');
+    const poss = (i: number): Part => [`${short(i)}’s`, col(i)];
+    // the clue's name with capitals: "Boot Print"
+    const Noun = clue.noun.replace(/^the /, '').replace(/\b\w/g, (c) => c.toUpperCase());
+    const FY = Math.round((CONTENT_Y + NAV_Y - 50) / 2);
 
     type Part = [string, string];
     const P = (...inner: Part[]): Part[] => [['P(', WC], ...inner, [')', WC]];
@@ -977,28 +987,91 @@ export class EvidenceScene extends Phaser.Scene {
         m.destroy();
         return a + w;
       }, 0);
-
-    // ---- what each term says at each stage
-    const H = (i: number): Part => [`H${SUB[i]}`, col(i)];
-    const E: Part = ['E', EC];
-    const given = (st: number): Part => (st === 0 ? [' | ', WC] : [' given ', WC]);
-    const content = (st: number) => {
-      const who = (i: number): Part => (st === 0 ? H(i) : [short(i), col(i)]);
-      const ev: Part = st === 0 ? E : [noun, EC];
-      const prior = (i: number): Part[] => (st < 2 ? P(who(i)) : [[share(this.prior[i]), col(i)]]);
-      const rate = (i: number): Part[] => (st < 2 ? P(ev, given(st), who(i)) : [[share(lik[i]), col(i)]]);
-      const dot: Part = st < 2 ? [' · ', WC] : [' × ', WC];
-      return { lhs: [...P(who(0), given(st), ev), [' = ', WC]] as Part[], prior, rate, dot };
+    const draw = (sl: { parts: Part[]; x: number; y: number }, size: number) => {
+      const c = this.put(this.add.container(sl.x, sl.y));
+      let cx = 0;
+      sl.parts.forEach(([t, color]) => {
+        const o = txt(this, cx, 0, t, size, color, { fontStyle: 'italic' }).setOrigin(0, 0.5);
+        c.add(o);
+        cx += o.width;
+      });
+      return c;
+    };
+    const goTo = (next: number, animate: boolean) => {
+      this.mathFrom = animate ? stage : undefined;
+      this.mathStage = next;
+      Sound.blip();
+      this.show(true);
     };
 
-    // ---- each stage as keyed slots: the left side, then a numerator over a denominator
-    // (or, once divided, a single answer). A slot can name the earlier slots it is made from,
-    // so "60% × 70%" can collapse into "42%" and "42% + 20%" into "62%".
+    // ---- stage 0: whose story do we follow?
+    if (stage === 0) {
+      this.put(txt(this, W / 2, FY - 150, 'Whose story shall we follow?', 30, GOLD, { fontStyle: 'bold' }).setOrigin(0.5));
+      this.para(
+        W / 2,
+        FY - 108,
+        `There are only ${numberWord(SUSPECTS.length)} suspects, so their shares always add up to 100%. Work out one person’s update, and the other’s is simply what is left.`,
+        21,
+        '#cfcfcf',
+        820,
+        0.5,
+      );
+      SUSPECTS.forEach((sp, i) => {
+        const bx = W / 2 + (i - (SUSPECTS.length - 1) / 2) * 300;
+        const b = this.put(
+          new Button(this, bx, FY + 40, sp.name, () => {
+            this.mathFocus = i;
+            goTo(1, false);
+          }, { width: 260, height: 76, size: 26, stroke: sp.color }),
+        );
+        b.label.setColor(hex(sp.color));
+      });
+      this.put(txt(this, W / 2, FY + 110, 'Press 1 or 2, or click a name.', 16, DIM, { fontStyle: 'italic' }).setOrigin(0.5));
+      this.ratingKey = (num: number) => {
+        if (num >= 1 && num <= SUSPECTS.length) {
+          this.mathFocus = num - 1;
+          goTo(1, false);
+        }
+      };
+      this.setNext('Next ›', false);
+      return;
+    }
+
+    // ---- what each term says at each formula stage (f: 0 symbols, 1 names, 2+ numbers)
+    const H = (i: number): Part => [`H${SUB[i]}`, col(i)];
+    const E: Part = ['E', EC];
+    const content = (f: number) => {
+      if (f === 0)
+        return {
+          lhs: [...P(H(focus), [' | ', WC], E), [' = ', WC]] as Part[],
+          prior: (i: number): Part[] => P(H(i)),
+          rate: (i: number): Part[] => P(E, [' | ', WC], H(i)),
+          dot: [' · ', WC] as Part,
+        };
+      const lhs: Part[] = [poss(focus), [' Update', WC], [' = ', WC]];
+      if (f === 1)
+        return {
+          lhs,
+          prior: (i: number): Part[] => [poss(i), [' Prior', WC]],
+          rate: (i: number): Part[] => [[Noun, EC], [' in ', WC], poss(i), [' story', WC]],
+          dot: [' · ', WC] as Part,
+        };
+      return {
+        lhs,
+        prior: (i: number): Part[] => [[share(this.prior[i]), col(i)]],
+        rate: (i: number): Part[] => [[share(lik[i]), col(i)]],
+        dot: [' × ', WC] as Part,
+      };
+    };
+
+    // ---- each formula stage as keyed slots: the left side, then a numerator over a
+    // denominator (or, once divided, a single answer). A slot can name the earlier slots it
+    // is made from, so "60% × 70%" can collapse into "42%" and "42% + 20%" into "62%".
     type Item = [string, Part[], string[]?];
     type Shape = { lhs: Part[]; num?: Item[]; den?: Item[]; solo?: Item };
     const plus = (i: number): Item => [`dplus${i}`, [[' + ', WC]]];
-    const shape = (st: number): Shape => {
-      const c = content(Math.min(st, 2));
+    const shape = (f: number): Shape => {
+      const c = content(Math.min(f, 2));
       const lhs = c.lhs;
       const term = (i: number, pre: string): Item[] => [
         [`${pre}p${i}`, c.prior(i)],
@@ -1006,21 +1079,19 @@ export class EvidenceScene extends Phaser.Scene {
         [`${pre}r${i}`, c.rate(i)],
       ];
       const product = (i: number, pre: string): Item => [`${pre}j${i}`, [[share(joint[i]), col(i)]], [`${pre}p${i}`, `${pre}dot${i}`, `${pre}r${i}`]];
-      if (st <= 2) return { lhs, num: term(0, 'n'), den: SUSPECTS.flatMap((_, i) => [...(i ? [plus(i)] : []), ...term(i, 'd')]) };
+      if (f <= 2) return { lhs, num: term(focus, 'n'), den: SUSPECTS.flatMap((_, i) => [...(i ? [plus(i)] : []), ...term(i, 'd')]) };
       // multiply: each product becomes its result
-      if (st === 3) return { lhs, num: [product(0, 'n')], den: SUSPECTS.flatMap((_, i) => [...(i ? [plus(i)] : []), product(i, 'd')]) };
+      if (f === 3) return { lhs, num: [product(focus, 'n')], den: SUSPECTS.flatMap((_, i) => [...(i ? [plus(i)] : []), product(i, 'd')]) };
       // add: the bottom becomes one number
       const sum: Item = ['dsum', [[share(pE), WC]], SUSPECTS.flatMap((_, i) => [...(i ? [`dplus${i}`] : []), `dj${i}`])];
-      if (st === 4) return { lhs, num: [['nj0', [[share(joint[0]), col(0)]]]], den: [sum] };
+      if (f === 4) return { lhs, num: [[`nj${focus}`, [[share(joint[focus]), col(focus)]]]], den: [sum] };
       // divide: the fraction becomes the answer
-      return { lhs, solo: ['res', [[share(after[0]), col(0)]], ['nj0', 'dsum']] };
+      return { lhs, solo: ['res', [[share(after[focus]), col(focus)]], [`nj${focus}`, 'dsum']] };
     };
 
     type Slot = { parts: Part[]; x: number; y: number; w: number; src?: string[] };
-    // the formula sits in the middle of the space between the crumbs and the buttons
-    const FY = Math.round((CONTENT_Y + NAV_Y - 50) / 2);
-    const layout = (st: number) => {
-      const sh = shape(st);
+    const layout = (f: number) => {
+      const sh = shape(f);
       const build = (sz: number) => {
         const slots = new Map<string, Slot>();
         const gap = sz * 0.7; // numerator above the bar, denominator below
@@ -1055,30 +1126,22 @@ export class EvidenceScene extends Phaser.Scene {
       if (L.total > 1120) L = build((size = Math.floor((size * 1120) / L.total)));
       return L;
     };
-
-    const draw = (sl: Slot, size: number) => {
-      const c = this.put(this.add.container(sl.x, sl.y));
-      let cx = 0;
-      sl.parts.forEach(([t, color]) => {
-        const o = txt(this, cx, 0, t, size, color, { fontStyle: 'italic' }).setOrigin(0, 0.5);
-        c.add(o);
-        cx += o.width;
-      });
-      return c;
-    };
     const barAt = (b: { x: number; w: number }) =>
       this.put(this.add.rectangle(b.x, FY, 1, 2, 0xdcdcdc).setOrigin(0, 0.5).setScale(Math.max(b.w, 0.001), 1).setVisible(b.w > 0));
 
-    const L = layout(stage);
-    const animate = from !== undefined && from === stage - 1;
-    const old = animate ? layout(from) : undefined;
+    // formula stage for this page stage (the last page stage keeps the divided formula)
+    const fOf = (st: number) => Math.min(st - 1, 5);
+    const f = fOf(stage);
+    const L = layout(f);
+    const morph = from !== undefined && from === stage - 1 && from >= 1 && fOf(from) !== f;
+    const old = morph ? layout(fOf(from!)) : undefined;
     const MS = 750;
     const used = new Set<string>();
     for (const [k, sl] of L.slots) {
       const n = draw(sl, L.size);
       const sources = (sl.src ?? [k]).map((key) => [key, old?.slots.get(key)] as const).filter(([, o]) => o) as [string, Slot][];
       if (!sources.length) {
-        if (animate) {
+        if (morph) {
           n.setAlpha(0);
           this.tweens.add({ targets: n, alpha: 1, duration: 400, delay: MS - 100 });
         }
@@ -1116,40 +1179,45 @@ export class EvidenceScene extends Phaser.Scene {
         ease: 'Sine.easeInOut',
       });
 
-    // ---- the stage's name above, and its key below the first two stages
-    const names = ['The rule', 'With the names', 'With your numbers', 'Multiply', 'Add', 'Divide'];
+    // ---- the stage's name above, and what goes beneath the formula
+    const names = ['', 'The rule', 'With the names', 'With your numbers', 'Multiply', 'Add', 'Divide', 'And the other'];
     this.put(txt(this, W / 2, FY - 110, names[stage], 18, DIM, { fontStyle: 'italic' }).setOrigin(0.5));
     const below: Phaser.GameObjects.GameObject[] = [];
     const keyY = FY + 92;
-    if (stage === 0) {
+    if (stage === 1) {
       const legend: Part[] = [];
       SUSPECTS.forEach((sp, i) => legend.push(H(i), [`  ${sp.name} is the murderer      `, '#bdbdbd']));
       legend.push(E, [`  finding ${clue.short}`, '#bdbdbd']);
-      below.push(draw({ parts: legend, x: W / 2 - measure(legend, 18) / 2, y: keyY, w: 0 }, 18));
-    } else if (stage === 1) {
-      const note = `P(${short(0)}): your board before this clue (${this.fromShort})      P(${noun} given ${short(0)}): your rating for ${short(0)}`;
-      below.push(this.put(txt(this, W / 2, keyY, note, 16, '#9a9a9a', { fontStyle: 'italic' }).setOrigin(0.5)));
+      below.push(draw({ parts: legend, x: W / 2 - measure(legend, 18) / 2, y: keyY }, 18));
+    } else if (stage === 2) {
+      const note: Part[] = [
+        poss(focus), [' Prior: your board before this clue      ', '#9a9a9a'],
+        [Noun, EC], [' in ', '#9a9a9a'], poss(focus), [' story: your rating for ', '#9a9a9a'], [short(focus), col(focus)],
+      ];
+      below.push(draw({ parts: note, x: W / 2 - measure(note, 16) / 2, y: keyY }, 16));
+    } else if (stage === LAST && SUSPECTS.length === 2) {
+      // the other suspect: what is left of 100%
+      const other = 1 - focus;
+      // worked from the rounded figure on screen, so the subtraction always adds up
+      const shown = parseFloat(share(after[focus])) / 100;
+      const line: Part[] = [
+        poss(other), [' Update', WC], [' = 100% − ', WC], poss(focus), [' Update', WC],
+        [' = 100% − ', WC], [share(after[focus]), col(focus)], [' = ', WC], [share(1 - shown), col(other)],
+      ];
+      below.push(draw({ parts: line, x: W / 2 - measure(line, 24) / 2, y: FY + 100 }, 24));
     }
-    if (animate)
+    if (from !== undefined && from === stage - 1)
       below.forEach((o) => {
         (o as unknown as Phaser.GameObjects.Components.Alpha).setAlpha(0);
-        this.tweens.add({ targets: o, alpha: 1, duration: 450, delay: MS });
+        this.tweens.add({ targets: o, alpha: 1, duration: 450, delay: morph ? MS : 0 });
       });
 
-    const LAST = names.length - 1;
-    if (stage < LAST) {
-      this.setNext(`${names[stage + 1]} ›`, true, () => {
-        this.mathFrom = stage;
-        this.mathStage = stage + 1;
-        Sound.blip();
-        this.show(true);
-      });
-    }
-    if (stage > 0)
-      this.backOverride = () => {
-        this.mathStage = stage - 1;
-        this.show(true);
-      };
+    if (stage < LAST) this.setNext(`${names[stage + 1]} ›`, true, () => goTo(stage + 1, true));
+    // Back steps back through the stages, to the choice of whose story to follow
+    this.backOverride = () => {
+      this.mathStage = stage - 1;
+      this.show(true);
+    };
   }
 
   private recapPage(head: string, clue: (typeof CLUES)[number]) {
