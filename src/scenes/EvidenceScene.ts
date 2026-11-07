@@ -879,8 +879,9 @@ export class EvidenceScene extends Phaser.Scene {
     const n = SUSPECTS.length;
 
     const [stepName, caption] = UPDATE_STEPS[ph].map((t) => t.replace('{n}', numberWord(n)));
-    this.put(txt(this, W / 2, CONTENT_Y + 2, stepName, 22, GOLD, { fontStyle: 'bold' }).setOrigin(0.5, 0));
-    this.para(W / 2, CONTENT_Y + 34, caption, 19, '#dcdcdc', 1080, 0.5);
+    // the step's name sits directly over the square (see below); the caption leads the page
+    this.put(txt(this, 150 + 330 / 2, CONTENT_Y + 128 - 14, stepName, 22, GOLD, { fontStyle: 'bold' }).setOrigin(0.5, 1));
+    this.para(W / 2, CONTENT_Y + 8, caption, 19, '#dcdcdc', 1080, 0.5);
 
     // the square, built at the previous step and slid into this one
     const S = 330;
