@@ -49,6 +49,7 @@ export class MemoryScene extends Phaser.Scene {
   private pages: MemoryPage[] = [];
   private layer!: Phaser.GameObjects.Container;
   private busy = false;
+  private backBtn!: Button;
 
   constructor() {
     super('Memory');
@@ -89,6 +90,14 @@ export class MemoryScene extends Phaser.Scene {
       fill: 0x2a1d10,
       stroke: 0xd9b98a,
     });
+    // and a way back, bottom left, as on every other page
+    this.backBtn = new Button(this, 130, H - 56, '‹ Back', () => this.prev(), {
+      width: 180,
+      height: 56,
+      size: 22,
+      fill: 0x2a1d10,
+      stroke: 0xd9b98a,
+    });
     let down = false;
     this.input.on('pointerdown', (_p: Phaser.Input.Pointer, over: Phaser.GameObjects.GameObject[]) => (down = !over.length));
     this.input.on('pointerup', (_p: Phaser.Input.Pointer, over: Phaser.GameObjects.GameObject[]) => {
@@ -100,8 +109,27 @@ export class MemoryScene extends Phaser.Scene {
     // → moves on here too, as everywhere else
     this.input.keyboard?.on('keydown-RIGHT', () => this.next());
     this.input.keyboard?.on('keydown-D', () => this.next());
+    this.input.keyboard?.on('keydown-LEFT', () => this.prev());
+    this.input.keyboard?.on('keydown-A', () => this.prev());
     this.show();
     this.cameras.main.fadeIn(900, 255, 228, 186);
+  }
+
+  /** Turn back to the previous page of the memory. */
+  private prev() {
+    if (this.busy || this.page === 0) return;
+    this.page--;
+    Sound.blip();
+    this.busy = true;
+    this.tweens.add({
+      targets: this.layer,
+      alpha: 0,
+      duration: 250,
+      onComplete: () => {
+        this.show();
+        this.busy = false;
+      },
+    });
   }
 
   private next() {
@@ -129,6 +157,7 @@ export class MemoryScene extends Phaser.Scene {
   }
 
   private show() {
+    this.backBtn.setVisible(this.page > 0);
     this.layer.removeAll(true);
     this.layer.setAlpha(0);
     const p = this.pages[this.page];

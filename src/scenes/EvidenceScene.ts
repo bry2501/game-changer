@@ -200,7 +200,8 @@ export class EvidenceScene extends Phaser.Scene {
     this.setNext('Next ›', true);
     this.backOverride = undefined;
     this.steps[this.index].build();
-    this.backBtn.setVisible((this.index > 0 || !!this.backOverride) && !this.committed);
+    // Back is always there to look at an earlier page (counted ratings simply stay as they were)
+    this.backBtn.setVisible(this.index > 0 || !!this.backOverride);
     if (this.index === this.steps.length - 1 && this.nextBtn.label.text.startsWith('Next')) {
       this.setNext('Continue ›', this.nextBtn.alpha === 1);
     }
@@ -833,6 +834,10 @@ export class EvidenceScene extends Phaser.Scene {
         this.tweens.add({ targets: box, y: minOff, duration: 450, ease: 'Sine.easeInOut', onComplete: () => scrollTo(minOff) });
       }
     }
+
+    // once the board has taken these ratings, they are shown but can no longer change
+    if (this.committed)
+      this.put(txt(this, W / 2, NAV_Y - 4, 'These ratings are already counted on your board.', 16, DIM, { fontStyle: 'italic' }).setOrigin(0.5));
 
     // Next brings in the first suspect, then waits until everyone is rated
     if (stage === 0) this.setNext('Next ›', true, reveal);
