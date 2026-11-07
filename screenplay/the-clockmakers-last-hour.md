@@ -67,9 +67,8 @@ One night. One hour. Two suspects. You are the ghost, and you have until the clo
 > **GHOST** *(thought)*: I was a watchmaker.
 > **GHOST** *(thought)*: But I see no bullet wounds. No knife. No broken bones. Just... stillness.
 > **GHOST** *(thought)*: Wait, I remember having my evening tea...
-> **GHOST** *(thought)*: The memory is coming back to me. It tasted bitter tonight. I remember drinking it anyway.
+> **GHOST** *(thought)*: It tasted bitter tonight. I remember drinking it anyway.
 > **GHOST** *(thought)*: Someone must have put something in my tea.
-> **GHOST** *(thought)*: Someone in this house did this to me.
 
 *A warm flash. Another toll. The ghost shudders, and the room seems to tilt away from him.*
 

@@ -150,9 +150,8 @@ export const BODY_LINES: string[] = [
   'I was a watchmaker.',
   'But I see no bullet wounds. No knife. No broken bones. Just... stillness.',
   'Wait, I remember having my evening tea...',
-  'The memory is coming back to me. It tasted bitter tonight. I remember drinking it anyway.',
+  'It tasted bitter tonight. I remember drinking it anyway.',
   'Someone must have put something in my tea.',
-  'Someone in this house did this to me.',
 ];
 
 /** After the flash: the memory starts to surface. */
