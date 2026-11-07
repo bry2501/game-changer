@@ -415,7 +415,7 @@ export class WorldScene extends Phaser.Scene {
         BODY_LINES,
         () => {
           this.lock();
-          cam.flash(1400, 255, 225, 180);
+          // a toll and a shudder; the light is saved for the memory itself
           Sound.toll();
           cam.shake(600, 0.003);
           // the memory starts to surface before it takes over
@@ -424,8 +424,9 @@ export class WorldScene extends Phaser.Scene {
               BODY_AFTER,
               () => {
                 this.lock();
-                cam.flash(900, 255, 225, 180);
-                this.time.delayedCall(1000, () => {
+                // one warm bloom that carries straight on into the memory (which fades in from the same glow)
+                cam.fadeOut(900, 255, 228, 186);
+                this.time.delayedCall(950, () => {
                   cam.setZoom(ZOOM);
                   this.baseY = floorTop(0) + LOCAL_GHOST_Y;
                   this.following = true;

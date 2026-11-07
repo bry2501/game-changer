@@ -262,7 +262,7 @@ After choosing: “You rated it N: …, a P% chance.”
 - **Step 1 of 3: shrink**: Each bar shrinks by how well the clue fits that person’s story. A good fit keeps most of it; a poor fit keeps little. The shaded part is what is left; the faded part is what the clue took away. *(Key: Side brackets: the new evidence. Each shaded piece is the part of that person’s story in which this clue turns up; your rating sets its height.)*
 - **Step 2 of 3: together**: Put what’s left side by side. It no longer fills the whole square, because the clue took a piece of every share. The less that’s left, the more unusual this clue was across both stories; the more, the more ordinary. *(Key: Shaded pieces: the worlds that fit this clue. Everything else is ruled out.)*
 - **Step 3 of 3: stretch**: Stretch what’s left back to the full square, keeping the proportions. Whoever kept more than the others grows; whoever kept less shrinks. This is only fair because these two stories cover every possibility between them. *(Key: New widths: the new shares. Dashed line: where the old border was.)*
-- Step 1 labels each suspect “rated N: keeps very little / keeps less than half / keeps half / keeps most / keeps almost all”; step 3 marks each ▲ grew / ▼ shrank, with the old border dashed, and says in words how each share changed.
+- Beside the square, one short paragraph in the ghost’s voice says what it shows at each step (where the shares came from, how much each bar keeps, what is left, the new shares).
 
 ### Page: The math
 
@@ -351,7 +351,7 @@ After choosing: “You rated it N: …, a P% chance.”
 - **Step 1 of 3: shrink**: Each bar shrinks by how well the clue fits that person’s story. A good fit keeps most of it; a poor fit keeps little. The shaded part is what is left; the faded part is what the clue took away. *(Key: Side brackets: the new evidence. Each shaded piece is the part of that person’s story in which this clue turns up; your rating sets its height.)*
 - **Step 2 of 3: together**: Put what’s left side by side. It no longer fills the whole square, because the clue took a piece of every share. The less that’s left, the more unusual this clue was across both stories; the more, the more ordinary. *(Key: Shaded pieces: the worlds that fit this clue. Everything else is ruled out.)*
 - **Step 3 of 3: stretch**: Stretch what’s left back to the full square, keeping the proportions. Whoever kept more than the others grows; whoever kept less shrinks. This is only fair because these two stories cover every possibility between them. *(Key: New widths: the new shares. Dashed line: where the old border was.)*
-- Step 1 labels each suspect “rated N: keeps very little / keeps less than half / keeps half / keeps most / keeps almost all”; step 3 marks each ▲ grew / ▼ shrank, with the old border dashed, and says in words how each share changed.
+- Beside the square, one short paragraph in the ghost’s voice says what it shows at each step (where the shares came from, how much each bar keeps, what is left, the new shares).
 - When both ratings match, step 3 marks both “unchanged” and says so in words: “Neither story fits this clue better, so nothing moves.”
 
 ### Page: The math
@@ -441,7 +441,7 @@ After choosing: “You rated it N: …, a P% chance.”
 - **Step 1 of 3: shrink**: Each bar shrinks by how well the clue fits that person’s story. A good fit keeps most of it; a poor fit keeps little. The shaded part is what is left; the faded part is what the clue took away. *(Key: Side brackets: the new evidence. Each shaded piece is the part of that person’s story in which this clue turns up; your rating sets its height.)*
 - **Step 2 of 3: together**: Put what’s left side by side. It no longer fills the whole square, because the clue took a piece of every share. The less that’s left, the more unusual this clue was across both stories; the more, the more ordinary. *(Key: Shaded pieces: the worlds that fit this clue. Everything else is ruled out.)*
 - **Step 3 of 3: stretch**: Stretch what’s left back to the full square, keeping the proportions. Whoever kept more than the others grows; whoever kept less shrinks. This is only fair because these two stories cover every possibility between them. *(Key: New widths: the new shares. Dashed line: where the old border was.)*
-- Step 1 labels each suspect “rated N: keeps very little / keeps less than half / keeps half / keeps most / keeps almost all”; step 3 marks each ▲ grew / ▼ shrank, with the old border dashed, and says in words how each share changed.
+- Beside the square, one short paragraph in the ghost’s voice says what it shows at each step (where the shares came from, how much each bar keeps, what is left, the new shares).
 
 ### Page: The math
 
@@ -528,7 +528,7 @@ After choosing: “You rated it N: …, a P% chance.”
 - **Step 1 of 3: shrink**: Each bar shrinks by how well the clue fits that person’s story. A good fit keeps most of it; a poor fit keeps little. The shaded part is what is left; the faded part is what the clue took away. *(Key: Side brackets: the new evidence. Each shaded piece is the part of that person’s story in which this clue turns up; your rating sets its height.)*
 - **Step 2 of 3: together**: Put what’s left side by side. It no longer fills the whole square, because the clue took a piece of every share. The less that’s left, the more unusual this clue was across both stories; the more, the more ordinary. *(Key: Shaded pieces: the worlds that fit this clue. Everything else is ruled out.)*
 - **Step 3 of 3: stretch**: Stretch what’s left back to the full square, keeping the proportions. Whoever kept more than the others grows; whoever kept less shrinks. This is only fair because these two stories cover every possibility between them. *(Key: New widths: the new shares. Dashed line: where the old border was.)*
-- Step 1 labels each suspect “rated N: keeps very little / keeps less than half / keeps half / keeps most / keeps almost all”; step 3 marks each ▲ grew / ▼ shrank, with the old border dashed, and says in words how each share changed.
+- Beside the square, one short paragraph in the ghost’s voice says what it shows at each step (where the shares came from, how much each bar keeps, what is left, the new shares).
 
 ### Page: The math
 
@@ -620,7 +620,7 @@ After choosing: “You rated it N: …, a P% chance.”
 - **Step 1 of 3: shrink**: Each bar shrinks by how well the clue fits that person’s story. A good fit keeps most of it; a poor fit keeps little. The shaded part is what is left; the faded part is what the clue took away. *(Key: Side brackets: the new evidence. Each shaded piece is the part of that person’s story in which this clue turns up; your rating sets its height.)*
 - **Step 2 of 3: together**: Put what’s left side by side. It no longer fills the whole square, because the clue took a piece of every share. The less that’s left, the more unusual this clue was across both stories; the more, the more ordinary. *(Key: Shaded pieces: the worlds that fit this clue. Everything else is ruled out.)*
 - **Step 3 of 3: stretch**: Stretch what’s left back to the full square, keeping the proportions. Whoever kept more than the others grows; whoever kept less shrinks. This is only fair because these two stories cover every possibility between them. *(Key: New widths: the new shares. Dashed line: where the old border was.)*
-- Step 1 labels each suspect “rated N: keeps very little / keeps less than half / keeps half / keeps most / keeps almost all”; step 3 marks each ▲ grew / ▼ shrank, with the old border dashed, and says in words how each share changed.
+- Beside the square, one short paragraph in the ghost’s voice says what it shows at each step (where the shares came from, how much each bar keeps, what is left, the new shares).
 
 ### Page: The math
 
@@ -707,7 +707,7 @@ After choosing: “You rated it N: …, a P% chance.”
 - **Step 1 of 3: shrink**: Each bar shrinks by how well the clue fits that person’s story. A good fit keeps most of it; a poor fit keeps little. The shaded part is what is left; the faded part is what the clue took away. *(Key: Side brackets: the new evidence. Each shaded piece is the part of that person’s story in which this clue turns up; your rating sets its height.)*
 - **Step 2 of 3: together**: Put what’s left side by side. It no longer fills the whole square, because the clue took a piece of every share. The less that’s left, the more unusual this clue was across both stories; the more, the more ordinary. *(Key: Shaded pieces: the worlds that fit this clue. Everything else is ruled out.)*
 - **Step 3 of 3: stretch**: Stretch what’s left back to the full square, keeping the proportions. Whoever kept more than the others grows; whoever kept less shrinks. This is only fair because these two stories cover every possibility between them. *(Key: New widths: the new shares. Dashed line: where the old border was.)*
-- Step 1 labels each suspect “rated N: keeps very little / keeps less than half / keeps half / keeps most / keeps almost all”; step 3 marks each ▲ grew / ▼ shrank, with the old border dashed, and says in words how each share changed.
+- Beside the square, one short paragraph in the ghost’s voice says what it shows at each step (where the shares came from, how much each bar keeps, what is left, the new shares).
 
 ### Page: The math
 
@@ -793,7 +793,7 @@ After choosing: “You rated it N: …, a P% chance.”
 - **Step 1 of 3: shrink**: Each bar shrinks by how well the clue fits that person’s story. A good fit keeps most of it; a poor fit keeps little. The shaded part is what is left; the faded part is what the clue took away. *(Key: Side brackets: the new evidence. Each shaded piece is the part of that person’s story in which this clue turns up; your rating sets its height.)*
 - **Step 2 of 3: together**: Put what’s left side by side. It no longer fills the whole square, because the clue took a piece of every share. The less that’s left, the more unusual this clue was across both stories; the more, the more ordinary. *(Key: Shaded pieces: the worlds that fit this clue. Everything else is ruled out.)*
 - **Step 3 of 3: stretch**: Stretch what’s left back to the full square, keeping the proportions. Whoever kept more than the others grows; whoever kept less shrinks. This is only fair because these two stories cover every possibility between them. *(Key: New widths: the new shares. Dashed line: where the old border was.)*
-- Step 1 labels each suspect “rated N: keeps very little / keeps less than half / keeps half / keeps most / keeps almost all”; step 3 marks each ▲ grew / ▼ shrank, with the old border dashed, and says in words how each share changed.
+- Beside the square, one short paragraph in the ghost’s voice says what it shows at each step (where the shares came from, how much each bar keeps, what is left, the new shares).
 
 ### Page: The math
 

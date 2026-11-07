@@ -7,7 +7,7 @@ import { drawSuspect } from './MemoryScene';
 import { CONCEPTS, numberWord } from '../data/lessons';
 import { BayesSquare } from '../ui/square';
 import { Brace } from '../ui/brace';
-import { KEEP_WORDS as KEEP, RATING_VALUES, RATING_WORDS, UNCHANGED, UPDATE_STEPS } from '../data/ui';
+import { RATING_VALUES, RATING_WORDS, UNCHANGED, UPDATE_STEPS } from '../data/ui';
 import { Sound } from '../audio/Sound';
 
 type Kind = 'prior' | 'clue';
@@ -29,9 +29,6 @@ const NAV_Y = 668;
  */
 const RATINGS = RATING_WORDS.map((word, k) => ({ n: k + 1, word, v: RATING_VALUES[k] }));
 const ratingOf = (v: number) => RATINGS.find((r) => Math.abs(r.v - v) < 1e-9)!;
-
-/** Words for how much of a share a rating keeps. */
-const KEEP_WORDS: Record<number, string> = Object.fromEntries(KEEP.map((w, k) => [k + 1, w]));
 
 /**
  * A note or clue, examined one idea at a time:
@@ -74,8 +71,9 @@ export class EvidenceScene extends Phaser.Scene {
   private rec?: StepRecord;
   /** Which step of the update animation is showing (0–3). */
   private phase = 0;
-  /** Where this clue's starting shares came from, in full and in a few words. */
-  private fromLong = '';
+  /** Which clue (0-based) this examination is about. */
+  private clueIdx = 0;
+  /** Where this clue's starting shares came from, in a few words. */
   private fromShort = '';
   /** How many suspects' rating blocks are showing under the lesson (0 = the lesson alone). */
   private weighStage = 0;
@@ -675,21 +673,18 @@ export class EvidenceScene extends Phaser.Scene {
    * the household log for the first clue, and after that the new shares the clue before produced.
    */
   private describeSource(k: number) {
-    const now = SUSPECTS.map((s, i) => `${s.name} ${share(this.prior[i])}`).join(', ');
     if (k <= 0) {
-      const hours = SUSPECTS.map((s) => `${s.name} ${s.hoursInside} of ${PRIOR_SHEET.total}`).join(', ');
       this.fromShort = 'from the household log';
-      this.fromLong = `These shares come from the household log, the hours each person was inside (${hours}): ${now}.`;
       return;
     }
     const prev = CLUES[k - 1];
     this.fromShort = `the new shares from Clue ${k}, ${prev.title}`;
-    this.fromLong = `These shares are the new shares worked out at the last clue, ${prev.title}: ${now}. What came out of that clue goes into this one.`;
   }
 
   private clueSteps(): Step[] {
     const clue = CLUES[GameState.data.found];
     this.prior = GameState.data.belief.slice();
+    this.clueIdx = GameState.data.found;
     this.describeSource(GameState.data.found);
     const head = `Clue ${GameState.data.found + 1} of ${CLUES.length}: ${clue.title}`;
 
@@ -707,7 +702,7 @@ export class EvidenceScene extends Phaser.Scene {
       },
       { crumb: 'Lesson & ratings', build: () => this.weighPage(clue, head) },
     ];
-    steps.push({ crumb: 'Update', build: () => this.updatePage(head) });
+    steps.push({ crumb: 'Update', build: () => this.updatePage(head, clue) });
     steps.push({ crumb: 'The math', build: () => this.mathPage(head, clue) });
     steps.push({ crumb: 'Recap', build: () => this.recapPage(head, clue) });
     return steps;
@@ -874,7 +869,7 @@ export class EvidenceScene extends Phaser.Scene {
    *   2. together: only the shaded pieces, the worlds that fit this clue, remain
    *   3. stretch: the shaded pieces fill a new square; their widths are the new shares
    */
-  private updatePage(head: string) {
+  private updatePage(head: string, clue: (typeof CLUES)[number]) {
     const ph = this.phase;
     this.title(head);
     const lik = this.lik;
@@ -883,7 +878,7 @@ export class EvidenceScene extends Phaser.Scene {
     if (ph >= 3) this.commitClue();
     const n = SUSPECTS.length;
 
-    const [stepName, caption, key] = UPDATE_STEPS[ph].map((t) => t.replace('{n}', numberWord(n)));
+    const [stepName, caption] = UPDATE_STEPS[ph].map((t) => t.replace('{n}', numberWord(n)));
     this.put(txt(this, W / 2, CONTENT_Y + 2, stepName, 22, GOLD, { fontStyle: 'bold' }).setOrigin(0.5, 0));
     this.para(W / 2, CONTENT_Y + 34, caption, 19, '#dcdcdc', 1080, 0.5);
 
@@ -894,68 +889,46 @@ export class EvidenceScene extends Phaser.Scene {
     );
     if (ph > 0) this.time.delayedCall(250, () => sq.setPhase(ph));
 
-    // what each part means, beside the square (clear of the P(E | H) label on its right side)
-    const x = 630;
-    let y = CONTENT_Y + 132;
-    const k = this.para(x, y, key, 18, DIM, 610);
-    y += k.height + 22;
-    if (ph === 0) {
-      // where these shares come from: the log, or the board the last clue left behind
-      const src = this.para(x, y - 8, this.fromLong, 19, INK, 610);
-      y += src.height + 18;
-    }
-    // each row: the words, then the exact numbers for this step
+    // beside the square: one short paragraph telling what it shows, in the ghost's words
     const joint = this.prior.map((p, i) => p * lik[i]);
     const left = joint.reduce((a, b) => a + b, 0);
-    SUSPECTS.forEach((s, i) => {
-      const r = ratingOf(lik[i]);
-      this.put(txt(this, x, y, s.name, 22, hex(s.color), { fontStyle: 'bold' }));
-      let what = `before this clue: ${share(this.prior[i])}`;
-      if (ph === 1) what = `rated ${r.n}: ${KEEP_WORDS[r.n]} (${share(lik[i])})`;
-      if (ph === 2) what = `${share(this.prior[i])} × ${share(lik[i])} = ${share(joint[i])}`;
-      let trend = '';
-      if (ph === 3) {
-        const d = after[i] - this.prior[i];
-        trend = same || Math.abs(d) < 0.005 ? '= unchanged' : d > 0 ? (d > 0.15 ? '▲ grew a lot' : '▲ grew') : d < -0.15 ? '▼ shrank a lot' : '▼ shrank';
-      }
-      const t =
-        ph === 3
-          ? this.put(mathText(this, x + 160, y + 14, [{ n: share(joint[i]), d: share(left) }, ` = ${share(after[i])}`], 20, INK))
-          : this.put(txt(this, x + 160, y + 2, what, 20, INK));
-      if (ph === 3) {
-        const tr = this.put(
-          txt(this, x + 160 + t.width + 18, y + 2, trend, 20, trend.startsWith('▲') ? '#f0f0f0' : trend.startsWith('▼') ? '#d84a52' : INK),
-        );
-        [t, tr].forEach((o) => o.setAlpha(0));
-        this.time.delayedCall(1200, () => this.tweens.add({ targets: [t, tr], alpha: 1, duration: 400 }));
-      }
-      y += ph === 3 ? 58 : 42;
-    });
-    // the sum, and the rule behind the step
-    const rule =
-      ph === 0
-        ? `Together: ${SUSPECTS.map((_, i) => share(this.prior[i])).join(' + ')} = 100%`
-        : ph === 1
-          ? 'Each piece is as tall as the rating: the chance of this clue in that story.'
-          : ph === 2
-            ? `Left of the square: ${joint.map(share).join(' + ')} = ${share(left)}`
-            : '';
-    if (ph === 3) {
-      const r3 = this.put(mathText(this, x, y + 18, ['New share = ', { n: 'share × rating', d: 'what was left' }], 18, '#c9c9c9', { italic: true }));
-      y += r3.height + 14;
+    const name = (i: number) => SUSPECTS[i].name;
+    const list = (f: (i: number) => string) => {
+      const parts = SUSPECTS.map((_, i) => f(i));
+      return parts.length > 1 ? `${parts.slice(0, -1).join(', ')} and ${parts[parts.length - 1]}` : parts[0];
+    };
+    const k = this.clueIdx;
+    let story: string;
+    if (ph === 0) {
+      story =
+        k <= 0
+          ? `When we looked at the household log, ${list((i) => `${name(i)} had been inside for ${SUSPECTS[i].hoursInside} of the ${PRIOR_SHEET.total} hours`)}. ` +
+            `So ${list((i) => `${name(i)}’s column takes ${share(this.prior[i])}`)} of the square.`
+          : `After the last clue, ${CLUES[k - 1].noun}, ${list((i) => `${name(i)}’s share stood at ${share(this.prior[i])}`)}. ` +
+            `Each column is as wide as that share. This is where we start with ${clue.noun}.`;
+    } else if (ph === 1) {
+      story =
+        `Now ${clue.noun}. ` +
+        SUSPECTS.map((_, i) => `In ${name(i)}’s story it would turn up ${share(lik[i])} of the time, so ${name(i)}’s bar keeps ${share(lik[i])} of its height.`).join(' ');
+    } else if (ph === 2) {
+      story =
+        `Side by side, what is left is ${list((i) => `${share(joint[i])} of the square for ${name(i)}`)}: ${share(left)} in all. ` +
+        `Everything else has been ruled out by ${clue.noun}.`;
     } else {
-      const ruleText = this.put(txt(this, x, y + 4, rule, 18, '#c9c9c9', { fontStyle: 'italic' }));
-      y += ruleText.height + 14;
+      const how = (i: number) => {
+        const d = after[i] - this.prior[i];
+        return Math.abs(d) < 0.005 ? 'stayed the same' : d > 0 ? (d > 0.15 ? 'grew a lot' : 'grew') : d < -0.15 ? 'shrank a lot' : 'shrank';
+      };
+      story =
+        `Stretched back to fill the square, ${list((i) => `${name(i)} now holds ${share(after[i])}`)}. ` +
+        (same ? UNCHANGED : SUSPECTS.map((_, i) => `${name(i)}’s share ${how(i)}.`).join(' '));
     }
+    const x = 630;
+    const para = this.para(x, 0, story, 22, INK, 610);
+    para.setY(CONTENT_Y + 128 + S / 2 - para.height / 2); // level with the middle of the square
     if (ph === 3) {
-      const words = same
-        ? UNCHANGED
-        : SUSPECTS.map((s, i) => {
-            const d = after[i] - this.prior[i];
-            const how = Math.abs(d) < 0.005 ? 'stayed the same' : d > 0 ? (d > 0.15 ? 'grew a lot' : 'grew') : d < -0.15 ? 'shrank a lot' : 'shrank';
-            return `${s.name}’s share ${how}.`;
-          }).join('  ');
-      this.para(x, y + 6, words, 20, INK, 610);
+      para.setAlpha(0);
+      this.time.delayedCall(1200, () => this.tweens.add({ targets: para, alpha: 1, duration: 400 }));
     }
 
     // the player steps through at their own pace

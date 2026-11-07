@@ -101,7 +101,7 @@ export class MemoryScene extends Phaser.Scene {
     this.input.keyboard?.on('keydown-RIGHT', () => this.next());
     this.input.keyboard?.on('keydown-D', () => this.next());
     this.show();
-    this.cameras.main.fadeIn(900, 255, 230, 190);
+    this.cameras.main.fadeIn(900, 255, 228, 186);
   }
 
   private next() {

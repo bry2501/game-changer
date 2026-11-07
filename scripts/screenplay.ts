@@ -336,7 +336,7 @@ CLUES.forEach((c, k) => {
   w('### Page: Update (the player steps through, on a square of possible worlds)');
   w();
   for (const [name, cap, key] of UPDATE_STEPS) w(`- **${name}**: ${cap.replace('{n}', numberWord(SUSPECTS.length))} *(Key: ${key})*`);
-  w(`- Step 1 labels each suspect “rated N: ${KEEP_WORDS.join(' / ')}”; step 3 marks each ▲ grew / ▼ shrank, with the old border dashed, and says in words how each share changed.`);
+  w('- Beside the square, one short paragraph in the ghost’s voice says what it shows at each step (where the shares came from, how much each bar keeps, what is left, the new shares).');
   if (Math.abs(c.likelihoods[0] - c.likelihoods[1]) < 1e-9) w(`- When both ratings match, step 3 marks both “unchanged” and says so in words: “${UNCHANGED}”`);
   w();
   w('### Page: The math');
