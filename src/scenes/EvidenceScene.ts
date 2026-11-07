@@ -681,7 +681,7 @@ export class EvidenceScene extends Phaser.Scene {
 
   /**
    * Where the shares going into clue k came from, so every page that shows them can say:
-   * the household log for the first clue, and after that the clue before and its ratings.
+   * the household log for the first clue, and after that the new shares the clue before produced.
    */
   private describeSource(k: number) {
     const now = SUSPECTS.map((s, i) => `${s.name} ${share(this.prior[i])}`).join(', ');
@@ -692,10 +692,8 @@ export class EvidenceScene extends Phaser.Scene {
       return;
     }
     const prev = CLUES[k - 1];
-    const lik = GameState.data.history[k - 1]?.playerLik;
-    const rated = lik ? ` You rated it ${SUSPECTS.map((s, i) => `${ratingOf(lik[i])?.n ?? '?'} for ${s.name}`).join(' and ')}.` : '';
-    this.fromShort = `after Clue ${k}, ${prev.title}`;
-    this.fromLong = `These shares are where the last clue, ${prev.title}, left your board: ${now}.${rated}`;
+    this.fromShort = `the new shares from Clue ${k}, ${prev.title}`;
+    this.fromLong = `These shares are the new shares worked out at the last clue, ${prev.title}: ${now}. What came out of that clue goes into this one.`;
   }
 
   private clueSteps(): Step[] {
@@ -812,7 +810,7 @@ export class EvidenceScene extends Phaser.Scene {
     y += k.height + 22;
     if (ph === 0) {
       // where these shares come from: the log, or the board the last clue left behind
-      const src = this.para(x, y - 8, `${this.fromLong} They are the starting point for this clue.`, 19, INK, 640);
+      const src = this.para(x, y - 8, this.fromLong, 19, INK, 640);
       y += src.height + 18;
     }
     // each row: the words, then the exact numbers for this step
