@@ -32,13 +32,13 @@ One night. One hour. Two suspects. You are the ghost, and you have until the clo
 
 *The ghost drifts toward a tall shape against the wall: a grandfather clock, its case dark as strong tea, the pendulum swinging slow and unhurried.*
 
-> **GHOST** *(thought)*: A grandfather clock? I know this clock.
-> **GHOST** *(thought)*: Did I... build it?
+> **GHOST** *(thought)*: A grandfather clock?
+> **GHOST** *(thought)*: Did I... build this?
 
 *It reaches out. Its hand passes straight through the case. A hollow note, like a wet finger drawn around the rim of a glass; the room shudders slightly.*
 
-> **GHOST** *(thought)*: I went straight through it...
-> **GHOST** *(thought)*: As if the clock were the real thing, and I were a shadow.
+> **GHOST** *(thought)*: I went right through it...
+> **GHOST** *(thought)*: As if it were real, and I were not.
 
 *It drifts to the window. Moonlight lies on the garden like frost. For a moment the pane brightens and becomes a mirror, and shows only the room.*
 
@@ -50,7 +50,7 @@ One night. One hour. Two suspects. You are the ghost, and you have until the clo
 *A glow gathers over a shape on the rug, the way light pools around a dropped coin. The player can move now.*
 
 > **GHOST** *(thought)*: I see something lying on the rug. Very still.
-> **GHOST** *(thought)*: But I cannot tell what it is from here.
+> **GHOST** *(thought)*: I cannot tell what it is from here.
 
 ## Scene 2: The body
 
@@ -63,23 +63,23 @@ One night. One hour. Two suspects. You are the ghost, and you have until the clo
 *A deep bell tolls. The clocks of the house, one after another, take up the note. Ten strokes. The room shudders.*
 > **GHOST** *(thought)*: ...it’s me!
 > **GHOST** *(thought)*: That is my body. I am standing over my own body.
-> **GHOST** *(thought)*: My name... my name was John Bayes.
-> **GHOST** *(thought)*: I was a watchmaker.
-> **GHOST** *(thought)*: But I see no bullet wounds. No knife. No broken bones.
-> **GHOST** *(thought)*: Wait, I remember having my evening tea...
+> **GHOST** *(thought)*: My name... was John Bayes.
+> **GHOST** *(thought)*: What happened to me?
+> **GHOST** *(thought)*: I see no bullet wounds. No knife. No broken bones.
+> **GHOST** *(thought)*: I remember drinking my evening tea...
 > **GHOST** *(thought)*: It tasted bitter tonight. I remember drinking it anyway.
 > **GHOST** *(thought)*: Someone must have put something in my tea.
+> **GHOST** *(thought)*: But who?
 
 *A warm flash. Another toll. The ghost shudders, and the room seems to tilt away from him.*
 
-> **GHOST** *(thought)*: Another memory is piercing through the fog of my mind.
-> **GHOST** *(thought)*: Faces. Voices. I am remembering something...
+> **GHOST** *(thought)*: I am remembering something...
 
 ## Scene 3: A memory returns
 
 *MEMORY. An amber, softly blurred screen, like a photograph held too close to a flame. The ticking of the clocks fades to a murmur, as if heard through a wall. Faces rise out of the fog, one by one: the people who were in the house tonight. Everything in this scene is the ghost remembering, not seeing.*
 
-> **GHOST** *(remembering)*: Who was here tonight? Two of them.
+> **GHOST** *(remembering)*: There were two of them...
 
 ### Clara, the niece
 
@@ -101,11 +101,11 @@ Thomas has been my gardener for twenty years. He keeps the garden and the ground
 
 *The amber thins and fades. The ticking of the clocks returns, close and loud, as if a door had been opened.*
 
-> **GHOST** *(thought)*: Everything after supper is still fog.
-> **GHOST** *(thought)*: But memories seem to come back when I stand close to the things they belong to.
+> **GHOST** *(thought)*: Everything is still a fog.
+> **GHOST** *(thought)*: But memories seem to come back when I stand close to things.
 > **GHOST** *(thought)*: One of them did this. Already my gut whispers a name...
 > **GHOST** *(thought)*: But a gut feeling is how the living get things wrong. I am no longer living. Perhaps I can do better.
-> **GHOST** *(thought)*: I will gather what evidence I can find, and weigh each piece honestly.
+> **GHOST** *(thought)*: I will gather evidence, and weigh each clue honestly.
 
 *Back in the study. The room name and evidence counter appear.*
 
@@ -181,9 +181,9 @@ Two floors joined by the hallway stairs. Anything searchable shimmers identicall
 | Mr. Thomas | 4:00 pm | 8:00 pm |
 | Edgar | — | — |
 
-> **GHOST** *(thought)*: This was my own rule, and I remember the day I made it: everyone signs the household log when they come and go, the vicar included. A house should know who is in it. It shows who was inside tonight between 6 pm and 10 pm, and for how long. Poe had asked for the evening off to visit his sister; I remember saying yes. That is why I made my own tea. Edgar went home at six, as he always does. That leaves two people who were in this house with my tea: Clara and Mr. Thomas. The question is, which of the two?
+> **GHOST** *(thought)*: This was my own rule: everyone signs the household log when they come and go. A house should know who is in it. This shows who was inside tonight between 6 pm and 10 pm, and for how long. I remember Poe had asked for the evening off to visit his sister. Edgar went home at six, as he always does. That leaves two people who were in this house with my tea: Clara and Mr. Thomas. The question is, who did it?
 >
-> **GHOST** *(thought)*: Before I examine a single clue, I need a starting point to stand on. If I had no information to go on, each suspect would begin with an equal 50/50 chance of guilt. But I can use the log to count the hours each of them spent under this roof: the longer someone was here, the more chances they had. That starting belief is called the PRIOR. It is a judgment, not a fact.
+> **GHOST** *(thought)*: I need a starting point. If I had no information to go on, I would give each suspect an equal 50/50 chance of guilt. But I can use the log to count the hours each of them spent under this roof: the longer someone was here, the more chances they had. That starting belief is called the PRIOR.
 
 **Clara** · *How long was Clara inside?* The log says Clara signed in at 7:00 pm and out at 10:00 pm. How many hours between 6 and 10 pm was she in the house? *(four blocks, “1 hour” to “4 hours”; choosing one lights it and every block to its left; the player lights the right number to continue)*
 If wrong: “Not quite. Check the times again: in at 7:00 pm, out at 10:00 pm, and only the hours between 6 and 10 pm count.”
@@ -203,7 +203,7 @@ Once right: *Mr. Thomas was inside for 2 hours.* The lit blocks are Mr. Thomas�
 > - The hours-inside rule counts time before the tea existed. That is acceptable only because the ghost does not yet know when the tea was tampered with. A stricter alternative would count only the half hour the cup stood on the desk.
 
 > **GHOST** *(thought)*: Clara was here the longest, so she starts as the likeliest. But that doesn’t mean she’s guilty yet.
-> **GHOST** *(thought)*: Every piece of evidence from now on will shift these odds. By how much is the whole question.
+> **GHOST** *(thought)*: Every piece of evidence from now on will shift these odds.
 > **GHOST** *(thought)*: Clara’s room is upstairs. I know my niece. If she wrote something, the draft will be in her writing desk.
 
 ---

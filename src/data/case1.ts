@@ -159,7 +159,7 @@ export const BODY_AFTER: string[] = [
   'I am remembering something...',
 ];
 
-export const MEMORY_INTRO = 'There were two of them..';
+export const MEMORY_INTRO = 'There were two of them...';
 
 export const MEMORY_OUTRO = [
   'Everything is still a fog.',
@@ -185,7 +185,7 @@ export const PRIOR_SHEET = {
   total: TOTAL_HOURS,
   text:
     'This was my own rule: everyone signs the household log when they come and go. A house should know who is in it. ' +
-    'This shows who was inside tonight between 6 pm and 10 pm, and for how long. I remember Poe had asked for the evening off to visit his sister;' +
+    'This shows who was inside tonight between 6 pm and 10 pm, and for how long. I remember Poe had asked for the evening off to visit his sister. ' +
     'Edgar went home at six, as he always does. That leaves two people who were in this house with my tea: Clara and Mr. Thomas. The question is, who did it?',
   context:
     'I need a starting point. If I had no information to go on, I would give each suspect an equal 50/50 chance of guilt. ' +
