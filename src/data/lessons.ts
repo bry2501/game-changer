@@ -12,10 +12,10 @@ export const CONCEPTS: Concept[] = [
   {
     title: 'Think in stories',
     body:
-      'Each suspect is a story, and a clue fits some stories better than others. ' +
+      'Each suspect is a story, and each clue fits some stories better than others. ' +
       'The key is not to ask “who does this evidence point to?” ' +
-      'Instead ask: in the story where this person is the murderer, how likely is it that I would find this evidence? ' +
-      'To help conceptualize the likelihood, imagine ten different nights in which that person is the murderer: on how many of them would this clue turn up? ',
+      'Instead ask: If this story is true, then how likely are you to find this evidence? ' +
+      'In other words, imagine this murder happens five nights in a row. In how many of them would you expect this evidence to turn up? ',
   },
   {
     title: 'Don’t count the same thing twice',
