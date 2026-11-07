@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
-import { hex, txt } from './widgets';
+import { hex, share, txt } from './widgets';
+import { Brace } from './brace';
 
 /**
  * Bayes as geometry, after the "square of all possibilities" picture:
@@ -18,9 +19,14 @@ export class BayesSquare extends Phaser.GameObjects.Container {
   private full: Phaser.GameObjects.Rectangle[] = [];
   private piece: Phaser.GameObjects.Rectangle[] = [];
   private names: Phaser.GameObjects.Text[] = [];
+  /** A curly brace under each column, from its edges to its name; it stretches with the column. */
+  private braces: (Brace | undefined)[] = [];
   private frame: Phaser.GameObjects.Graphics;
   private oldLines: Phaser.GameObjects.Graphics;
   private post: number[];
+  /** The numbers written inside the columns, redrawn for each phase. */
+  private numbers: Phaser.GameObjects.Text[] = [];
+  private numberSize: number;
 
   constructor(
     scene: Phaser.Scene,
@@ -37,6 +43,7 @@ export class BayesSquare extends Phaser.GameObjects.Container {
     super(scene, x, y);
     scene.add.existing(this);
     this.size = size;
+    this.numberSize = Phaser.Math.Clamp(Math.round(size / 15), 13, 22);
     const joint = prior.map((p, i) => p * lik[i]);
     const total = joint.reduce((a, b) => a + b, 0) || 1;
     this.post = joint.map((j) => j / total);
@@ -53,8 +60,12 @@ export class BayesSquare extends Phaser.GameObjects.Container {
     this.frame = scene.add.graphics();
     this.oldLines = scene.add.graphics();
     this.add([this.frame, this.oldLines]);
+    const depth = Phaser.Math.Clamp(Math.round(size / 30), 6, 11);
     labels.forEach((l, i) => {
-      const t = txt(scene, 0, size + 10, l, opts.labelSize ?? 18, hex(colors[i]), { fontStyle: 'bold' }).setOrigin(0.5, 0);
+      const brace = l ? new Brace(scene, 0, 0, size + 5, 1, colors[i], depth) : undefined;
+      if (brace) this.add(brace);
+      this.braces.push(brace);
+      const t = txt(scene, 0, size + 10 + (l ? depth + 4 : 0), l, opts.labelSize ?? 18, hex(colors[i]), { fontStyle: 'bold' }).setOrigin(0.5, 0);
       this.names.push(t);
       this.add(t);
     });
@@ -95,7 +106,12 @@ export class BayesSquare extends Phaser.GameObjects.Container {
       cx = Math.min(cx, S + 40 - t.width / 2);
       right = cx + t.width / 2;
       go(t, { x: cx });
+      // the brace spans the column, its edges just inside the column's borders
+      const inset = Math.min(3, (widths[i] * S) / 6);
+      this.braces[i]?.setSpan(starts[i] + inset, starts[i] + widths[i] * S - inset, animate);
     });
+
+    this.writeNumbers(ph, px, qx, animate);
 
     // the square's outline, the column boundaries, and (when stretched) where the old boundaries were
     this.frame.clear();
@@ -111,5 +127,43 @@ export class BayesSquare extends Phaser.GameObjects.Container {
       go(this.oldLines, { alpha: 1 }, 900);
     }
     return this;
+  }
+
+  /**
+   * The exact quantities, inside the shapes they measure:
+   *   before   each column's width (the share)
+   *   shrink   each shaded piece's height (the rating)
+   *   together each shaded piece's area (share × rating)
+   *   stretch  each new column's width (the new share)
+   */
+  private writeNumbers(ph: number, px: number[], qx: number[], animate: boolean) {
+    this.numbers.forEach((t) => t.destroy());
+    this.numbers = [];
+    const S = this.size;
+    const fs = this.numberSize;
+    this.prior.forEach((p, i) => {
+      const L = this.lik[i];
+      let label: string;
+      let x: number;
+      let w: number;
+      let top: number;
+      let h: number;
+      if (ph === 0) [label, x, w, top, h] = [share(p), px[i], p * S, 0, S];
+      else if (ph === 1) [label, x, w, top, h] = [share(L), px[i], p * S, S - L * S, L * S];
+      else if (ph === 2) [label, x, w, top, h] = [share(p * L), px[i], p * S, S - L * S, L * S];
+      else [label, x, w, top, h] = [share(this.post[i]), qx[i], this.post[i] * S, 0, S];
+      const n = txt(this.scene, x + w / 2, top + h / 2, label, fs, '#111111', { fontStyle: 'bold' }).setOrigin(0.5);
+      // too narrow or too short to hold the number: leave it out rather than spill over
+      if (n.width + 8 > w || n.height + 4 > h) {
+        n.destroy();
+        return;
+      }
+      this.add(n);
+      this.numbers.push(n);
+      if (animate) {
+        n.setAlpha(0);
+        this.scene.tweens.add({ targets: n, alpha: 1, duration: 400, delay: ph === 1 ? 900 + i * 300 : 900 });
+      }
+    });
   }
 }

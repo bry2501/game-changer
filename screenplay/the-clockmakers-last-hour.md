@@ -241,9 +241,9 @@ Don’t ask “who does this evidence point to?” Instead, go one person at a t
 
 > **GHOST** *(thought)*: If Clara did it, the quarrel over my will would be her reason, and a furious letter is exactly the footprint that kind of anger leaves. But Clara writes furious letters all the time, and has never hurt a soul. So her guilt makes this letter more expected, though not by a huge margin.
 
-[ 1 Very unlikely ] [ 2 Unlikely ] [ 3 As likely as not ] [ 4 Likely ] [ 5 Very likely ]
+[ 1 Very unlikely 10% ] [ 2 Unlikely 30% ] [ 3 As likely as not 50% ] [ 4 Likely 70% ] [ 5 Very likely 90% ]
 
-After choosing: “You rated it N: …”
+After choosing: “You rated it N: …, a P% chance.”
 
 ### Page: Suppose Mr. Thomas did it.
 
@@ -251,9 +251,9 @@ After choosing: “You rated it N: …”
 
 > **GHOST** *(thought)*: If Thomas did it, nothing about that Tuesday changes. Clara and I still quarrelled, she still went upstairs and wrote the most savage thing she could think of, and she still didn’t send it to me. His guilt does not stop this letter existing, so it is only a little less expected here than in her story.
 
-[ 1 Very unlikely ] [ 2 Unlikely ] [ 3 As likely as not ] [ 4 Likely ] [ 5 Very likely ]
+[ 1 Very unlikely 10% ] [ 2 Unlikely 30% ] [ 3 As likely as not 50% ] [ 4 Likely 70% ] [ 5 Very likely 90% ]
 
-After choosing: “You rated it N: …”
+After choosing: “You rated it N: …, a P% chance.”
 
 ### Page: Update (the player steps through, on a square of possible worlds)
 
@@ -262,6 +262,15 @@ After choosing: “You rated it N: …”
 - **Step 2 of 3: together**: Put what’s left side by side. It no longer fills the whole square, because the clue took a piece of every share. The less that’s left, the more unusual this clue was across both stories; the more, the more ordinary. *(Key: Shaded pieces: the worlds that fit this clue. Everything else is ruled out.)*
 - **Step 3 of 3: stretch**: Stretch what’s left back to the full square, keeping the proportions. Whoever kept more than the others grows; whoever kept less shrinks. This is only fair because these two stories cover every possibility between them. *(Key: New widths: the new shares. Dashed line: where the old border was.)*
 - Step 1 labels each suspect “rated N: keeps very little / keeps less than half / keeps half / keeps most / keeps almost all”; step 3 marks each ▲ grew / ▼ shrank, with the old border dashed, and says in words how each share changed.
+
+### Page: The math
+
+*(The same update as Bayes’ rule, P(H | E) = P(H) · P(E | H) ÷ P(E), with H one person’s story and E finding an angry letter like this. Each term is explained and filled in with the player’s numbers.)*
+
+- **P(H)**, your board so far: Clara 60%, Mr. Thomas 40% *(numbers here follow the designed ratings)*
+- **P(E | H)**, your rating: Clara 70%, Mr. Thomas 50%
+- **P(E)**, the clue at all: 60% × 70% + 40% × 50% = 62%
+- **P(H | E)**, the new board: Clara 68%, Mr. Thomas 32%
 
 ### Page: Recap: Vivid but weak evidence
 
@@ -319,9 +328,9 @@ A clue can feel new and still be old news. You already knew about the will and w
 
 > **GHOST** *(thought)*: If Clara did it, I still told her about the will on Tuesday, and I still drafted it. A draft in my own desk is very likely.
 
-[ 1 Very unlikely ] [ 2 Unlikely ] [ 3 As likely as not ] [ 4 Likely ] [ 5 Very likely ]
+[ 1 Very unlikely 10% ] [ 2 Unlikely 30% ] [ 3 As likely as not 50% ] [ 4 Likely 70% ] [ 5 Very likely 90% ]
 
-After choosing: “You rated it N: …”
+After choosing: “You rated it N: …, a P% chance.”
 
 ### Page: Suppose Mr. Thomas did it.
 
@@ -329,9 +338,9 @@ After choosing: “You rated it N: …”
 
 > **GHOST** *(thought)*: If Thomas did it, nothing about the will changes. I still told them both, and I still drafted it. A draft in my own desk is just as likely.
 
-[ 1 Very unlikely ] [ 2 Unlikely ] [ 3 As likely as not ] [ 4 Likely ] [ 5 Very likely ]
+[ 1 Very unlikely 10% ] [ 2 Unlikely 30% ] [ 3 As likely as not 50% ] [ 4 Likely 70% ] [ 5 Very likely 90% ]
 
-After choosing: “You rated it N: …”
+After choosing: “You rated it N: …, a P% chance.”
 
 ### Page: Update (the player steps through, on a square of possible worlds)
 
@@ -341,6 +350,15 @@ After choosing: “You rated it N: …”
 - **Step 3 of 3: stretch**: Stretch what’s left back to the full square, keeping the proportions. Whoever kept more than the others grows; whoever kept less shrinks. This is only fair because these two stories cover every possibility between them. *(Key: New widths: the new shares. Dashed line: where the old border was.)*
 - Step 1 labels each suspect “rated N: keeps very little / keeps less than half / keeps half / keeps most / keeps almost all”; step 3 marks each ▲ grew / ▼ shrank, with the old border dashed, and says in words how each share changed.
 - When both ratings match, step 3 marks both “unchanged” and says so in words: “Neither story fits this clue better, so nothing moves.”
+
+### Page: The math
+
+*(The same update as Bayes’ rule, P(H | E) = P(H) · P(E | H) ÷ P(E), with H one person’s story and E finding a draft will like this in my desk. Each term is explained and filled in with the player’s numbers.)*
+
+- **P(H)**, your board so far: Clara 68%, Mr. Thomas 32% *(numbers here follow the designed ratings)*
+- **P(E | H)**, your rating: Clara 90%, Mr. Thomas 90%
+- **P(E)**, the clue at all: 68% × 90% + 32% × 90% = 90%
+- **P(H | E)**, the new board: Clara 68%, Mr. Thomas 32%
 
 ### Page: Recap: Old news doesn’t count twice
 
@@ -398,9 +416,9 @@ What moves suspicion is not how well a clue fits one story, but how much BETTER 
 
 > **GHOST** *(thought)*: If Clara did it, why would she come in through the conservatory? She has been inside since seven, and the front door has always been open to her. And this print is large and fresh. A print like this is very hard to explain in her story.
 
-[ 1 Very unlikely ] [ 2 Unlikely ] [ 3 As likely as not ] [ 4 Likely ] [ 5 Very likely ]
+[ 1 Very unlikely 10% ] [ 2 Unlikely 30% ] [ 3 As likely as not 50% ] [ 4 Likely 70% ] [ 5 Very likely 90% ]
 
-After choosing: “You rated it N: …”
+After choosing: “You rated it N: …, a P% chance.”
 
 ### Page: Suppose Mr. Thomas did it.
 
@@ -408,9 +426,9 @@ After choosing: “You rated it N: …”
 
 > **GHOST** *(thought)*: If Thomas did it, he signed my log at eight and then had to get back in unseen. He leaves his bicycle by the garden gate, as he always does, and the beds lie between that gate and this window. A print like this is quite possible in his story, though he might have found another way in.
 
-[ 1 Very unlikely ] [ 2 Unlikely ] [ 3 As likely as not ] [ 4 Likely ] [ 5 Very likely ]
+[ 1 Very unlikely 10% ] [ 2 Unlikely 30% ] [ 3 As likely as not 50% ] [ 4 Likely 70% ] [ 5 Very likely 90% ]
 
-After choosing: “You rated it N: …”
+After choosing: “You rated it N: …, a P% chance.”
 
 ### Page: Update (the player steps through, on a square of possible worlds)
 
@@ -419,6 +437,15 @@ After choosing: “You rated it N: …”
 - **Step 2 of 3: together**: Put what’s left side by side. It no longer fills the whole square, because the clue took a piece of every share. The less that’s left, the more unusual this clue was across both stories; the more, the more ordinary. *(Key: Shaded pieces: the worlds that fit this clue. Everything else is ruled out.)*
 - **Step 3 of 3: stretch**: Stretch what’s left back to the full square, keeping the proportions. Whoever kept more than the others grows; whoever kept less shrinks. This is only fair because these two stories cover every possibility between them. *(Key: New widths: the new shares. Dashed line: where the old border was.)*
 - Step 1 labels each suspect “rated N: keeps very little / keeps less than half / keeps half / keeps most / keeps almost all”; step 3 marks each ▲ grew / ▼ shrank, with the old border dashed, and says in words how each share changed.
+
+### Page: The math
+
+*(The same update as Bayes’ rule, P(H | E) = P(H) · P(E | H) ÷ P(E), with H one person’s story and E finding a muddy print hidden behind the fern. Each term is explained and filled in with the player’s numbers.)*
+
+- **P(H)**, your board so far: Clara 68%, Mr. Thomas 32% *(numbers here follow the designed ratings)*
+- **P(E | H)**, your rating: Clara 10%, Mr. Thomas 50%
+- **P(E)**, the clue at all: 68% × 10% + 32% × 50% = 23%
+- **P(H | E)**, the new board: Clara 30%, Mr. Thomas 70%
 
 ### Page: Recap: One lopsided clue can swing the board
 
@@ -474,9 +501,9 @@ A strong clue fits one story far better than the rest. Look for the lopsided one
 
 > **GHOST** *(thought)*: If Clara did it, the foxgloves have nothing to do with her. She has never so much as watered them. Then a stripped pot would only be Thomas’s ordinary pruning. Unlikely, though not impossible.
 
-[ 1 Very unlikely ] [ 2 Unlikely ] [ 3 As likely as not ] [ 4 Likely ] [ 5 Very likely ]
+[ 1 Very unlikely 10% ] [ 2 Unlikely 30% ] [ 3 As likely as not 50% ] [ 4 Likely 70% ] [ 5 Very likely 90% ]
 
-After choosing: “You rated it N: …”
+After choosing: “You rated it N: …, a P% chance.”
 
 ### Page: Suppose Mr. Thomas did it.
 
@@ -484,9 +511,9 @@ After choosing: “You rated it N: …”
 
 > **GHOST** *(thought)*: If Thomas did it, here is his poison, grown by his own hand: the foxgloves he has tended for years, which he knows better than anyone alive. In his story, a stripped pot like this is exactly what I’d expect to find.
 
-[ 1 Very unlikely ] [ 2 Unlikely ] [ 3 As likely as not ] [ 4 Likely ] [ 5 Very likely ]
+[ 1 Very unlikely 10% ] [ 2 Unlikely 30% ] [ 3 As likely as not 50% ] [ 4 Likely 70% ] [ 5 Very likely 90% ]
 
-After choosing: “You rated it N: …”
+After choosing: “You rated it N: …, a P% chance.”
 
 ### Page: Update (the player steps through, on a square of possible worlds)
 
@@ -495,6 +522,15 @@ After choosing: “You rated it N: …”
 - **Step 2 of 3: together**: Put what’s left side by side. It no longer fills the whole square, because the clue took a piece of every share. The less that’s left, the more unusual this clue was across both stories; the more, the more ordinary. *(Key: Shaded pieces: the worlds that fit this clue. Everything else is ruled out.)*
 - **Step 3 of 3: stretch**: Stretch what’s left back to the full square, keeping the proportions. Whoever kept more than the others grows; whoever kept less shrinks. This is only fair because these two stories cover every possibility between them. *(Key: New widths: the new shares. Dashed line: where the old border was.)*
 - Step 1 labels each suspect “rated N: keeps very little / keeps less than half / keeps half / keeps most / keeps almost all”; step 3 marks each ▲ grew / ▼ shrank, with the old border dashed, and says in words how each share changed.
+
+### Page: The math
+
+*(The same update as Bayes’ rule, P(H | E) = P(H) · P(E | H) ÷ P(E), with H one person’s story and E finding a foxglove stripped like this. Each term is explained and filled in with the player’s numbers.)*
+
+- **P(H)**, your board so far: Clara 30%, Mr. Thomas 70% *(numbers here follow the designed ratings)*
+- **P(E | H)**, your rating: Clara 30%, Mr. Thomas 90%
+- **P(E)**, the clue at all: 30% × 30% + 70% × 90% = 72%
+- **P(H | E)**, the new board: Clara 12%, Mr. Thomas 88%
 
 ### Page: Recap: Means evidence (diagnostic, not decisive)
 
@@ -555,9 +591,9 @@ Once you lean one way, the clues that point the other way are the ones you will 
 
 > **GHOST** *(thought)*: If Clara did it, she needed something to put a man to sleep and keep him there, and sleeping drops would do that. She might have kept the slip, because people forget what is in a pocket. It is quite likely, though she could as easily have thrown it away.
 
-[ 1 Very unlikely ] [ 2 Unlikely ] [ 3 As likely as not ] [ 4 Likely ] [ 5 Very likely ]
+[ 1 Very unlikely 10% ] [ 2 Unlikely 30% ] [ 3 As likely as not 50% ] [ 4 Likely 70% ] [ 5 Very likely 90% ]
 
-After choosing: “You rated it N: …”
+After choosing: “You rated it N: …, a P% chance.”
 
 ### Page: Suppose Mr. Thomas did it.
 
@@ -565,9 +601,9 @@ After choosing: “You rated it N: …”
 
 > **GHOST** *(thought)*: If Thomas did it, Clara was simply out for a walk. She knows I sleep badly, and she has nagged me about it since the spring, so a kindness is possible. But I never asked her to fetch my drops, and she has never taken any herself. Sleeping drops on this very evening would be a coincidence. Unlikely, though not impossible.
 
-[ 1 Very unlikely ] [ 2 Unlikely ] [ 3 As likely as not ] [ 4 Likely ] [ 5 Very likely ]
+[ 1 Very unlikely 10% ] [ 2 Unlikely 30% ] [ 3 As likely as not 50% ] [ 4 Likely 70% ] [ 5 Very likely 90% ]
 
-After choosing: “You rated it N: …”
+After choosing: “You rated it N: …, a P% chance.”
 
 ### Page: Update (the player steps through, on a square of possible worlds)
 
@@ -576,6 +612,15 @@ After choosing: “You rated it N: …”
 - **Step 2 of 3: together**: Put what’s left side by side. It no longer fills the whole square, because the clue took a piece of every share. The less that’s left, the more unusual this clue was across both stories; the more, the more ordinary. *(Key: Shaded pieces: the worlds that fit this clue. Everything else is ruled out.)*
 - **Step 3 of 3: stretch**: Stretch what’s left back to the full square, keeping the proportions. Whoever kept more than the others grows; whoever kept less shrinks. This is only fair because these two stories cover every possibility between them. *(Key: New widths: the new shares. Dashed line: where the old border was.)*
 - Step 1 labels each suspect “rated N: keeps very little / keeps less than half / keeps half / keeps most / keeps almost all”; step 3 marks each ▲ grew / ▼ shrank, with the old border dashed, and says in words how each share changed.
+
+### Page: The math
+
+*(The same update as Bayes’ rule, P(H | E) = P(H) · P(E | H) ÷ P(E), with H one person’s story and E finding a chemist’s slip like this in Clara’s coat. Each term is explained and filled in with the player’s numbers.)*
+
+- **P(H)**, your board so far: Clara 12%, Mr. Thomas 88% *(numbers here follow the designed ratings)*
+- **P(E | H)**, your rating: Clara 70%, Mr. Thomas 30%
+- **P(E)**, the clue at all: 12% × 70% + 88% × 30% = 35%
+- **P(H | E)**, the new board: Clara 25%, Mr. Thomas 75%
 
 ### Page: Recap: Evidence against your favourite
 
@@ -631,9 +676,9 @@ If a clue fits someone’s story badly, their share shrinks, and what they lose 
 
 > **GHOST** *(thought)*: If Clara put something in my tea, she had to stand at my desk some time between half past nine and ten. The log has her on the line to Edinburgh for that whole half hour. Her guilt and this log hardly fit together. Either the exchange got twenty-nine minutes wrong, or she left the receiver on the table and slipped away. Both could happen. Neither is likely.
 
-[ 1 Very unlikely ] [ 2 Unlikely ] [ 3 As likely as not ] [ 4 Likely ] [ 5 Very likely ]
+[ 1 Very unlikely 10% ] [ 2 Unlikely 30% ] [ 3 As likely as not 50% ] [ 4 Likely 70% ] [ 5 Very likely 90% ]
 
-After choosing: “You rated it N: …”
+After choosing: “You rated it N: …, a P% chance.”
 
 ### Page: Suppose Mr. Thomas did it.
 
@@ -641,9 +686,9 @@ After choosing: “You rated it N: …”
 
 > **GHOST** *(thought)*: If Thomas did it, Clara’s call is just Clara phoning someone from the hallway. A call this long, at this hour, isn’t guaranteed, but his guilt changes nothing about whether she made it. It neither helps nor hurts his story much.
 
-[ 1 Very unlikely ] [ 2 Unlikely ] [ 3 As likely as not ] [ 4 Likely ] [ 5 Very likely ]
+[ 1 Very unlikely 10% ] [ 2 Unlikely 30% ] [ 3 As likely as not 50% ] [ 4 Likely 70% ] [ 5 Very likely 90% ]
 
-After choosing: “You rated it N: …”
+After choosing: “You rated it N: …, a P% chance.”
 
 ### Page: Update (the player steps through, on a square of possible worlds)
 
@@ -652,6 +697,15 @@ After choosing: “You rated it N: …”
 - **Step 2 of 3: together**: Put what’s left side by side. It no longer fills the whole square, because the clue took a piece of every share. The less that’s left, the more unusual this clue was across both stories; the more, the more ordinary. *(Key: Shaded pieces: the worlds that fit this clue. Everything else is ruled out.)*
 - **Step 3 of 3: stretch**: Stretch what’s left back to the full square, keeping the proportions. Whoever kept more than the others grows; whoever kept less shrinks. This is only fair because these two stories cover every possibility between them. *(Key: New widths: the new shares. Dashed line: where the old border was.)*
 - Step 1 labels each suspect “rated N: keeps very little / keeps less than half / keeps half / keeps most / keeps almost all”; step 3 marks each ▲ grew / ▼ shrank, with the old border dashed, and says in words how each share changed.
+
+### Page: The math
+
+*(The same update as Bayes’ rule, P(H | E) = P(H) · P(E | H) ÷ P(E), with H one person’s story and E finding this telephone log. Each term is explained and filled in with the player’s numbers.)*
+
+- **P(H)**, your board so far: Clara 25%, Mr. Thomas 75% *(numbers here follow the designed ratings)*
+- **P(E | H)**, your rating: Clara 10%, Mr. Thomas 50%
+- **P(E)**, the clue at all: 25% × 10% + 75% × 50% = 40%
+- **P(H | E)**, the new board: Clara 6%, Mr. Thomas 94%
 
 ### Page: Recap: Exculpatory evidence
 
@@ -706,9 +760,9 @@ Each clue starts from where the last one left you: today’s board is tomorrow�
 
 > **GHOST** *(thought)*: If Clara did it, the knife is still easy to explain. Thomas stood at this desk this afternoon while we went over the repairs to the glass, and things fall out of pockets. It is as likely as not.
 
-[ 1 Very unlikely ] [ 2 Unlikely ] [ 3 As likely as not ] [ 4 Likely ] [ 5 Very likely ]
+[ 1 Very unlikely 10% ] [ 2 Unlikely 30% ] [ 3 As likely as not 50% ] [ 4 Likely 70% ] [ 5 Very likely 90% ]
 
-After choosing: “You rated it N: …”
+After choosing: “You rated it N: …, a P% chance.”
 
 ### Page: Suppose Mr. Thomas did it.
 
@@ -716,9 +770,9 @@ After choosing: “You rated it N: …”
 
 > **GHOST** *(thought)*: If Thomas did it, he stood in this room tonight as well as this afternoon, so he had two chances to lose it. His story explains it a little better, not overwhelmingly.
 
-[ 1 Very unlikely ] [ 2 Unlikely ] [ 3 As likely as not ] [ 4 Likely ] [ 5 Very likely ]
+[ 1 Very unlikely 10% ] [ 2 Unlikely 30% ] [ 3 As likely as not 50% ] [ 4 Likely 70% ] [ 5 Very likely 90% ]
 
-After choosing: “You rated it N: …”
+After choosing: “You rated it N: …, a P% chance.”
 
 ### Page: Update (the player steps through, on a square of possible worlds)
 
@@ -727,6 +781,15 @@ After choosing: “You rated it N: …”
 - **Step 2 of 3: together**: Put what’s left side by side. It no longer fills the whole square, because the clue took a piece of every share. The less that’s left, the more unusual this clue was across both stories; the more, the more ordinary. *(Key: Shaded pieces: the worlds that fit this clue. Everything else is ruled out.)*
 - **Step 3 of 3: stretch**: Stretch what’s left back to the full square, keeping the proportions. Whoever kept more than the others grows; whoever kept less shrinks. This is only fair because these two stories cover every possibility between them. *(Key: New widths: the new shares. Dashed line: where the old border was.)*
 - Step 1 labels each suspect “rated N: keeps very little / keeps less than half / keeps half / keeps most / keeps almost all”; step 3 marks each ▲ grew / ▼ shrank, with the old border dashed, and says in words how each share changed.
+
+### Page: The math
+
+*(The same update as Bayes’ rule, P(H | E) = P(H) · P(E | H) ÷ P(E), with H one person’s story and E finding a pruning knife under my chair. Each term is explained and filled in with the player’s numbers.)*
+
+- **P(H)**, your board so far: Clara 6%, Mr. Thomas 94% *(numbers here follow the designed ratings)*
+- **P(E | H)**, your rating: Clara 50%, Mr. Thomas 70%
+- **P(E)**, the clue at all: 6% × 50% + 94% × 70% = 69%
+- **P(H | E)**, the new board: Clara 4%, Mr. Thomas 96%
 
 ### Page: Recap: A clue that fits both stories
 

@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { BarRow, Button, DIM, fitCamera, hex, overlayBackground, txt, W } from '../ui/widgets';
+import { BarRow, Button, DIM, fitCamera, hex, overlayBackground, share, txt, W } from '../ui/widgets';
 import { CLUES, SUSPECTS } from '../data/case1';
 import { GameState } from '../state/GameState';
 
@@ -54,8 +54,7 @@ export class BoardScene extends Phaser.Scene {
     SUSPECTS.forEach((s, i) => {
       const y = 160 + i * 80;
       txt(this, 50, y - 30, `${s.name}, ${s.role}`, 22, hex(s.color), { fontStyle: 'bold' });
-      // suspicion as bars only, without numbers
-      new BarRow(this, 50, y + 10, 380, s.color, data.belief[i], () => '');
+      new BarRow(this, 50, y + 10, 380, s.color, data.belief[i], share);
     });
 
     const series = [data.prior, ...data.history.map((h) => h.belief)];

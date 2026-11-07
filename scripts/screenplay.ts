@@ -326,9 +326,9 @@ CLUES.forEach((c, k) => {
     w(`**How likely would I be to find ${c.short}?**`);
     w();
     thoughts([c.hints[i]]);
-    w(`[ ${RATING_WORDS.map((r, n) => `${n + 1} ${r}`).join(' ] [ ')} ]`);
+    w(`[ ${RATING_WORDS.map((r, n) => `${n + 1} ${r} ${Math.round(RATING_VALUES[n] * 100)}%`).join(' ] [ ')} ]`);
     w();
-    w('After choosing: “You rated it N: …”');
+    w('After choosing: “You rated it N: …, a P% chance.”');
     w();
   });
   w('### Page: Update (the player steps through, on a square of possible worlds)');
@@ -336,6 +336,20 @@ CLUES.forEach((c, k) => {
   for (const [name, cap, key] of UPDATE_STEPS) w(`- **${name}**: ${cap.replace('{n}', numberWord(SUSPECTS.length))} *(Key: ${key})*`);
   w(`- Step 1 labels each suspect “rated N: ${KEEP_WORDS.join(' / ')}”; step 3 marks each ▲ grew / ▼ shrank, with the old border dashed, and says in words how each share changed.`);
   if (Math.abs(c.likelihoods[0] - c.likelihoods[1]) < 1e-9) w(`- When both ratings match, step 3 marks both “unchanged” and says so in words: “${UNCHANGED}”`);
+  w();
+  w('### Page: The math');
+  w();
+  w(`*(The same update as Bayes’ rule, P(H | E) = P(H) · P(E | H) ÷ P(E), with H one person’s story and E finding ${c.short}. Each term is explained and filled in with the player’s numbers.)*`);
+  {
+    const lik = c.likelihoods;
+    const j = belief.map((p, i) => p * lik[i]);
+    const pE = j.reduce((a, b) => a + b, 0);
+    w();
+    w(`- **P(H)**, your board so far: ${SUSPECTS.map((s, i) => `${s.name} ${pct(belief[i])}`).join(', ')} *(numbers here follow the designed ratings)*`);
+    w(`- **P(E | H)**, your rating: ${SUSPECTS.map((s, i) => `${s.name} ${pct(lik[i])}`).join(', ')}`);
+    w(`- **P(E)**, the clue at all: ${j.map((_, i) => `${pct(belief[i])} × ${pct(lik[i])}`).join(' + ')} = ${pct(pE)}`);
+    w(`- **P(H | E)**, the new board: ${SUSPECTS.map((s, i) => `${s.name} ${pct(j[i] / pE)}`).join(', ')}`);
+  }
   w();
   w(`### Page: Recap: ${c.trap}`);
   w();

@@ -1,11 +1,12 @@
 import Phaser from 'phaser';
-import { Button, DIM, fadeThen, fitCamera, hex, INK, overlayBackground, stackedBar, txt, W, GHOST_RES, ZOOM } from '../ui/widgets';
+import { Button, DIM, fadeThen, fitCamera, hex, INK, overlayBackground, share, stackedBar, txt, W, GHOST_RES, ZOOM } from '../ui/widgets';
 import { CLUES, Evidence, LOG_ROWS, PRIOR_SHEET, SUSPECTS } from '../data/case1';
 import { GameState, StepRecord, truePrior } from '../state/GameState';
 import { update } from '../bayes/engine';
 import { drawSuspect } from './MemoryScene';
 import { CONCEPTS, numberWord } from '../data/lessons';
 import { BayesSquare } from '../ui/square';
+import { Brace } from '../ui/brace';
 import { KEEP_WORDS as KEEP, RATING_VALUES, RATING_WORDS, UNCHANGED, UPDATE_STEPS } from '../data/ui';
 import { Sound } from '../audio/Sound';
 
@@ -434,13 +435,17 @@ export class EvidenceScene extends Phaser.Scene {
   /** Suspicion as one line shared between the suspects. Level 1 shows names only. */
   private beliefStrip(y: number, dist: number[], label: string, width = 720) {
     const x0 = W / 2 - width / 2;
+    const barY = y + 98;
     this.put(txt(this, W / 2, y, label, 18, DIM).setOrigin(0.5, 0));
-    this.put(stackedBar(this, x0, y + 44, width, 28, dist, SUSPECTS.map((s) => s.color)));
+    this.put(stackedBar(this, x0, barY, width, 28, dist, SUSPECTS.map((s) => s.color)));
+    // a brace over each share, its tip pointing up at the name
     let x = x0;
     SUSPECTS.forEach((s, i) => {
-      const t = txt(this, x, y + 68, s.name, 18, hex(s.color));
-      this.put(t);
-      x += Math.max(t.width + 24, width * dist[i]);
+      const w = width * dist[i];
+      const inset = Math.min(3, w / 6);
+      const brace = this.put(new Brace(this, x + inset, x + w - inset, barY - 18, -1, s.color, 10));
+      this.put(txt(this, brace.tipX, barY - 32, s.name, 18, hex(s.color)).setOrigin(0.5, 1));
+      x += w;
     });
   }
 
@@ -502,7 +507,7 @@ export class EvidenceScene extends Phaser.Scene {
     const barW = 820;
     const barH = 28;
     const barX = W / 2 - barW / 2;
-    const barY = y + 44;
+    const barY = y + 104;
     const rowX = W / 2 - (total * (BW + GAP) - GAP) / 2;
     const unit = barW / total;
 
@@ -548,14 +553,37 @@ export class EvidenceScene extends Phaser.Scene {
     // faint seams where the hour blocks met
     const seams = this.put(this.add.graphics().setAlpha(0));
     seams.lineStyle(1, 0x060606, 0.45);
-    for (let k = 1; k < total; k++) seams.lineBetween(barX + k * unit, barY - barH / 2, barX + k * unit, barY + barH / 2);
+    // short ticks at the top and bottom edges, so a seam never runs through a number
+    for (let k = 1; k < total; k++) {
+      seams.lineBetween(barX + k * unit, barY - barH / 2, barX + k * unit, barY - barH / 2 + 7);
+      seams.lineBetween(barX + k * unit, barY + barH / 2 - 7, barX + k * unit, barY + barH / 2);
+    }
     after.push(seams);
     let x = barX;
     SUSPECTS.forEach((s) => {
-      after.push(this.put(txt(this, x, barY + 24, s.name, 18, hex(s.color)).setAlpha(0)));
-      after.push(this.put(txt(this, x, barY + 48, `${s.hoursInside} of ${total} hours`, 16, DIM).setAlpha(0)));
-      x += unit * s.hoursInside;
+      const w = unit * s.hoursInside;
+      const cx = x + w / 2;
+      // the name over a brace that grows out from the middle of the share to its edges
+      const brace = this.put(new Brace(this, cx, cx, barY - 18, -1, s.color, 10));
+      const name = this.put(txt(this, cx, barY - 32, s.name, 20, hex(s.color)).setOrigin(0.5, 1).setAlpha(0));
+      after.push(name);
+      brace.setSpan(x + 3, x + w - 3, true, 700, 2900);
+      after.push(this.put(txt(this, cx, barY + 26, `${s.hoursInside} ÷ ${total} hours = ${share(s.hoursInside / total)}`, 17, DIM).setOrigin(0.5, 0).setAlpha(0)));
+      after.push(
+        this.put(txt(this, cx, barY, share(s.hoursInside / total), 18, '#111111', { fontStyle: 'bold' })
+          .setOrigin(0.5)
+          .setAlpha(0)),
+      );
+      x += w;
     });
+    // the rule that turns hours into shares
+    after.push(
+      this.put(
+        txt(this, W / 2, barY + 70, `Starting share = hours inside ÷ all hours inside (${total})`, 19, '#c9c9c9', { fontStyle: 'italic' })
+          .setOrigin(0.5, 0)
+          .setAlpha(0),
+      ),
+    );
     this.tweens.add({ targets: after, alpha: 1, duration: 500, delay: 2900 });
   }
 
@@ -611,9 +639,22 @@ export class EvidenceScene extends Phaser.Scene {
       this.put(txt(this, x + 80, y, hours === 1 ? '1 hour' : `${hours} hours`, 20, on ? '#111111' : '#bdbdbd').setOrigin(0.5));
     });
     if (solved) {
-      this.para(470, CONTENT_Y + 262, `The lit blocks are ${s.name}’s share of all the time anyone spent inside, ${s.hoursInside} out of ${PRIOR_SHEET.total} hours.`, 24, INK, 760);
+      const shareText = this.para(
+        470,
+        CONTENT_Y + 262,
+        `The lit blocks are ${s.name}’s share of all the time anyone spent inside, ${s.hoursInside} out of ${PRIOR_SHEET.total} hours.`,
+        24,
+        INK,
+        760,
+      );
+      // the same share, as the sum that gives it
+      const sum = this.put(
+        txt(this, 470, shareText.y + shareText.height + 14, `${s.hoursInside} ÷ ${PRIOR_SHEET.total} = ${share(s.hoursInside / PRIOR_SHEET.total)}`, 30, hex(s.color), {
+          fontStyle: 'bold',
+        }),
+      );
       if (i === 0)
-        this.para(470, CONTENT_Y + 332, 'More time inside means more chances to reach my tea, so a bigger starting share of suspicion.', 21, '#dcdcdc', 760);
+        this.para(470, sum.y + sum.height + 16, 'More time inside means more chances to reach my tea, so a bigger starting share of suspicion.', 21, '#dcdcdc', 760);
       return;
     }
     if (count > 0)
@@ -644,6 +685,7 @@ export class EvidenceScene extends Phaser.Scene {
     ];
     SUSPECTS.forEach((s, i) => steps.push({ crumb: s.name, build: () => this.ratePage(i, clue, head) }));
     steps.push({ crumb: 'Update', build: () => this.updatePage(head) });
+    steps.push({ crumb: 'The math', build: () => this.mathPage(head, clue) });
     steps.push({ crumb: 'Recap', build: () => this.recapPage(head, clue) });
     return steps;
   }
@@ -669,15 +711,15 @@ export class EvidenceScene extends Phaser.Scene {
     // the ghost thinks out loud about this story
     const hintBottom = this.ghostHint(470, CONTENT_Y + 104, clue.hints[i]);
     const chosen = this.picks[i];
-    const by = hintBottom + 56;
+    const by = hintBottom + 64;
     RATINGS.forEach((r, k) => {
       const b = this.put(
-        new Button(this, 470 + 74 + k * 154, by, `${r.n}\n${r.word}`, () => {
+        new Button(this, 470 + 74 + k * 154, by, `${r.n}\n${r.word}\n${share(r.v)}`, () => {
           if (this.committed) return;
           this.picks[i] = r.v;
           Sound.blip();
           this.show();
-        }, { width: 146, height: 78, size: 17, stroke: chosen === r.v ? 0xd8d8d8 : 0x5a5a5a }),
+        }, { width: 146, height: 96, size: 17, stroke: chosen === r.v ? 0xd8d8d8 : 0x5a5a5a }),
       );
       b.label.setAlign('center').setLineSpacing(4);
       if (chosen !== undefined && chosen !== r.v) b.setAlpha(0.5);
@@ -687,7 +729,7 @@ export class EvidenceScene extends Phaser.Scene {
       return;
     }
     const r = ratingOf(chosen);
-    this.para(470, by + 56, `You rated it ${r.n}: ${r.word.toLowerCase()}.`, 20, '#f0f0f0', 760);
+    this.para(470, by + 64, `You rated it ${r.n}: ${r.word.toLowerCase()}, a ${share(r.v)} chance.`, 20, '#f0f0f0', 760);
   }
 
   private get lik(): number[] {
@@ -733,22 +775,42 @@ export class EvidenceScene extends Phaser.Scene {
     let y = CONTENT_Y + 132;
     const k = this.para(x, y, key, 18, DIM, 640);
     y += k.height + 22;
+    // each row: the words, then the exact numbers for this step
+    const joint = this.prior.map((p, i) => p * lik[i]);
+    const left = joint.reduce((a, b) => a + b, 0);
     SUSPECTS.forEach((s, i) => {
       const r = ratingOf(lik[i]);
       this.put(txt(this, x, y, s.name, 22, hex(s.color), { fontStyle: 'bold' }));
-      let what = 'starting share';
-      if (ph === 1 || ph === 2) what = `rated ${r.n}: ${KEEP_WORDS[r.n]}`;
+      let what = `starting share: ${share(this.prior[i])}`;
+      if (ph === 1) what = `rated ${r.n}: ${KEEP_WORDS[r.n]} (${share(lik[i])})`;
+      if (ph === 2) what = `${share(this.prior[i])} × ${share(lik[i])} = ${share(joint[i])}`;
+      let trend = '';
       if (ph === 3) {
         const d = after[i] - this.prior[i];
-        what = same || Math.abs(d) < 0.005 ? '= unchanged' : d > 0 ? (d > 0.15 ? '▲ grew a lot' : '▲ grew') : d < -0.15 ? '▼ shrank a lot' : '▼ shrank';
+        trend = same || Math.abs(d) < 0.005 ? '= unchanged' : d > 0 ? (d > 0.15 ? '▲ grew a lot' : '▲ grew') : d < -0.15 ? '▼ shrank a lot' : '▼ shrank';
+        what = `${share(joint[i])} ÷ ${share(left)} = ${share(after[i])}`;
       }
-      const t = this.put(txt(this, x + 160, y + 2, what, 20, ph === 3 ? (what.startsWith('▲') ? '#f0f0f0' : what.startsWith('▼') ? '#d84a52' : INK) : INK));
+      const t = this.put(txt(this, x + 160, y + 2, what, 20, INK));
       if (ph === 3) {
-        t.setAlpha(0);
-        this.time.delayedCall(1200, () => this.tweens.add({ targets: t, alpha: 1, duration: 400 }));
+        const tr = this.put(
+          txt(this, x + 160 + t.width + 18, y + 2, trend, 20, trend.startsWith('▲') ? '#f0f0f0' : trend.startsWith('▼') ? '#d84a52' : INK),
+        );
+        [t, tr].forEach((o) => o.setAlpha(0));
+        this.time.delayedCall(1200, () => this.tweens.add({ targets: [t, tr], alpha: 1, duration: 400 }));
       }
       y += 42;
     });
+    // the sum, and the rule behind the step
+    const rule =
+      ph === 0
+        ? `Together: ${SUSPECTS.map((_, i) => share(this.prior[i])).join(' + ')} = 100%`
+        : ph === 1
+          ? 'Each piece is as tall as the rating: the chance of this clue in that story.'
+          : ph === 2
+            ? `Left of the square: ${joint.map(share).join(' + ')} = ${share(left)}`
+            : 'New share = share × rating ÷ what was left';
+    const ruleText = this.put(txt(this, x, y + 4, rule, 18, '#c9c9c9', { fontStyle: 'italic' }));
+    y += ruleText.height + 14;
     if (ph === 3) {
       const words = same
         ? UNCHANGED
@@ -757,7 +819,7 @@ export class EvidenceScene extends Phaser.Scene {
             const how = Math.abs(d) < 0.005 ? 'stayed the same' : d > 0 ? (d > 0.15 ? 'grew a lot' : 'grew') : d < -0.15 ? 'shrank a lot' : 'shrank';
             return `${s.name}’s share ${how}.`;
           }).join('  ');
-      this.para(x, y + 14, words, 20, INK, 640);
+      this.para(x, y + 6, words, 20, INK, 640);
     }
 
     // the player steps through at their own pace
@@ -768,6 +830,100 @@ export class EvidenceScene extends Phaser.Scene {
         this.show();
       });
     }
+  }
+
+  /**
+   * The same update as a formula, every symbol tied to this story: H is one person's story,
+   * E is this clue. Each term is shown with the player's own numbers, and solved.
+   */
+  private mathPage(head: string, clue: (typeof CLUES)[number]) {
+    this.title(head);
+    this.commitClue();
+    const HC = '#9fc4ff'; // hypothesis: whose story
+    const EC = '#f0d27a'; // evidence: the clue, gold like its glint
+    const WC = '#f2f2f2';
+    const lik = this.lik;
+    const joint = this.prior.map((p, i) => p * lik[i]);
+    const pE = joint.reduce((a, b) => a + b, 0);
+    const after = joint.map((j) => j / pE);
+
+    // a run of differently coloured pieces on one line; returns its width
+    const rich = (x: number, y: number, parts: [string, string][], size: number, originX = 0) => {
+      const texts = parts.map(([t, c]) => txt(this, 0, y, t, size, c, { fontStyle: 'italic' }).setOrigin(0, 0.5));
+      const width = texts.reduce((a, t) => a + t.width, 0);
+      let cx = x - width * originX;
+      texts.forEach((t) => {
+        t.setX(cx);
+        cx += t.width;
+        this.put(t);
+      });
+      return width;
+    };
+    const P = (...inner: [string, string][]): [string, string][] => [['P(', WC], ...inner, [')', WC]];
+    const H: [string, string] = ['H', HC];
+    const E: [string, string] = ['E', EC];
+    const bar: [string, string] = [' | ', WC];
+
+    // the formula, as a fraction
+    const fy = CONTENT_Y + 30;
+    const measure = (parts: [string, string][], size: number) =>
+      parts.reduce((a, [t]) => {
+        const m = txt(this, 0, 0, t, size, WC, { fontStyle: 'italic' });
+        const w = m.width;
+        m.destroy();
+        return a + w;
+      }, 0);
+    const lhs: [string, string][] = [...P(H, bar, E), [' = ', WC]];
+    const numParts: [string, string][] = [...P(H), [' · ', WC], ...P(E, bar, H)];
+    const lw = measure(lhs, 32);
+    const nw = measure(numParts, 32);
+    const left = W / 2 - (lw + nw) / 2;
+    rich(left, fy + 22, lhs, 32);
+    rich(left + lw, fy, numParts, 32);
+    this.put(this.add.rectangle(left + lw, fy + 22, nw, 2, 0xdcdcdc).setOrigin(0, 0.5));
+    rich(left + lw + nw / 2, fy + 44, P(E), 32, 0.5);
+
+    // what H and E mean here
+    const names = SUSPECTS.map((s) => `“${s.name} did it”`).join(' or ');
+    rich(W / 2, CONTENT_Y + 116, [['H', HC], [`  one person’s story: ${names}`, '#cfcfcf']], 19, 0.5);
+    rich(W / 2, CONTENT_Y + 144, [['E', EC], [`  the evidence: finding ${clue.short}`, '#cfcfcf']], 19, 0.5);
+
+    // each term: the symbol, what it means, and its value
+    const rows: { sym: [string, string][]; what: string; vals: string[] }[] = [
+      {
+        sym: P(H),
+        what: 'The chance this person did it, before this clue: your board so far.',
+        vals: SUSPECTS.map((s, i) => `${s.name}  ${share(this.prior[i])}`),
+      },
+      {
+        sym: P(E, bar, H),
+        what: 'The chance of this clue if this person did it: your rating.',
+        vals: SUSPECTS.map((s, i) => `${s.name}  ${share(lik[i])}`),
+      },
+      {
+        sym: P(E),
+        what: 'The chance of this clue at all: each story’s chance times its rating, added up.',
+        vals: [`${SUSPECTS.map((_, i) => `${share(this.prior[i])} × ${share(lik[i])}`).join(' + ')} = ${share(pE)}`],
+      },
+      {
+        sym: P(H, bar, E),
+        what: 'The chance this person did it, now that I have this clue: the new board.',
+        vals: SUSPECTS.map((s, i) => `${s.name}  ${share(this.prior[i])} × ${share(lik[i])} ÷ ${share(pE)} = ${share(after[i])}`),
+      },
+    ];
+    let y = CONTENT_Y + 196;
+    rows.forEach((r, k) => {
+      rich(110, y + 14, r.sym, 30);
+      this.put(txt(this, 262, y + 14, '=', 30, WC).setOrigin(0, 0.5));
+      const what = this.para(300, y, r.what, 18, '#bdbdbd', 380);
+      let vy = y;
+      r.vals.forEach((v, i) => {
+        const color = r.vals.length > 1 ? hex(SUSPECTS[i].color) : INK;
+        const t = this.put(txt(this, 720, vy, v, 20, color, { fontStyle: k === 3 ? 'bold' : 'normal' }));
+        vy += t.height + 6;
+      });
+      y = Math.max(y + what.height, vy) + 26;
+    });
   }
 
   private recapPage(head: string, clue: (typeof CLUES)[number]) {

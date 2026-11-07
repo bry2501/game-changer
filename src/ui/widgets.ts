@@ -231,10 +231,22 @@ export function stackedBar(
   dist.forEach((p, i) => {
     const w = width * p;
     if (w > 0.5) c.add(scene.add.rectangle(cx, 0, w, height, colors[i], 0.9).setOrigin(0, 0.5));
+    // each share, written inside its own segment when there is room
+    if (height >= 20 && w >= 44) c.add(txt(scene, cx + w / 2, 0, share(p), Math.round(height * 0.62), '#111111', { fontStyle: 'bold' }).setOrigin(0.5));
     cx += w;
   });
   c.add(scene.add.rectangle(0, 0, width, height).setOrigin(0, 0.5).setStrokeStyle(1, 0x666666));
   return c;
+}
+
+/**
+ * A share written as a percentage: whole numbers from 10% up, one decimal below that
+ * (so small shares late in the case don't all read as "0%").
+ */
+export function share(x: number): string {
+  const v = x * 100;
+  if (v >= 9.95 || Math.abs(v - Math.round(v)) < 0.05) return `${Math.round(v)}%`;
+  return `${v.toFixed(1)}%`;
 }
 
 /** Full-screen dim panel used by overlay scenes. */
