@@ -74,6 +74,9 @@ export class EvidenceScene extends Phaser.Scene {
   private rec?: StepRecord;
   /** Which step of the update animation is showing (0–3). */
   private phase = 0;
+  /** Where this clue's starting shares came from, in full and in a few words. */
+  private fromLong = '';
+  private fromShort = '';
   /** Which stage of the math page is showing: symbols, words, numbers (0–2). */
   private mathStage = 0;
 
@@ -439,8 +442,8 @@ export class EvidenceScene extends Phaser.Scene {
   /** Suspicion as one line shared between the suspects. Level 1 shows names only. */
   private beliefStrip(y: number, dist: number[], label: string, width = 720) {
     const x0 = W / 2 - width / 2;
-    const barY = y + 98;
-    this.put(txt(this, W / 2, y, label, 18, DIM).setOrigin(0.5, 0));
+    const cap = this.para(W / 2, y, label, 18, DIM, 900, 0.5);
+    const barY = y + cap.height + 80;
     this.put(stackedBar(this, x0, barY, width, 28, dist, SUSPECTS.map((s) => s.color)));
     // a brace over each share, its tip pointing up at the name
     let x = x0;
@@ -676,9 +679,29 @@ export class EvidenceScene extends Phaser.Scene {
 
   // ================================================================== a clue
 
+  /**
+   * Where the shares going into clue k came from, so every page that shows them can say:
+   * the household log for the first clue, and after that the clue before and its ratings.
+   */
+  private describeSource(k: number) {
+    const now = SUSPECTS.map((s, i) => `${s.name} ${share(this.prior[i])}`).join(', ');
+    if (k <= 0) {
+      const hours = SUSPECTS.map((s) => `${s.name} ${s.hoursInside} of ${PRIOR_SHEET.total}`).join(', ');
+      this.fromShort = 'from the household log';
+      this.fromLong = `These shares come from the household log, the hours each person was inside (${hours}): ${now}.`;
+      return;
+    }
+    const prev = CLUES[k - 1];
+    const lik = GameState.data.history[k - 1]?.playerLik;
+    const rated = lik ? ` You rated it ${SUSPECTS.map((s, i) => `${ratingOf(lik[i])?.n ?? '?'} for ${s.name}`).join(' and ')}.` : '';
+    this.fromShort = `after Clue ${k}, ${prev.title}`;
+    this.fromLong = `These shares are where the last clue, ${prev.title}, left your board: ${now}.${rated}`;
+  }
+
   private clueSteps(): Step[] {
     const clue = CLUES[GameState.data.found];
     this.prior = GameState.data.belief.slice();
+    this.describeSource(GameState.data.found);
     const head = `Clue ${GameState.data.found + 1} of ${CLUES.length}: ${clue.title}`;
 
     const steps: Step[] = [
@@ -709,7 +732,7 @@ export class EvidenceScene extends Phaser.Scene {
     this.title(head);
     this.put(txt(this, W / 2, CONTENT_Y + 2, `Lesson ${k + 1}: ${c.title}`, 28, GOLD, { fontStyle: 'bold' }).setOrigin(0.5, 0));
     const body = this.para(W / 2, CONTENT_Y + 52, c.body, 23, INK, 1000, 0.5);
-    this.beliefStrip(Math.max(body.y + body.height + 30, CONTENT_Y + 330), this.prior, 'Before this clue, your suspicion is shared like this:');
+    this.beliefStrip(Math.max(body.y + body.height + 30, CONTENT_Y + 310), this.prior, `Before this clue, your suspicion is shared like this. ${this.fromLong}`);
   }
 
   /** The player rates, from 1 to 5, how well this clue would fit if this person is the murderer. */
@@ -789,9 +812,7 @@ export class EvidenceScene extends Phaser.Scene {
     y += k.height + 22;
     if (ph === 0) {
       // where these shares come from: the log, or the board the last clue left behind
-      const n = GameState.data.found;
-      const from = n <= 0 ? 'from the household log' : `after Clue ${n}, ${CLUES[n - 1].title}`;
-      const src = this.para(x, y - 8, `These are your shares ${from}: the starting point for this clue.`, 19, INK, 640);
+      const src = this.para(x, y - 8, `${this.fromLong} They are the starting point for this clue.`, 19, INK, 640);
       y += src.height + 18;
     }
     // each row: the words, then the exact numbers for this step
@@ -960,7 +981,7 @@ export class EvidenceScene extends Phaser.Scene {
       const rest = SUSPECTS.slice(1).flatMap((_, k) => [[' + ', WC] as Part, ...termW(k + 1)]);
       draw(xr - eqW, y, [[' = ', WC], { n: termW(0), d: termW(0), d2: rest }], 22);
       this.put(
-        txt(this, x0, y + 92, 'suspicion: how much you suspected them before this clue (your board)     chance: your rating', 15, '#9a9a9a', {
+        txt(this, x0, y + 92, `suspicion: your board before this clue (${this.fromShort})     chance: your rating`, 15, '#9a9a9a', {
           fontStyle: 'italic',
         }).setOrigin(0, 0.5),
       );
@@ -1012,7 +1033,8 @@ export class EvidenceScene extends Phaser.Scene {
     const colors = SUSPECTS.map((s) => s.color);
     const names = SUSPECTS.map((s) => s.name);
     const one = SUSPECTS.map(() => 1);
-    this.put(txt(this, W / 2 - 200, y - 30, 'Your board before this clue', 18, DIM).setOrigin(0.5, 0));
+    this.put(txt(this, W / 2 - 200, y - 50, 'Your board before this clue', 18, DIM).setOrigin(0.5, 0));
+    this.put(txt(this, W / 2 - 200, y - 28, `(${this.fromShort})`, 15, '#7c7c7c', { fontStyle: 'italic' }).setOrigin(0.5, 0));
     this.put(new BayesSquare(this, W / 2 - 200 - S / 2, y, S, this.prior, one, colors, names, 0, { labelSize: 16 }));
     this.put(txt(this, W / 2, y + S / 2 - 16, '→', 34, GOLD).setOrigin(0.5, 0));
     this.put(txt(this, W / 2 + 200, y - 30, 'Your board now', 18, DIM).setOrigin(0.5, 0));
