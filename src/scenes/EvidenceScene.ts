@@ -68,8 +68,8 @@ export class EvidenceScene extends Phaser.Scene {
   private prior: number[] = [];
   /** The player's likelihood for each suspect (undefined until rated). */
   private picks: (number | undefined)[] = [];
-  /** Which hours (6–10 pm) the player has lit for each suspect, on the log pages. */
-  private hourPicks: boolean[][] = [];
+  /** How many hours (between 6 and 10 pm) the player has lit for each suspect, on the log pages. */
+  private hourPicks: number[] = [];
   private rec?: StepRecord;
   /** Which step of the update animation is showing (0–3). */
   private phase = 0;
@@ -502,17 +502,14 @@ export class EvidenceScene extends Phaser.Scene {
    */
   private hoursPage(i: number) {
     const s = SUSPECTS[i];
-    const SLOTS = [18, 19, 20, 21]; // 6–7, 7–8, 8–9, 9–10 pm
     const clock = (t: string) => {
       const m = t.match(/(\d+):(\d+)\s*pm/)!;
       return (+m[1] % 12) + 12 + +m[2] / 60;
     };
-    const from = Math.max(clock(s.logIn), 18);
-    const to = Math.min(clock(s.logOut), 22);
-    const truth = SLOTS.map((h) => h >= from && h + 1 <= to);
-    const picked = (this.hourPicks[i] ??= SLOTS.map(() => false));
-    const solved = picked.every((p, k) => p === truth[k]);
-    const n = picked.filter(Boolean).length;
+    // only the hours between 6 and 10 pm count
+    const truth = Math.round(Math.max(0, Math.min(clock(s.logOut), 22) - Math.max(clock(s.logIn), 18)));
+    const count = this.hourPicks[i] ?? 0;
+    const solved = count === truth;
     const they = s.pronoun === 'she' ? 'she' : 'he';
 
     this.title(PRIOR_SHEET.title);
@@ -521,26 +518,27 @@ export class EvidenceScene extends Phaser.Scene {
     this.para(
       470,
       CONTENT_Y + 74,
-      `The log says ${s.name} signed in at ${s.logIn} and out at ${s.logOut}. Click each hour between 6 and 10 pm that ${they} was in the house.`,
+      `The log says ${s.name} signed in at ${s.logIn} and out at ${s.logOut}. How many hours between 6 and 10 pm was ${they} in the house?`,
       20,
       DIM,
       760,
     );
-    SLOTS.forEach((h, k) => {
+    // one block per hour: choosing a block lights it and every block to its left
+    [1, 2, 3, 4].forEach((hours, k) => {
       const x = 470 + k * 172;
       const y = CONTENT_Y + 190;
-      const on = picked[k];
+      const on = hours <= count;
       const r = this.put(this.add.rectangle(x, y, 160, 64, on ? s.color : 0x161616, on ? 0.95 : 1).setOrigin(0, 0.5));
       r.setStrokeStyle(2, on ? s.color : 0x5a5a5a, 1);
       r.setInteractive({ useHandCursor: true });
       r.on('pointerup', () => {
         if (this.committed) return;
-        picked[k] = !picked[k];
+        // choosing the last lit block again turns it off
+        this.hourPicks[i] = count === hours ? hours - 1 : hours;
         Sound.blip();
         this.show();
       });
-      const label = `${((h - 1) % 12) + 1}–${(h % 12) + 1} pm`;
-      this.put(txt(this, x + 80, y, label, 20, on ? '#111111' : '#bdbdbd').setOrigin(0.5));
+      this.put(txt(this, x + 80, y, hours === 1 ? '1 hour' : `${hours} hours`, 20, on ? '#111111' : '#bdbdbd').setOrigin(0.5));
     });
     if (solved) {
       this.para(470, CONTENT_Y + 262, `The lit blocks are ${s.name}’s share of all the time anyone spent inside, ${s.hoursInside} out of ${PRIOR_SHEET.total} hours.`, 24, INK, 760);
@@ -548,7 +546,7 @@ export class EvidenceScene extends Phaser.Scene {
         this.para(470, CONTENT_Y + 332, 'More time inside means more chances to reach my tea, so a bigger starting share of suspicion.', 21, '#dcdcdc', 760);
       return;
     }
-    if (n >= truth.filter(Boolean).length)
+    if (count > 0)
       this.para(470, CONTENT_Y + 262, `Not quite. Check the times again: in at ${s.logIn}, out at ${s.logOut}, and only the hours between 6 and 10 pm count.`, 20, '#d8b0b0', 760);
     this.setNext('Next ›', false);
   }

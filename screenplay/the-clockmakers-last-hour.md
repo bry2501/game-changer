@@ -186,11 +186,11 @@ Two floors joined by the hallway stairs. Anything searchable shimmers identicall
 >
 > **GHOST** *(thought)*: Before I examine a single clue, I need a starting point to stand on. If I had no information to go on, each suspect would begin with an equal 50/50 chance of guilt. But I can use the log to count the hours each of them spent under this roof: the longer someone was here, the more chances they had. That starting belief is called the PRIOR. It is a judgment, not a fact.
 
-**Clara** · *How long was Clara inside?* The log says Clara signed in at 7:00 pm and out at 10:00 pm. Click each hour between 6 and 10 pm that she was in the house. *(four hour blocks, 6–7 to 9–10 pm; the player lights the right ones to continue)*
+**Clara** · *How long was Clara inside?* The log says Clara signed in at 7:00 pm and out at 10:00 pm. How many hours between 6 and 10 pm was she in the house? *(four blocks, “1 hour” to “4 hours”; choosing one lights it and every block to its left; the player lights the right number to continue)*
 If wrong: “Not quite. Check the times again: in at 7:00 pm, out at 10:00 pm, and only the hours between 6 and 10 pm count.”
 Once right: *Clara was inside for 3 hours.* The lit blocks are Clara’s share of all the time anyone spent inside, 3 out of 5 hours. More time inside means more chances to reach my tea, so a bigger starting share of suspicion.
 
-**Mr. Thomas** · *How long was Mr. Thomas inside?* The log says Mr. Thomas signed in at 4:00 pm and out at 8:00 pm. Click each hour between 6 and 10 pm that he was in the house. *(four hour blocks, 6–7 to 9–10 pm; the player lights the right ones to continue)*
+**Mr. Thomas** · *How long was Mr. Thomas inside?* The log says Mr. Thomas signed in at 4:00 pm and out at 8:00 pm. How many hours between 6 and 10 pm was he in the house? *(four blocks, “1 hour” to “4 hours”; choosing one lights it and every block to its left; the player lights the right number to continue)*
 If wrong: “Not quite. Check the times again: in at 4:00 pm, out at 8:00 pm, and only the hours between 6 and 10 pm count.”
 Once right: *Mr. Thomas was inside for 2 hours.* The lit blocks are Mr. Thomas’s share of all the time anyone spent inside, 2 out of 5 hours.
 
