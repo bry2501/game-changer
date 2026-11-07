@@ -7,7 +7,6 @@ import { drawSuspect } from './MemoryScene';
 import { CONCEPTS, numberWord } from '../data/lessons';
 import { BayesSquare } from '../ui/square';
 import { Brace } from '../ui/brace';
-import type { MathItem } from '../ui/widgets';
 import { KEEP_WORDS as KEEP, RATING_VALUES, RATING_WORDS, UNCHANGED, UPDATE_STEPS } from '../data/ui';
 import { Sound } from '../audio/Sound';
 
@@ -75,6 +74,8 @@ export class EvidenceScene extends Phaser.Scene {
   private rec?: StepRecord;
   /** Which step of the update animation is showing (0–3). */
   private phase = 0;
+  /** Which stage of the math page is showing: symbols, words, numbers (0–2). */
+  private mathStage = 0;
 
   constructor() {
     super('Evidence');
@@ -97,6 +98,7 @@ export class EvidenceScene extends Phaser.Scene {
     this.noteScroller = undefined;
     this.chimed = false;
     this.phase = 0;
+    this.mathStage = 0;
   }
 
   create() {
@@ -137,6 +139,7 @@ export class EvidenceScene extends Phaser.Scene {
       // arriving from behind shows a page's last thought; arriving fresh shows its first
       this.noteIdx = delta < 0 ? Number.MAX_SAFE_INTEGER : 0;
       this.noteScroll = undefined;
+      this.mathStage = delta < 0 ? 2 : 0;
       this.chimed = false;
     }
     this.index = next;
@@ -784,13 +787,20 @@ export class EvidenceScene extends Phaser.Scene {
     let y = CONTENT_Y + 132;
     const k = this.para(x, y, key, 18, DIM, 640);
     y += k.height + 22;
+    if (ph === 0) {
+      // where these shares come from: the log, or the board the last clue left behind
+      const n = GameState.data.found;
+      const from = n <= 0 ? 'from the household log' : `after Clue ${n}, ${CLUES[n - 1].title}`;
+      const src = this.para(x, y - 8, `These are your shares ${from}: the starting point for this clue.`, 19, INK, 640);
+      y += src.height + 18;
+    }
     // each row: the words, then the exact numbers for this step
     const joint = this.prior.map((p, i) => p * lik[i]);
     const left = joint.reduce((a, b) => a + b, 0);
     SUSPECTS.forEach((s, i) => {
       const r = ratingOf(lik[i]);
       this.put(txt(this, x, y, s.name, 22, hex(s.color), { fontStyle: 'bold' }));
-      let what = `starting share: ${share(this.prior[i])}`;
+      let what = `before this clue: ${share(this.prior[i])}`;
       if (ph === 1) what = `rated ${r.n}: ${KEEP_WORDS[r.n]} (${share(lik[i])})`;
       if (ph === 2) what = `${share(this.prior[i])} × ${share(lik[i])} = ${share(joint[i])}`;
       let trend = '';
@@ -849,13 +859,16 @@ export class EvidenceScene extends Phaser.Scene {
   }
 
   /**
-   * The same update as Bayes' rule, written out for this case: one hypothesis per suspect
-   * (H₁ "Clara is the murderer", H₂ "Mr. Thomas is the murderer"), and the evidence E. The denominator is
-   * spelled out as the sum over both stories. Each term is filled in with the player's numbers.
+   * The same update as Bayes' rule, built up in three stages the player steps through:
+   *   0. the rule in symbols: one hypothesis per suspect (H₁, H₂) and the evidence E
+   *   1. the same rule in words: each symbol replaced by what it stands for here
+   *   2. the same rule with the player's numbers, worked to the answer
+   * Earlier stages stay on the page, so each line reads as a rewrite of the one above.
    */
   private mathPage(head: string, clue: (typeof CLUES)[number]) {
     this.title(head);
     this.commitClue();
+    const stage = Math.min(this.mathStage, 2);
     const EC = '#9fc4ff'; // the evidence
     const WC = '#f2f2f2';
     const SUB = ['₁', '₂', '₃', '₄'];
@@ -863,96 +876,123 @@ export class EvidenceScene extends Phaser.Scene {
     const joint = this.prior.map((p, i) => p * lik[i]);
     const pE = joint.reduce((a, b) => a + b, 0);
     const after = joint.map((j) => j / pE);
+    const col = (i: number) => hex(SUSPECTS[i].color);
+    const short = (i: number) => SUSPECTS[i].name.replace(/^Mr\. /, '');
+
     type Part = [string, string];
-    const H = (i: number): Part => [`H${SUB[i]}`, hex(SUSPECTS[i].color)];
+    type Item = Part | { n: Part[]; d: Part[] };
+    const H = (i: number): Part => [`H${SUB[i]}`, col(i)];
     const E: Part = ['E', EC];
     const P = (...inner: Part[]): Part[] => [['P(', WC], ...inner, [')', WC]];
     const given: Part = [' | ', WC];
-    const term = (i: number): Part[] => [...P(H(i)), [' · ', WC], ...P(E, given, H(i))];
+    const sumOver = (f: (i: number) => Part[]): Part[] => SUSPECTS.flatMap((_, i) => (i ? [[' + ', WC] as Part, ...f(i)] : f(i)));
 
-    const measure = (parts: Part[], size: number) =>
-      parts.reduce((a, [t]) => {
-        const m = txt(this, 0, 0, t, size, WC, { fontStyle: 'italic' });
-        const w = m.width;
-        m.destroy();
-        return a + w;
-      }, 0);
-    // a run of differently coloured pieces on one line, vertically centred on y
-    const rich = (x: number, y: number, parts: Part[], size: number, originX = 0) => {
-      const width = measure(parts, size);
-      let cx = x - width * originX;
-      parts.forEach(([t, c]) => {
-        const o = this.put(txt(this, cx, y, t, size, c, { fontStyle: 'italic' }).setOrigin(0, 0.5));
-        cx += o.width;
+    // draw a line of parts and fractions, vertically centred on y; returns its width
+    const draw = (x: number, y: number, items: Item[], size: number, put = true) => {
+      const objs: Phaser.GameObjects.GameObject[] = [];
+      const run = (x0: number, yy: number, parts: Part[], sz: number) => {
+        let cx = x0;
+        parts.forEach(([t, c]) => {
+          const o = txt(this, cx, yy, t, sz, c, { fontStyle: 'italic' }).setOrigin(0, 0.5);
+          objs.push(o);
+          cx += o.width;
+        });
+        return cx - x0;
+      };
+      let cx = x;
+      items.forEach((it) => {
+        if (Array.isArray(it)) {
+          cx += run(cx, y, [it], size);
+          return;
+        }
+        const fs = Math.round(size * 0.9);
+        const nw = run(0, -9999, it.n, fs);
+        const dw = run(0, -9999, it.d, fs);
+        objs.splice(objs.length - it.n.length - it.d.length).forEach((o) => o.destroy());
+        const w = Math.max(nw, dw) + 12;
+        run(cx + (w - nw) / 2, y - fs * 0.72, it.n, fs);
+        run(cx + (w - dw) / 2, y + fs * 0.78, it.d, fs);
+        objs.push(this.add.rectangle(cx, y, w, 2, 0xdcdcdc).setOrigin(0, 0.5));
+        cx += w + 4;
       });
-      return width;
+      if (put) objs.forEach((o) => this.put(o));
+      else objs.forEach((o) => o.destroy());
+      return cx - x;
     };
 
-    // Bayes' rule for the first suspect, the denominator summed over every story
-    const fs = 28;
-    const fy = CONTENT_Y + 52;
-    const lhs: Part[] = [...P(H(0), given, E), [' = ', WC]];
-    const num = term(0);
-    const den: Part[] = SUSPECTS.flatMap((_, i) => (i ? [[' + ', WC] as Part, ...term(i)] : term(i)));
-    const lw = measure(lhs, fs);
-    const fw = Math.max(measure(num, fs), measure(den, fs));
-    const left = W / 2 - (lw + fw) / 2;
-    rich(left, fy, lhs, fs);
-    rich(left + lw + fw / 2, fy - 22, num, fs, 0.5);
-    this.put(this.add.rectangle(left + lw, fy, fw, 2, 0xdcdcdc).setOrigin(0, 0.5));
-    rich(left + lw + fw / 2, fy + 22, den, fs, 0.5);
+    const size = 26;
+    const lhs: Item[] = [...P(H(0), given, E), [' = ', WC]];
+    const lhsW = draw(0, -9999, lhs, size, false);
+    const eqW = draw(0, -9999, [[' = ', WC]], size, false);
+    const x0 = 300;
+    const xr = x0 + lhsW;
+    const label = (y: number, t: string) => this.put(txt(this, 110, y, t, 17, DIM, { fontStyle: 'italic' }).setOrigin(0, 0.5));
+    const fade = (from: number, k: number) => {
+      // only the stage just revealed fades in
+      if (k !== stage || stage === 0) return;
+      this.page.list.slice(from).forEach((o) => {
+        (o as unknown as Phaser.GameObjects.Components.Alpha).setAlpha(0);
+        this.tweens.add({ targets: o, alpha: 1, duration: 500 });
+      });
+    };
 
-    // what each symbol stands for here
+    // stage 0: the rule in symbols, and what each symbol means here
+    let y = CONTENT_Y + 50;
+    label(y, 'The rule');
+    draw(x0, y, lhs, size);
+    draw(xr, y, [{ n: [...P(H(0)), [' · ', WC], ...P(E, given, H(0))], d: sumOver((i) => [...P(H(i)), [' · ', WC], ...P(E, given, H(i))]) }], size);
     const legend: Part[] = [];
-    SUSPECTS.forEach((s, i) => legend.push(H(i), [`  ${s.name} is the murderer      `, '#cfcfcf']));
-    legend.push(E, [`  finding ${clue.short}`, '#cfcfcf']);
-    rich(W / 2, CONTENT_Y + 114, legend, 18, 0.5);
+    SUSPECTS.forEach((s, i) => legend.push(H(i), [`  ${s.name} is the murderer      `, '#bdbdbd']));
+    legend.push(E, [`  finding ${clue.short}`, '#bdbdbd']);
+    draw(x0, y + 62, legend, 17);
 
-    // each step of the sum: what it means on the left, the symbols and numbers on the right
-    const eq = (x: number, y: number, parts: Part[], value: string | MathItem[], bold = false) => {
-      const w = rich(x, y, parts, 24);
-      const items: MathItem[] = typeof value === 'string' ? [`  =  ${value}`] : ['  =  ', ...value];
-      this.put(mathText(this, x + w, y, items, 22, INK, { bold }));
-    };
-    const rows: { what: string; lines: (y: number) => number }[] = [
-      {
-        what: 'Before this clue: the chance each person is the murderer. Your board so far.',
-        lines: (y) => {
-          SUSPECTS.forEach((_, i) => eq(500, y + i * 34, P(H(i)), share(this.prior[i])));
-          return SUSPECTS.length * 34;
-        },
-      },
-      {
-        what: 'The chance of this clue if that person is the murderer. Your ratings.',
-        lines: (y) => {
-          SUSPECTS.forEach((_, i) => eq(500, y + i * 34, P(E, given, H(i)), share(lik[i])));
-          return SUSPECTS.length * 34;
-        },
-      },
-      {
-        what: 'The bottom of the fraction: the chance of this clue at all, adding up every story.',
-        lines: (y) => {
-          const sum = SUSPECTS.map((_, i) => `${share(this.prior[i])} × ${share(lik[i])}`).join(' + ');
-          this.put(txt(this, 500, y, `${sum}  =  ${joint.map(share).join(' + ')}  =  ${share(pE)}`, 22, INK).setOrigin(0, 0.5));
-          return 34;
-        },
-      },
-      {
-        what: 'After this clue: each story’s piece divided by the total. The new board.',
-        lines: (y) => {
-          SUSPECTS.forEach((_, i) =>
-            eq(500, y + 8 + i * 54, P(H(i), given, E), [{ n: share(joint[i]), d: share(pE) }, `  =  ${share(after[i])}`], true),
-          );
-          return SUSPECTS.length * 54;
-        },
-      },
-    ];
-    let y = CONTENT_Y + 160;
-    rows.forEach((r) => {
-      const what = this.para(110, y - 10, r.what, 17, '#bdbdbd', 350);
-      const h = r.lines(y + 6);
-      y += Math.max(what.height + 6, h) + 18;
-    });
+    // stage 1: the same rule in words
+    if (stage >= 1) {
+      const from = this.page.list.length;
+      y += 150;
+      label(y, 'In words');
+      const shareW = (i: number): Part => [`${short(i)}’s share`, col(i)];
+      const rateW = (i: number): Part => [`${short(i)}’s rating`, col(i)];
+      draw(xr - eqW, y, [[' = ', WC], { n: [shareW(0), [' × ', WC], rateW(0)], d: sumOver((i) => [shareW(i), [' × ', WC], rateW(i)]) }], size);
+      this.put(
+        txt(this, x0, y + 58, 'share: the chance before this clue (your board)     rating: the chance of this clue if that person is the murderer', 15, '#9a9a9a', {
+          fontStyle: 'italic',
+        }).setOrigin(0, 0.5),
+      );
+      fade(from, 1);
+    }
+
+    // stage 2: your numbers, worked to the answer for both suspects
+    if (stage >= 2) {
+      const from = this.page.list.length;
+      y += 140;
+      label(y, 'Your numbers');
+      const pr = (i: number): Part => [share(this.prior[i]), col(i)];
+      const rt = (i: number): Part => [share(lik[i]), col(i)];
+      const w = draw(xr - eqW, y, [[' = ', WC], { n: [pr(0), [' × ', WC], rt(0)], d: sumOver((i) => [pr(i), [' × ', WC], rt(i)]) }], size);
+      draw(xr - eqW + w, y, [[' = ', WC], { n: [[share(joint[0]), WC]], d: [[share(pE), WC]] }, [' = ', WC], [share(after[0]), col(0)]], size);
+      // and the other story, the same way
+      SUSPECTS.forEach((_, i) => {
+        if (i === 0) return;
+        const yy = y + 100 * i;
+        label(yy, `And for ${SUSPECTS[i].name}`);
+        draw(x0, yy, [...P(H(i), given, E), [' = ', WC], { n: [pr(i), [' × ', WC], rt(i)], d: [[share(pE), WC]] }, [' = ', WC], { n: [[share(joint[i]), WC]], d: [[share(pE), WC]] }, [' = ', WC], [share(after[i]), col(i)]], size);
+      });
+      fade(from, 2);
+    }
+
+    if (stage < 2) {
+      this.setNext(stage === 0 ? 'In words ›' : 'With your numbers ›', true, () => {
+        this.mathStage = stage + 1;
+        Sound.blip();
+        this.show(true);
+      });
+    }
+    if (stage > 0)
+      this.backOverride = () => {
+        this.mathStage = stage - 1;
+        this.show(true);
+      };
   }
 
   private recapPage(head: string, clue: (typeof CLUES)[number]) {

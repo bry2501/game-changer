@@ -3,7 +3,8 @@ import Phaser from 'phaser';
 /**
  * A curly brace spanning [x0, x1], pointing at a label: the tip points up (dir -1), with the
  * brace's ends resting on y, or down (dir 1). The span can glide to new ends, so the brace
- * grows and shrinks with the shapes it measures.
+ * grows and shrinks with the shapes it measures. A vertical brace spans [y0, y1] instead,
+ * its ends resting on the x given as `base`, its tip pointing left (dir -1) or right (dir 1).
  */
 export class Brace extends Phaser.GameObjects.Graphics {
   private span = { x0: 0, x1: 0 };
@@ -17,6 +18,7 @@ export class Brace extends Phaser.GameObjects.Graphics {
     private dir: 1 | -1 = -1,
     private color = 0xdcdcdc,
     private tipDepth = 12,
+    private vertical = false,
   ) {
     super(scene);
     this.span = { x0, x1 };
@@ -70,13 +72,16 @@ export class Brace extends Phaser.GameObjects.Graphics {
     const m = (x0 + x1) / 2;
     const r = Math.min(Math.abs(this.tipDepth), w / 4);
     const mid = y + h / 2;
-    const path = new Phaser.Curves.Path(x0, y);
-    path.quadraticBezierTo(x0 + r, mid, x0, mid);
-    path.lineTo(m - r, mid);
-    path.quadraticBezierTo(m, y + h, m, mid);
-    path.quadraticBezierTo(m + r, mid, m, mid);
-    path.lineTo(x1 - r, mid);
-    path.quadraticBezierTo(x1, y, x1, mid);
+    // drawn along the span (u) and across it (v); a vertical brace swaps the two
+    const pt = (u: number, v: number): [number, number] => (this.vertical ? [v, u] : [u, v]);
+    const path = new Phaser.Curves.Path(...pt(x0, y));
+    const q = (eu: number, ev: number, cu: number, cv: number) => path.quadraticBezierTo(...pt(eu, ev), ...pt(cu, cv));
+    q(x0 + r, mid, x0, mid);
+    path.lineTo(...pt(m - r, mid));
+    q(m, y + h, m, mid);
+    q(m + r, mid, m, mid);
+    path.lineTo(...pt(x1 - r, mid));
+    q(x1, y, x1, mid);
     this.lineStyle(2, this.color, 0.9);
     path.draw(this, 48);
   }

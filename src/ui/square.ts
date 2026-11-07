@@ -26,6 +26,11 @@ export class BayesSquare extends Phaser.GameObjects.Container {
   private post: number[];
   /** The numbers written inside the columns, redrawn for each phase. */
   private numbers: Phaser.GameObjects.Text[] = [];
+  /** Side braces (shrink and together steps): the kept piece and the part taken away. */
+  private sides: Phaser.GameObjects.GameObject[] = [];
+  /** A dashed outline around what is left, which stretches with it into the new square. */
+  private selection!: Phaser.GameObjects.Graphics;
+  private selectionTween?: Phaser.Tweens.Tween;
   private numberSize: number;
 
   constructor(
@@ -35,7 +40,7 @@ export class BayesSquare extends Phaser.GameObjects.Container {
     size: number,
     private prior: number[],
     private lik: number[],
-    colors: number[],
+    private colors: number[],
     labels: string[],
     phase = 0,
     opts: { labelSize?: number } = {},
@@ -59,7 +64,8 @@ export class BayesSquare extends Phaser.GameObjects.Container {
     });
     this.frame = scene.add.graphics();
     this.oldLines = scene.add.graphics();
-    this.add([this.frame, this.oldLines]);
+    this.selection = scene.add.graphics();
+    this.add([this.frame, this.oldLines, this.selection]);
     const depth = Phaser.Math.Clamp(Math.round(size / 30), 6, 11);
     labels.forEach((l, i) => {
       const brace = l ? new Brace(scene, 0, 0, size + 5, 1, colors[i], depth) : undefined;
@@ -70,6 +76,13 @@ export class BayesSquare extends Phaser.GameObjects.Container {
       this.add(t);
     });
     this.setPhase(phase, false);
+  }
+
+  /** Stop the outline's stretch when the square goes away with its page. */
+  preDestroy() {
+    this.selectionTween?.stop();
+    this.selectionTween = undefined;
+    super.preDestroy();
   }
 
   /** The new shares this square stretches to. */
@@ -112,6 +125,8 @@ export class BayesSquare extends Phaser.GameObjects.Container {
     });
 
     this.writeNumbers(ph, px, qx, animate);
+    this.writeSides(ph, animate);
+    this.drawSelection(ph, px, qx, animate);
 
     // the square's outline, the column boundaries, and (when stretched) where the old boundaries were
     this.frame.clear();
@@ -127,6 +142,91 @@ export class BayesSquare extends Phaser.GameObjects.Container {
       go(this.oldLines, { alpha: 1 }, 900);
     }
     return this;
+  }
+
+  /**
+   * Braces down the outer sides of the first and last columns while the pieces are cut:
+   * one around the shaded piece (kept, as tall as the rating) and one around the faded part
+   * above it (taken away by the clue).
+   */
+  private writeSides(ph: number, animate: boolean) {
+    this.sides.forEach((o) => o.destroy());
+    this.sides = [];
+    if (ph !== 1 && ph !== 2) return;
+    const S = this.size;
+    const n = this.prior.length;
+    const depth = Phaser.Math.Clamp(Math.round(S / 30), 6, 11);
+    const fs = Math.round(this.numberSize * 0.85);
+    const edges = n >= 2 ? [0, n - 1] : [0];
+    edges.forEach((i, k) => {
+      const L = this.lik[i];
+      const dir = k === 0 ? -1 : 1;
+      const base = dir < 0 ? -6 : S + 6;
+      const labelX = base + dir * (depth + 6);
+      const cut = S - L * S;
+      const parts: [number, number, number, string, number][] = [
+        [cut + 2, S - 2, this.colors[i], share(L), 1],
+        [2, cut - 2, 0x8a8a8a, share(1 - L), 0.9],
+      ];
+      parts.forEach(([y0, y1, color, label, alpha]) => {
+        if (y1 - y0 < 14) return;
+        const b = new Brace(this.scene, y0, y1, base, dir as 1 | -1, color, depth, true);
+        const t = txt(this.scene, labelX, (y0 + y1) / 2, label, fs, hex(color), { fontStyle: 'bold' }).setOrigin(dir < 0 ? 1 : 0, 0.5);
+        this.add([b, t]);
+        this.sides.push(b, t);
+        [b, t].forEach((o) => {
+          o.setAlpha(animate && ph === 1 ? 0 : alpha);
+          if (animate && ph === 1) this.scene.tweens.add({ targets: o, alpha, duration: 400, delay: 900 + i * 300 });
+        });
+      });
+    });
+  }
+
+  /**
+   * What is left after the cut, outlined with a dashed line: drawn round the shaded pieces
+   * at the together step, then stretched with them until it is the whole new square.
+   */
+  private drawSelection(ph: number, px: number[], qx: number[], animate: boolean) {
+    this.selectionTween?.stop();
+    this.selection.clear().setAlpha(1);
+    if (ph < 2) return;
+    const S = this.size;
+    const from = this.prior.map((p, i) => ({ x: px[i], w: p * S, top: S - this.lik[i] * S }));
+    const to = this.post.map((p, i) => ({ x: qx[i], w: p * S, top: 0 }));
+    const draw = (t: number) => {
+      const r = from.map((a, i) => ({
+        x: a.x + (to[i].x - a.x) * t,
+        w: a.w + (to[i].w - a.w) * t,
+        top: a.top + (to[i].top - a.top) * t,
+      }));
+      // the staircase outline of the pieces standing side by side on the floor of the square
+      const pts: [number, number][] = [[r[0].x, S]];
+      r.forEach((q) => pts.push([q.x, q.top], [q.x + q.w, q.top]));
+      pts.push([r[r.length - 1].x + r[r.length - 1].w, S], [r[0].x, S]);
+      this.selection.clear();
+      this.selection.lineStyle(2.5, 0xffffff, 0.95);
+      for (let k = 1; k < pts.length; k++) dashed(this.selection, pts[k - 1], pts[k]);
+    };
+    if (ph === 2) {
+      draw(0);
+      if (animate) {
+        this.selection.setAlpha(0);
+        this.scene.tweens.add({ targets: this.selection, alpha: 1, duration: 500, delay: 700 });
+      }
+      return;
+    }
+    // ph 3: the outline grows with the pieces into the full square, then fades into its frame
+    if (!animate) return;
+    const k = { t: 0 };
+    draw(0);
+    this.selectionTween = this.scene.tweens.add({
+      targets: k,
+      t: 1,
+      duration: 900,
+      ease: 'Sine.easeInOut',
+      onUpdate: () => draw(k.t),
+      onComplete: () => this.scene.tweens.add({ targets: this.selection, alpha: 0, duration: 500 }),
+    });
   }
 
   /**
@@ -165,5 +265,17 @@ export class BayesSquare extends Phaser.GameObjects.Container {
         this.scene.tweens.add({ targets: n, alpha: 1, duration: 400, delay: ph === 1 ? 900 + i * 300 : 900 });
       }
     });
+  }
+}
+
+/** A dashed straight line. */
+function dashed(g: Phaser.GameObjects.Graphics, [x0, y0]: [number, number], [x1, y1]: [number, number], dash = 8, gap = 6) {
+  const len = Math.hypot(x1 - x0, y1 - y0);
+  if (len < 0.5) return;
+  const ux = (x1 - x0) / len;
+  const uy = (y1 - y0) / len;
+  for (let d = 0; d < len; d += dash + gap) {
+    const e = Math.min(d + dash, len);
+    g.lineBetween(x0 + ux * d, y0 + uy * d, x0 + ux * e, y0 + uy * e);
   }
 }
