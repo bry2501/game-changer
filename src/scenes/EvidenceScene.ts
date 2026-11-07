@@ -709,12 +709,12 @@ export class EvidenceScene extends Phaser.Scene {
     this.beliefStrip(Math.max(body.y + body.height + 30, CONTENT_Y + 330), this.prior, 'Before this clue, your suspicion is shared like this:');
   }
 
-  /** The player rates, from 1 to 5, how well this clue would fit if this person did it. */
+  /** The player rates, from 1 to 5, how well this clue would fit if this person is the murderer. */
   private ratePage(i: number, clue: (typeof CLUES)[number], head: string) {
     const s = SUSPECTS[i];
     this.title(head);
     this.suspectPortrait(i);
-    this.para(470, CONTENT_Y + 6, `Suppose ${s.name} did it.`, 31, hex(s.color), 760);
+    this.para(470, CONTENT_Y + 6, `Suppose ${s.name} is the murderer.`, 31, hex(s.color), 760);
     this.para(470, CONTENT_Y + 54, `How likely would I be to find ${clue.short}?`, 24, INK, 760);
 
     // the ghost thinks out loud about this story
@@ -850,7 +850,7 @@ export class EvidenceScene extends Phaser.Scene {
 
   /**
    * The same update as Bayes' rule, written out for this case: one hypothesis per suspect
-   * (H₁ "Clara did it", H₂ "Mr. Thomas did it"), and the evidence E. The denominator is
+   * (H₁ "Clara is the murderer", H₂ "Mr. Thomas is the murderer"), and the evidence E. The denominator is
    * spelled out as the sum over both stories. Each term is filled in with the player's numbers.
    */
   private mathPage(head: string, clue: (typeof CLUES)[number]) {
@@ -904,7 +904,7 @@ export class EvidenceScene extends Phaser.Scene {
 
     // what each symbol stands for here
     const legend: Part[] = [];
-    SUSPECTS.forEach((s, i) => legend.push(H(i), [`  ${s.name} did it      `, '#cfcfcf']));
+    SUSPECTS.forEach((s, i) => legend.push(H(i), [`  ${s.name} is the murderer      `, '#cfcfcf']));
     legend.push(E, [`  finding ${clue.short}`, '#cfcfcf']);
     rich(W / 2, CONTENT_Y + 114, legend, 18, 0.5);
 
@@ -916,14 +916,14 @@ export class EvidenceScene extends Phaser.Scene {
     };
     const rows: { what: string; lines: (y: number) => number }[] = [
       {
-        what: 'Before this clue: the chance each person did it. Your board so far.',
+        what: 'Before this clue: the chance each person is the murderer. Your board so far.',
         lines: (y) => {
           SUSPECTS.forEach((_, i) => eq(500, y + i * 34, P(H(i)), share(this.prior[i])));
           return SUSPECTS.length * 34;
         },
       },
       {
-        what: 'The chance of this clue if that person did it. Your ratings.',
+        what: 'The chance of this clue if that person is the murderer. Your ratings.',
         lines: (y) => {
           SUSPECTS.forEach((_, i) => eq(500, y + i * 34, P(E, given, H(i)), share(lik[i])));
           return SUSPECTS.length * 34;

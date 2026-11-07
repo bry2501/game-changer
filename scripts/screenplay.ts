@@ -79,7 +79,7 @@ const NOTES: Record<string, { ratio?: string; trapLabel?: string; trap?: string;
   knife: {
     trap: '. The old label “Prosecutor’s fallacy” was a misnomer: that fallacy is confusing P(evidence | guilt) with P(guilt | evidence). It is taught where it actually occurs, at the foxgloves and at the accusation.',
     extra: [
-      'Independence check: the Thomas page rests only on his two chances to lose the knife. It does not lean on the boot print or the foxgloves, which would make the clues dependent given Thomas did it.',
+      'Independence check: the Thomas page rests only on his two chances to lose the knife. It does not lean on the boot print or the foxgloves, which would make the clues dependent given Thomas is the murderer.',
     ],
   },
 };
@@ -321,7 +321,7 @@ CLUES.forEach((c, k) => {
   w('*(Below: the current suspicion bar, names only.)*');
   w();
   SUSPECTS.forEach((s, i) => {
-    w(`### Page: Suppose ${s.name} did it.`);
+    w(`### Page: Suppose ${s.name} is the murderer.`);
     w();
     w(`**How likely would I be to find ${c.short}?**`);
     w();
@@ -339,7 +339,7 @@ CLUES.forEach((c, k) => {
   w();
   w('### Page: The math');
   w();
-  w(`*(The same update as Bayes’ rule, one hypothesis per suspect: ${SUSPECTS.map((s, i) => `H${i + 1} “${s.name} did it”`).join(', ')}, and E finding ${c.short}. P(H1 | E) = P(H1) · P(E | H1) ÷ [P(H1) · P(E | H1) + P(H2) · P(E | H2)]. Each term is explained and filled in with the player’s numbers.)*`);
+  w(`*(The same update as Bayes’ rule, one hypothesis per suspect: ${SUSPECTS.map((s, i) => `H${i + 1} “${s.name} is the murderer”`).join(', ')}, and E finding ${c.short}. P(H1 | E) = P(H1) · P(E | H1) ÷ [P(H1) · P(E | H1) + P(H2) · P(E | H2)]. Each term is explained and filled in with the player’s numbers.)*`);
   {
     const lik = c.likelihoods;
     const j = belief.map((p, i) => p * lik[i]);
@@ -434,7 +434,7 @@ w('“Your board moved most at clue N, (title). Every rating you made was yours,
 w();
 w('[ **See the math** ] [ Read all lessons ] [ Play again ] [ Title ]');
 w();
-w('> **Designer’s note (not shown in game): the “See the math” screen.** Optional, shown on request after the verdict. For each clue it replays the player’s own ratings as counted worlds, beside the square: column widths are the shares, shaded heights the ratings. Example for the letter, if the player rated Clara 4 and Thomas 3: “Picture 60 worlds in which Clara did it and 40 in which Thomas did. A 4 means the clue turns up in 70 of every 100 of Clara’s worlds; a 3 means 50 of every 100 of Thomas’s. That is 42 worlds with the clue for Clara and 20 for Thomas, 62 in all. 42 of those 62 are Clara’s: 68%.” Then the same step as odds (prior odds × ratio = new odds). The last page lists the seven lessons and shows, from the player’s own ratings, that a different starting point would have changed the final board only a little.');
+w('> **Designer’s note (not shown in game): the “See the math” screen.** Optional, shown on request after the verdict. For each clue it replays the player’s own ratings as counted worlds, beside the square: column widths are the shares, shaded heights the ratings. Example for the letter, if the player rated Clara 4 and Thomas 3: “Picture 60 worlds in which Clara is the murderer and 40 in which Thomas is. A 4 means the clue turns up in 70 of every 100 of Clara’s worlds; a 3 means 50 of every 100 of Thomas’s. That is 42 worlds with the clue for Clara and 20 for Thomas, 62 in all. 42 of those 62 are Clara’s: 68%.” Then the same step as odds (prior odds × ratio = new odds). The last page lists the seven lessons and shows, from the player’s own ratings, that a different starting point would have changed the final board only a little.');
 w();
 w('> **Designer’s note (not shown in game): closing text depends on two things, whom the player named and whom the player’s own board favoured.**');
 w('>');
@@ -457,7 +457,7 @@ w();
 // ------------------------------------------------------------------ appendix
 w('## Appendix: the intended reasoning chain (designer’s notes)');
 w();
-w(`**How ratings become numbers.** A rating is the likelihood P(clue | this person did it): ${RATING_VALUES.map((v, k) => `${k + 1} → ${v}`).join(', ')}. It never reaches 0 or 1, so no story can be ruled out, or proved, by one clue. Only the *ratio* of the two ratings moves the board, which is why a clue rated the same for both suspects changes nothing.`);
+w(`**How ratings become numbers.** A rating is the likelihood P(clue | this person is the murderer): ${RATING_VALUES.map((v, k) => `${k + 1} → ${v}`).join(', ')}. It never reaches 0 or 1, so no story can be ruled out, or proved, by one clue. Only the *ratio* of the two ratings moves the board, which is why a clue rated the same for both suspects changes nothing.`);
 w();
 w('The board after each clue, if the player’s ratings match the intended ratings (a model answer, not an answer key):');
 w();
@@ -489,10 +489,10 @@ w();
 w('**Assumptions the game makes.**');
 w();
 w(`1. One culprit, and the ${numberWord(SUSPECTS.length)} suspects cover every possibility, so the stretch step is valid.`);
-w('2. Each clue’s likelihood depends only on who did it, not on other clues found (conditional independence given the culprit). The letter and the will concern the same quarrel, so the will is deliberately rated as old news rather than as new motive evidence.');
+w('2. Each clue’s likelihood depends only on who the murderer is, not on other clues found (conditional independence given the culprit). The letter and the will concern the same quarrel, so the will is deliberately rated as old news rather than as new motive evidence.');
 w('3. Background facts (Thomas leaves his bicycle by the garden gate; Poe and Edgar were out; Clara nags about John’s sleep; the single Monday signing threatens Clara and Thomas equally) are established before a clue uses them.');
 w('4. Verbal labels map to fixed numbers for every player. People read “likely” differently, so the labels and numbers must stay locked together.');
-w('5. The ghost searches where he already suspects, so clues are not a random sample. Likelihoods should be judged as “would I have found this here whoever did it?” The foxglove reaction has the ghost admit he has not looked for evidence against Thomas, and the slip is found because he then does.');
+w('5. The ghost searches where he already suspects, so clues are not a random sample. Likelihoods should be judged as “would I have found this here whoever the murderer is?” The foxglove reaction has the ghost admit he has not looked for evidence against Thomas, and the slip is found because he then does.');
 w('6. The ghost’s unmodelled facts (the 7:48 call, what was really in the bottle) stay unexplained on purpose. The verdict does not need them.');
 w();
 

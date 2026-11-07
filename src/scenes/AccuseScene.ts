@@ -199,7 +199,7 @@ export class AccuseScene extends Phaser.Scene {
     const kb = before[1] * 100 * lik[1];
     const f = (x: number) => (Math.abs(x - Math.round(x)) < 0.05 ? String(Math.round(x)) : x.toFixed(1));
     const worlds =
-      `Picture ${a} worlds in which ${A.name} did it and ${b} in which ${short(B)} did. ` +
+      `Picture ${a} worlds in which ${A.name} is the murderer and ${b} in which ${short(B)} is. ` +
       `A ${r[0]} means the clue turns up in ${Math.round(lik[0] * 100)} of every 100 of ${A.name}’s worlds; a ${r[1]} means ${Math.round(lik[1] * 100)} of every 100 of ${short(B)}’s. ` +
       `That is ${f(ka)} worlds with the clue for ${A.name} and ${f(kb)} for ${short(B)}, ${f(ka + kb)} in all. ` +
       `${f(ka)} of those ${f(ka + kb)} are ${A.name}’s: ${Math.round(after[0] * 100)}%.`;

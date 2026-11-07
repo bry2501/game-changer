@@ -231,25 +231,25 @@ Uncle —
 
 ### Page: Lesson 1: Think in stories
 
-Don’t ask “who does this evidence point to?” Instead, go one person at a time and imagine they did it. Then ask: assuming that they did it, how likely is it that I would find this evidence? Imagine a hundred different possible worlds in which that person did it: on how many of them would this clue turn up? Each suspect is a story, and a clue fits some stories better than others.
+Don’t ask “who does this evidence point to?” Instead, go one person at a time and imagine they are the murderer. Then ask: assuming they are the murderer, how likely is it that I would find this evidence? Imagine a hundred different possible worlds in which that person is the murderer: on how many of them would this clue turn up? Each suspect is a story, and a clue fits some stories better than others.
 
 *(Below: the current suspicion bar, names only.)*
 
-### Page: Suppose Clara did it.
+### Page: Suppose Clara is the murderer.
 
 **How likely would I be to find an angry letter like this?**
 
-> **GHOST** *(thought)*: If Clara did it, the quarrel over my will would be her reason, and a furious letter is exactly the footprint that kind of anger leaves. But Clara writes furious letters all the time, and has never hurt a soul. So her guilt makes this letter more expected, though not by a huge margin.
+> **GHOST** *(thought)*: If Clara is the murderer, the quarrel over my will would be her reason, and a furious letter is exactly the footprint that kind of anger leaves. But Clara writes furious letters all the time, and has never hurt a soul. So her guilt makes this letter more expected, though not by a huge margin.
 
 [ 1 Very unlikely 10% ] [ 2 Unlikely 30% ] [ 3 As likely as not 50% ] [ 4 Likely 70% ] [ 5 Very likely 90% ]
 
 After choosing: “You rated it N: …, a P% chance.”
 
-### Page: Suppose Mr. Thomas did it.
+### Page: Suppose Mr. Thomas is the murderer.
 
 **How likely would I be to find an angry letter like this?**
 
-> **GHOST** *(thought)*: If Thomas did it, nothing about that Tuesday changes. Clara and I still quarrelled, she still went upstairs and wrote the most savage thing she could think of, and she still didn’t send it to me. His guilt does not stop this letter existing, so it is only a little less expected here than in her story.
+> **GHOST** *(thought)*: If Thomas is the murderer, nothing about that Tuesday changes. Clara and I still quarrelled, she still went upstairs and wrote the most savage thing she could think of, and she still didn’t send it to me. His guilt does not stop this letter existing, so it is only a little less expected here than in her story.
 
 [ 1 Very unlikely 10% ] [ 2 Unlikely 30% ] [ 3 As likely as not 50% ] [ 4 Likely 70% ] [ 5 Very likely 90% ]
 
@@ -265,7 +265,7 @@ After choosing: “You rated it N: …, a P% chance.”
 
 ### Page: The math
 
-*(The same update as Bayes’ rule, one hypothesis per suspect: H1 “Clara did it”, H2 “Mr. Thomas did it”, and E finding an angry letter like this. P(H1 | E) = P(H1) · P(E | H1) ÷ [P(H1) · P(E | H1) + P(H2) · P(E | H2)]. Each term is explained and filled in with the player’s numbers.)*
+*(The same update as Bayes’ rule, one hypothesis per suspect: H1 “Clara is the murderer”, H2 “Mr. Thomas is the murderer”, and E finding an angry letter like this. P(H1 | E) = P(H1) · P(E | H1) ÷ [P(H1) · P(E | H1) + P(H2) · P(E | H2)]. Each term is explained and filled in with the player’s numbers.)*
 
 - **P(H1), P(H2)**, your board so far: Clara 60%, Mr. Thomas 40% *(numbers here follow the designed ratings)*
 - **P(E | H1), P(E | H2)**, your ratings: Clara 70%, Mr. Thomas 50%
@@ -322,21 +322,21 @@ A clue can feel new and still be old news. You already knew about the will and w
 
 *(Below: the current suspicion bar, names only.)*
 
-### Page: Suppose Clara did it.
+### Page: Suppose Clara is the murderer.
 
 **How likely would I be to find a draft will like this in my desk?**
 
-> **GHOST** *(thought)*: If Clara did it, I still told her about the will on Tuesday, and I still drafted it. A draft in my own desk is very likely.
+> **GHOST** *(thought)*: If Clara is the murderer, I still told her about the will on Tuesday, and I still drafted it. A draft in my own desk is very likely.
 
 [ 1 Very unlikely 10% ] [ 2 Unlikely 30% ] [ 3 As likely as not 50% ] [ 4 Likely 70% ] [ 5 Very likely 90% ]
 
 After choosing: “You rated it N: …, a P% chance.”
 
-### Page: Suppose Mr. Thomas did it.
+### Page: Suppose Mr. Thomas is the murderer.
 
 **How likely would I be to find a draft will like this in my desk?**
 
-> **GHOST** *(thought)*: If Thomas did it, nothing about the will changes. I still told them both, and I still drafted it. A draft in my own desk is just as likely.
+> **GHOST** *(thought)*: If Thomas is the murderer, nothing about the will changes. I still told them both, and I still drafted it. A draft in my own desk is just as likely.
 
 [ 1 Very unlikely 10% ] [ 2 Unlikely 30% ] [ 3 As likely as not 50% ] [ 4 Likely 70% ] [ 5 Very likely 90% ]
 
@@ -353,7 +353,7 @@ After choosing: “You rated it N: …, a P% chance.”
 
 ### Page: The math
 
-*(The same update as Bayes’ rule, one hypothesis per suspect: H1 “Clara did it”, H2 “Mr. Thomas did it”, and E finding a draft will like this in my desk. P(H1 | E) = P(H1) · P(E | H1) ÷ [P(H1) · P(E | H1) + P(H2) · P(E | H2)]. Each term is explained and filled in with the player’s numbers.)*
+*(The same update as Bayes’ rule, one hypothesis per suspect: H1 “Clara is the murderer”, H2 “Mr. Thomas is the murderer”, and E finding a draft will like this in my desk. P(H1 | E) = P(H1) · P(E | H1) ÷ [P(H1) · P(E | H1) + P(H2) · P(E | H2)]. Each term is explained and filled in with the player’s numbers.)*
 
 - **P(H1), P(H2)**, your board so far: Clara 68%, Mr. Thomas 32% *(numbers here follow the designed ratings)*
 - **P(E | H1), P(E | H2)**, your ratings: Clara 90%, Mr. Thomas 90%
@@ -362,7 +362,7 @@ After choosing: “You rated it N: …, a P% chance.”
 
 ### Page: Recap: Old news doesn’t count twice
 
-A will in my desk feels like a motive for Clara, and for Thomas. But I knew about the will before I opened the drawer, and the letter already carried it. The draft would be in this drawer whoever did this, so it moves nothing. If your two ratings were far apart, you counted the same motive twice.
+A will in my desk feels like a motive for Clara, and for Thomas. But I knew about the will before I opened the drawer, and the letter already carried it. The draft would be in this drawer whoever the murderer is, so it moves nothing. If your two ratings were far apart, you counted the same motive twice.
 
 *(Below: your board before this clue, and your board now, as two squares.)*
 
@@ -410,21 +410,21 @@ What moves suspicion is not how well a clue fits one story, but how much BETTER 
 
 *(Below: the current suspicion bar, names only.)*
 
-### Page: Suppose Clara did it.
+### Page: Suppose Clara is the murderer.
 
 **How likely would I be to find a muddy print hidden behind the fern?**
 
-> **GHOST** *(thought)*: If Clara did it, why would she come in through the conservatory? She has been inside since seven, and the front door has always been open to her. And this print is large and fresh. A print like this is very hard to explain in her story.
+> **GHOST** *(thought)*: If Clara is the murderer, why would she come in through the conservatory? She has been inside since seven, and the front door has always been open to her. And this print is large and fresh. A print like this is very hard to explain in her story.
 
 [ 1 Very unlikely 10% ] [ 2 Unlikely 30% ] [ 3 As likely as not 50% ] [ 4 Likely 70% ] [ 5 Very likely 90% ]
 
 After choosing: “You rated it N: …, a P% chance.”
 
-### Page: Suppose Mr. Thomas did it.
+### Page: Suppose Mr. Thomas is the murderer.
 
 **How likely would I be to find a muddy print hidden behind the fern?**
 
-> **GHOST** *(thought)*: If Thomas did it, he signed my log at eight and then had to get back in unseen. He leaves his bicycle by the garden gate, as he always does, and the beds lie between that gate and this window. A print like this is quite possible in his story, though he might have found another way in.
+> **GHOST** *(thought)*: If Thomas is the murderer, he signed my log at eight and then had to get back in unseen. He leaves his bicycle by the garden gate, as he always does, and the beds lie between that gate and this window. A print like this is quite possible in his story, though he might have found another way in.
 
 [ 1 Very unlikely 10% ] [ 2 Unlikely 30% ] [ 3 As likely as not 50% ] [ 4 Likely 70% ] [ 5 Very likely 90% ]
 
@@ -440,7 +440,7 @@ After choosing: “You rated it N: …, a P% chance.”
 
 ### Page: The math
 
-*(The same update as Bayes’ rule, one hypothesis per suspect: H1 “Clara did it”, H2 “Mr. Thomas did it”, and E finding a muddy print hidden behind the fern. P(H1 | E) = P(H1) · P(E | H1) ÷ [P(H1) · P(E | H1) + P(H2) · P(E | H2)]. Each term is explained and filled in with the player’s numbers.)*
+*(The same update as Bayes’ rule, one hypothesis per suspect: H1 “Clara is the murderer”, H2 “Mr. Thomas is the murderer”, and E finding a muddy print hidden behind the fern. P(H1 | E) = P(H1) · P(E | H1) ÷ [P(H1) · P(E | H1) + P(H2) · P(E | H2)]. Each term is explained and filled in with the player’s numbers.)*
 
 - **P(H1), P(H2)**, your board so far: Clara 68%, Mr. Thomas 32% *(numbers here follow the designed ratings)*
 - **P(E | H1), P(E | H2)**, your ratings: Clara 10%, Mr. Thomas 50%
@@ -495,21 +495,21 @@ A strong clue fits one story far better than the rest. Look for the lopsided one
 
 *(Below: the current suspicion bar, names only.)*
 
-### Page: Suppose Clara did it.
+### Page: Suppose Clara is the murderer.
 
 **How likely would I be to find a foxglove stripped like this?**
 
-> **GHOST** *(thought)*: If Clara did it, the foxgloves have nothing to do with her. She has never so much as watered them. Then a stripped pot would only be Thomas’s ordinary pruning. Unlikely, though not impossible.
+> **GHOST** *(thought)*: If Clara is the murderer, the foxgloves have nothing to do with her. She has never so much as watered them. Then a stripped pot would only be Thomas’s ordinary pruning. Unlikely, though not impossible.
 
 [ 1 Very unlikely 10% ] [ 2 Unlikely 30% ] [ 3 As likely as not 50% ] [ 4 Likely 70% ] [ 5 Very likely 90% ]
 
 After choosing: “You rated it N: …, a P% chance.”
 
-### Page: Suppose Mr. Thomas did it.
+### Page: Suppose Mr. Thomas is the murderer.
 
 **How likely would I be to find a foxglove stripped like this?**
 
-> **GHOST** *(thought)*: If Thomas did it, here is his poison, grown by his own hand: the foxgloves he has tended for years, which he knows better than anyone alive. In his story, a stripped pot like this is exactly what I’d expect to find.
+> **GHOST** *(thought)*: If Thomas is the murderer, here is his poison, grown by his own hand: the foxgloves he has tended for years, which he knows better than anyone alive. In his story, a stripped pot like this is exactly what I’d expect to find.
 
 [ 1 Very unlikely 10% ] [ 2 Unlikely 30% ] [ 3 As likely as not 50% ] [ 4 Likely 70% ] [ 5 Very likely 90% ]
 
@@ -525,7 +525,7 @@ After choosing: “You rated it N: …, a P% chance.”
 
 ### Page: The math
 
-*(The same update as Bayes’ rule, one hypothesis per suspect: H1 “Clara did it”, H2 “Mr. Thomas did it”, and E finding a foxglove stripped like this. P(H1 | E) = P(H1) · P(E | H1) ÷ [P(H1) · P(E | H1) + P(H2) · P(E | H2)]. Each term is explained and filled in with the player’s numbers.)*
+*(The same update as Bayes’ rule, one hypothesis per suspect: H1 “Clara is the murderer”, H2 “Mr. Thomas is the murderer”, and E finding a foxglove stripped like this. P(H1 | E) = P(H1) · P(E | H1) ÷ [P(H1) · P(E | H1) + P(H2) · P(E | H2)]. Each term is explained and filled in with the player’s numbers.)*
 
 - **P(H1), P(H2)**, your board so far: Clara 30%, Mr. Thomas 70% *(numbers here follow the designed ratings)*
 - **P(E | H1), P(E | H2)**, your ratings: Clara 30%, Mr. Thomas 90%
@@ -550,7 +550,7 @@ This clue fits one person far better than anyone else. That is what strong evide
 
 > **GHOST** *(thought)*: Thomas. Twenty years in my garden. Could it be him?
 > **GHOST** *(thought)*: This clue fits one person far better than the other. That’s what strong evidence looks like.
-> **GHOST** *(thought)*: Careful, John. I rated how likely a stripped foxglove would be *if Thomas did it*. That isn’t the same as how likely it is that Thomas did it. The first is a rating; the second is the board, which also depends on where I started and on how well the foxgloves fit Clara’s story. Mixing the two up is called the prosecutor’s fallacy, and it has sent real people to prison.
+> **GHOST** *(thought)*: Careful, John. I rated how likely a stripped foxglove would be *if Thomas is the murderer*. That isn’t the same as how likely it is that Thomas is the murderer. The first is a rating; the second is the board, which also depends on where I started and on how well the foxgloves fit Clara’s story. Mixing the two up is called the prosecutor’s fallacy, and it has sent real people to prison.
 > **GHOST** *(thought)*: Everything is pointing at Edmund. That is exactly when I should be most careful. I haven’t looked for anything that would count against him.
 > **GHOST** *(thought)*: Clara walked at seven, in her grey coat. It should be on the hall stand.
 
@@ -585,21 +585,21 @@ Once you lean one way, the clues that point the other way are the ones you will 
 
 *(Below: the current suspicion bar, names only.)*
 
-### Page: Suppose Clara did it.
+### Page: Suppose Clara is the murderer.
 
 **How likely would I be to find a chemist’s slip like this in Clara’s coat?**
 
-> **GHOST** *(thought)*: If Clara did it, she needed something to put a man to sleep and keep him there, and sleeping drops would do that. She might have kept the slip, because people forget what is in a pocket. It is quite likely, though she could as easily have thrown it away.
+> **GHOST** *(thought)*: If Clara is the murderer, she needed something to put a man to sleep and keep him there, and sleeping drops would do that. She might have kept the slip, because people forget what is in a pocket. It is quite likely, though she could as easily have thrown it away.
 
 [ 1 Very unlikely 10% ] [ 2 Unlikely 30% ] [ 3 As likely as not 50% ] [ 4 Likely 70% ] [ 5 Very likely 90% ]
 
 After choosing: “You rated it N: …, a P% chance.”
 
-### Page: Suppose Mr. Thomas did it.
+### Page: Suppose Mr. Thomas is the murderer.
 
 **How likely would I be to find a chemist’s slip like this in Clara’s coat?**
 
-> **GHOST** *(thought)*: If Thomas did it, Clara was simply out for a walk. She knows I sleep badly, and she has nagged me about it since the spring, so a kindness is possible. But I never asked her to fetch my drops, and she has never taken any herself. Sleeping drops on this very evening would be a coincidence. Unlikely, though not impossible.
+> **GHOST** *(thought)*: If Thomas is the murderer, Clara was simply out for a walk. She knows I sleep badly, and she has nagged me about it since the spring, so a kindness is possible. But I never asked her to fetch my drops, and she has never taken any herself. Sleeping drops on this very evening would be a coincidence. Unlikely, though not impossible.
 
 [ 1 Very unlikely 10% ] [ 2 Unlikely 30% ] [ 3 As likely as not 50% ] [ 4 Likely 70% ] [ 5 Very likely 90% ]
 
@@ -615,7 +615,7 @@ After choosing: “You rated it N: …, a P% chance.”
 
 ### Page: The math
 
-*(The same update as Bayes’ rule, one hypothesis per suspect: H1 “Clara did it”, H2 “Mr. Thomas did it”, and E finding a chemist’s slip like this in Clara’s coat. P(H1 | E) = P(H1) · P(E | H1) ÷ [P(H1) · P(E | H1) + P(H2) · P(E | H2)]. Each term is explained and filled in with the player’s numbers.)*
+*(The same update as Bayes’ rule, one hypothesis per suspect: H1 “Clara is the murderer”, H2 “Mr. Thomas is the murderer”, and E finding a chemist’s slip like this in Clara’s coat. P(H1 | E) = P(H1) · P(E | H1) ÷ [P(H1) · P(E | H1) + P(H2) · P(E | H2)]. Each term is explained and filled in with the player’s numbers.)*
 
 - **P(H1), P(H2)**, your board so far: Clara 12%, Mr. Thomas 88% *(numbers here follow the designed ratings)*
 - **P(E | H1), P(E | H2)**, your ratings: Clara 70%, Mr. Thomas 30%
@@ -670,7 +670,7 @@ If a clue fits someone’s story badly, their share shrinks, and what they lose 
 
 *(Below: the current suspicion bar, names only.)*
 
-### Page: Suppose Clara did it.
+### Page: Suppose Clara is the murderer.
 
 **How likely would I be to find this telephone log?**
 
@@ -680,11 +680,11 @@ If a clue fits someone’s story badly, their share shrinks, and what they lose 
 
 After choosing: “You rated it N: …, a P% chance.”
 
-### Page: Suppose Mr. Thomas did it.
+### Page: Suppose Mr. Thomas is the murderer.
 
 **How likely would I be to find this telephone log?**
 
-> **GHOST** *(thought)*: If Thomas did it, Clara’s call is just Clara phoning someone from the hallway. A call this long, at this hour, isn’t guaranteed, but his guilt changes nothing about whether she made it. It neither helps nor hurts his story much.
+> **GHOST** *(thought)*: If Thomas is the murderer, Clara’s call is just Clara phoning someone from the hallway. A call this long, at this hour, isn’t guaranteed, but his guilt changes nothing about whether she made it. It neither helps nor hurts his story much.
 
 [ 1 Very unlikely 10% ] [ 2 Unlikely 30% ] [ 3 As likely as not 50% ] [ 4 Likely 70% ] [ 5 Very likely 90% ]
 
@@ -700,7 +700,7 @@ After choosing: “You rated it N: …, a P% chance.”
 
 ### Page: The math
 
-*(The same update as Bayes’ rule, one hypothesis per suspect: H1 “Clara did it”, H2 “Mr. Thomas did it”, and E finding this telephone log. P(H1 | E) = P(H1) · P(E | H1) ÷ [P(H1) · P(E | H1) + P(H2) · P(E | H2)]. Each term is explained and filled in with the player’s numbers.)*
+*(The same update as Bayes’ rule, one hypothesis per suspect: H1 “Clara is the murderer”, H2 “Mr. Thomas is the murderer”, and E finding this telephone log. P(H1 | E) = P(H1) · P(E | H1) ÷ [P(H1) · P(E | H1) + P(H2) · P(E | H2)]. Each term is explained and filled in with the player’s numbers.)*
 
 - **P(H1), P(H2)**, your board so far: Clara 25%, Mr. Thomas 75% *(numbers here follow the designed ratings)*
 - **P(E | H1), P(E | H2)**, your ratings: Clara 10%, Mr. Thomas 50%
@@ -754,21 +754,21 @@ Each clue starts from where the last one left you: today’s board is tomorrow�
 
 *(Below: the current suspicion bar, names only.)*
 
-### Page: Suppose Clara did it.
+### Page: Suppose Clara is the murderer.
 
 **How likely would I be to find a pruning knife under my chair?**
 
-> **GHOST** *(thought)*: If Clara did it, the knife is still easy to explain. Thomas stood at this desk this afternoon while we went over the repairs to the glass, and things fall out of pockets. It is as likely as not.
+> **GHOST** *(thought)*: If Clara is the murderer, the knife is still easy to explain. Thomas stood at this desk this afternoon while we went over the repairs to the glass, and things fall out of pockets. It is as likely as not.
 
 [ 1 Very unlikely 10% ] [ 2 Unlikely 30% ] [ 3 As likely as not 50% ] [ 4 Likely 70% ] [ 5 Very likely 90% ]
 
 After choosing: “You rated it N: …, a P% chance.”
 
-### Page: Suppose Mr. Thomas did it.
+### Page: Suppose Mr. Thomas is the murderer.
 
 **How likely would I be to find a pruning knife under my chair?**
 
-> **GHOST** *(thought)*: If Thomas did it, he stood in this room tonight as well as this afternoon, so he had two chances to lose it. His story explains it a little better, not overwhelmingly.
+> **GHOST** *(thought)*: If Thomas is the murderer, he stood in this room tonight as well as this afternoon, so he had two chances to lose it. His story explains it a little better, not overwhelmingly.
 
 [ 1 Very unlikely 10% ] [ 2 Unlikely 30% ] [ 3 As likely as not 50% ] [ 4 Likely 70% ] [ 5 Very likely 90% ]
 
@@ -784,7 +784,7 @@ After choosing: “You rated it N: …, a P% chance.”
 
 ### Page: The math
 
-*(The same update as Bayes’ rule, one hypothesis per suspect: H1 “Clara did it”, H2 “Mr. Thomas did it”, and E finding a pruning knife under my chair. P(H1 | E) = P(H1) · P(E | H1) ÷ [P(H1) · P(E | H1) + P(H2) · P(E | H2)]. Each term is explained and filled in with the player’s numbers.)*
+*(The same update as Bayes’ rule, one hypothesis per suspect: H1 “Clara is the murderer”, H2 “Mr. Thomas is the murderer”, and E finding a pruning knife under my chair. P(H1 | E) = P(H1) · P(E | H1) ÷ [P(H1) · P(E | H1) + P(H2) · P(E | H2)]. Each term is explained and filled in with the player’s numbers.)*
 
 - **P(H1), P(H2)**, your board so far: Clara 6%, Mr. Thomas 94% *(numbers here follow the designed ratings)*
 - **P(E | H1), P(E | H2)**, your ratings: Clara 50%, Mr. Thomas 70%
@@ -802,7 +802,7 @@ Thomas’s knife sounds like proof, but he stood at this desk this afternoon, so
 > - Intended ratings: Clara **3** (0.5), Mr. Thomas **4** (0.7). Likelihood ratio 0.71 : 1, i.e. 1.4 : 1 for Thomas.
 > - With those ratings: before Clara 6%, Mr. Thomas 94% → keep 6% × 0.5 = 3%; 94% × 0.7 = 66% → together 69% → stretched: **Clara 4%**, **Mr. Thomas 96%**.
 > - Trap: *A clue that fits both stories*. The old label “Prosecutor’s fallacy” was a misnomer: that fallacy is confusing P(evidence | guilt) with P(guilt | evidence). It is taught where it actually occurs, at the foxgloves and at the accusation.
-> - Independence check: the Thomas page rests only on his two chances to lose the knife. It does not lean on the boot print or the foxgloves, which would make the clues dependent given Thomas did it.
+> - Independence check: the Thomas page rests only on his two chances to lose the knife. It does not lean on the boot print or the foxgloves, which would make the clues dependent given Thomas is the murderer.
 
 *The overlay closes. Back in the house.*
 
@@ -818,7 +818,7 @@ Thomas’s knife sounds like proof, but he stood at this desk this afternoon, so
 *After the last clue the body glows again. The player drifts to it and chooses “Name the culprit”. In the hall, the great clock is about to strike eleven.*
 
 Back beside my body. It is time to name the culprit.
-Your board shows these beliefs. Who did it?
+Your board shows these beliefs. Who is the murderer?
 Look at the bars. Neither is empty. In most of the worlds that look like this one, it is [the likelier suspect]. In a few, it is [the other].
 A bar is a belief, not a verdict. The living say it is better that ten guilty men go free than that one innocent man suffer. When the bars are close, I have to ask how bad it would be to accuse the wrong person, and not only who looks likelier.
 Choose carefully. A ghost only gets one accusation.
@@ -868,7 +868,7 @@ A chart of how the player’s suspicion moved, clue by clue, and the trap behind
 
 [ **See the math** ] [ Read all lessons ] [ Play again ] [ Title ]
 
-> **Designer’s note (not shown in game): the “See the math” screen.** Optional, shown on request after the verdict. For each clue it replays the player’s own ratings as counted worlds, beside the square: column widths are the shares, shaded heights the ratings. Example for the letter, if the player rated Clara 4 and Thomas 3: “Picture 60 worlds in which Clara did it and 40 in which Thomas did. A 4 means the clue turns up in 70 of every 100 of Clara’s worlds; a 3 means 50 of every 100 of Thomas’s. That is 42 worlds with the clue for Clara and 20 for Thomas, 62 in all. 42 of those 62 are Clara’s: 68%.” Then the same step as odds (prior odds × ratio = new odds). The last page lists the seven lessons and shows, from the player’s own ratings, that a different starting point would have changed the final board only a little.
+> **Designer’s note (not shown in game): the “See the math” screen.** Optional, shown on request after the verdict. For each clue it replays the player’s own ratings as counted worlds, beside the square: column widths are the shares, shaded heights the ratings. Example for the letter, if the player rated Clara 4 and Thomas 3: “Picture 60 worlds in which Clara is the murderer and 40 in which Thomas is. A 4 means the clue turns up in 70 of every 100 of Clara’s worlds; a 3 means 50 of every 100 of Thomas’s. That is 42 worlds with the clue for Clara and 20 for Thomas, 62 in all. 42 of those 62 are Clara’s: 68%.” Then the same step as odds (prior odds × ratio = new odds). The last page lists the seven lessons and shows, from the player’s own ratings, that a different starting point would have changed the final board only a little.
 
 > **Designer’s note (not shown in game): closing text depends on two things, whom the player named and whom the player’s own board favoured.**
 >
@@ -896,7 +896,7 @@ A chart of how the player’s suspicion moved, clue by clue, and the trap behind
 
 ## Appendix: the intended reasoning chain (designer’s notes)
 
-**How ratings become numbers.** A rating is the likelihood P(clue | this person did it): 1 → 0.1, 2 → 0.3, 3 → 0.5, 4 → 0.7, 5 → 0.9. It never reaches 0 or 1, so no story can be ruled out, or proved, by one clue. Only the *ratio* of the two ratings moves the board, which is why a clue rated the same for both suspects changes nothing.
+**How ratings become numbers.** A rating is the likelihood P(clue | this person is the murderer): 1 → 0.1, 2 → 0.3, 3 → 0.5, 4 → 0.7, 5 → 0.9. It never reaches 0 or 1, so no story can be ruled out, or proved, by one clue. Only the *ratio* of the two ratings moves the board, which is why a clue rated the same for both suspects changes nothing.
 
 The board after each clue, if the player’s ratings match the intended ratings (a model answer, not an answer key):
 
@@ -920,8 +920,8 @@ The board after each clue, if the player’s ratings match the intended ratings 
 **Assumptions the game makes.**
 
 1. One culprit, and the two suspects cover every possibility, so the stretch step is valid.
-2. Each clue’s likelihood depends only on who did it, not on other clues found (conditional independence given the culprit). The letter and the will concern the same quarrel, so the will is deliberately rated as old news rather than as new motive evidence.
+2. Each clue’s likelihood depends only on who the murderer is, not on other clues found (conditional independence given the culprit). The letter and the will concern the same quarrel, so the will is deliberately rated as old news rather than as new motive evidence.
 3. Background facts (Thomas leaves his bicycle by the garden gate; Poe and Edgar were out; Clara nags about John’s sleep; the single Monday signing threatens Clara and Thomas equally) are established before a clue uses them.
 4. Verbal labels map to fixed numbers for every player. People read “likely” differently, so the labels and numbers must stay locked together.
-5. The ghost searches where he already suspects, so clues are not a random sample. Likelihoods should be judged as “would I have found this here whoever did it?” The foxglove reaction has the ghost admit he has not looked for evidence against Thomas, and the slip is found because he then does.
+5. The ghost searches where he already suspects, so clues are not a random sample. Likelihoods should be judged as “would I have found this here whoever the murderer is?” The foxglove reaction has the ghost admit he has not looked for evidence against Thomas, and the slip is found because he then does.
 6. The ghost’s unmodelled facts (the 7:48 call, what was really in the bottle) stay unexplained on purpose. The verdict does not need them.

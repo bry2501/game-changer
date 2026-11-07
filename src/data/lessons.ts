@@ -12,9 +12,9 @@ export const CONCEPTS: Concept[] = [
   {
     title: 'Think in stories',
     body:
-      'Don’t ask “who does this evidence point to?” Instead, go one person at a time and imagine they did it. ' +
-      'Then ask: assuming that they did it, how likely is it that I would find this evidence? ' +
-      'Imagine a hundred different possible worlds in which that person did it: on how many of them would this clue turn up? ' +
+      'Don’t ask “who does this evidence point to?” Instead, go one person at a time and imagine they are the murderer. ' +
+      'Then ask: assuming they are the murderer, how likely is it that I would find this evidence? ' +
+      'Imagine a hundred different possible worlds in which that person is the murderer: on how many of them would this clue turn up? ' +
       'Each suspect is a story, and a clue fits some stories better than others.',
   },
   {

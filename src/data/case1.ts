@@ -54,7 +54,7 @@ export interface Clue {
   context: string[];
   /** Short name used in questions: "How likely would I be to find ___?" */
   short: string;
-  /** The intended ratings as likelihoods, P(this clue | suspect i did it): a model answer, never shown. */
+  /** The intended ratings as likelihoods, P(this clue | suspect i is the murderer): a model answer, never shown. */
   likelihoods: number[];
   /** The ghost's thought about each suspect's story (shown on the rating page). */
   hints: string[];
@@ -220,8 +220,8 @@ const CLUE_SOURCES: ClueSource[] = [
     short: 'an angry letter like this',
     likelihoods: [0.7, 0.5],
     hints: [
-      'If Clara did it, the quarrel over my will would be her reason, and a furious letter is exactly the footprint that kind of anger leaves. But Clara writes furious letters all the time, and has never hurt a soul. So her guilt makes this letter more expected, though not by a huge margin.',
-      'If Thomas did it, nothing about that Tuesday changes. Clara and I still quarrelled, she still went upstairs and wrote the most savage thing she could think of, and she still didn’t send it to me. His guilt does not stop this letter existing, so it is only a little less expected here than in her story.',
+      'If Clara is the murderer, the quarrel over my will would be her reason, and a furious letter is exactly the footprint that kind of anger leaves. But Clara writes furious letters all the time, and has never hurt a soul. So her guilt makes this letter more expected, though not by a huge margin.',
+      'If Thomas is the murderer, nothing about that Tuesday changes. Clara and I still quarrelled, she still went upstairs and wrote the most savage thing she could think of, and she still didn’t send it to me. His guilt does not stop this letter existing, so it is only a little less expected here than in her story.',
     ],
     trap: 'Vivid but weak evidence',
     lesson:
@@ -255,13 +255,13 @@ const CLUE_SOURCES: ClueSource[] = [
     short: 'a draft will like this in my desk',
     likelihoods: [0.9, 0.9],
     hints: [
-      'If Clara did it, I still told her about the will on Tuesday, and I still drafted it. A draft in my own desk is very likely.',
-      'If Thomas did it, nothing about the will changes. I still told them both, and I still drafted it. A draft in my own desk is just as likely.',
+      'If Clara is the murderer, I still told her about the will on Tuesday, and I still drafted it. A draft in my own desk is very likely.',
+      'If Thomas is the murderer, nothing about the will changes. I still told them both, and I still drafted it. A draft in my own desk is just as likely.',
     ],
     trap: 'Old news doesn’t count twice',
     lesson:
       'A will in my desk feels like a motive for Clara, and for Thomas. But I knew about the will before I opened the drawer, and the letter already carried it. ' +
-      'The draft would be in this drawer whoever did this, so it moves nothing. If your two ratings were far apart, you counted the same motive twice.',
+      'The draft would be in this drawer whoever the murderer is, so it moves nothing. If your two ratings were far apart, you counted the same motive twice.',
     reaction: [
       'Nothing moved. That feels wrong, but it isn’t: I knew about the will before I opened the drawer.',
       '*Talk to her.* I never did.',
@@ -291,8 +291,8 @@ const CLUE_SOURCES: ClueSource[] = [
     short: 'a muddy print hidden behind the fern',
     likelihoods: [0.1, 0.5],
     hints: [
-      'If Clara did it, why would she come in through the conservatory? She has been inside since seven, and the front door has always been open to her. And this print is large and fresh. A print like this is very hard to explain in her story.',
-      'If Thomas did it, he signed my log at eight and then had to get back in unseen. He leaves his bicycle by the garden gate, as he always does, and the beds lie between that gate and this window. A print like this is quite possible in his story, though he might have found another way in.',
+      'If Clara is the murderer, why would she come in through the conservatory? She has been inside since seven, and the front door has always been open to her. And this print is large and fresh. A print like this is very hard to explain in her story.',
+      'If Thomas is the murderer, he signed my log at eight and then had to get back in unseen. He leaves his bicycle by the garden gate, as he always does, and the beds lie between that gate and this window. A print like this is quite possible in his story, though he might have found another way in.',
     ],
     trap: 'One lopsided clue can swing the board',
     lesson:
@@ -325,15 +325,15 @@ const CLUE_SOURCES: ClueSource[] = [
     short: 'a foxglove stripped like this',
     likelihoods: [0.3, 0.9],
     hints: [
-      'If Clara did it, the foxgloves have nothing to do with her. She has never so much as watered them. Then a stripped pot would only be Thomas’s ordinary pruning. Unlikely, though not impossible.',
-      'If Thomas did it, here is his poison, grown by his own hand: the foxgloves he has tended for years, which he knows better than anyone alive. In his story, a stripped pot like this is exactly what I’d expect to find.',
+      'If Clara is the murderer, the foxgloves have nothing to do with her. She has never so much as watered them. Then a stripped pot would only be Thomas’s ordinary pruning. Unlikely, though not impossible.',
+      'If Thomas is the murderer, here is his poison, grown by his own hand: the foxgloves he has tended for years, which he knows better than anyone alive. In his story, a stripped pot like this is exactly what I’d expect to find.',
     ],
     trap: 'Means evidence (diagnostic, not decisive)',
     lesson: 'This clue fits one person far better than anyone else. That is what strong evidence looks like: not loud, just lopsided.',
     reaction: [
       'Thomas. Twenty years in my garden. Could it be him?',
       'This clue fits one person far better than the other. That’s what strong evidence looks like.',
-      'Careful, John. I rated how likely a stripped foxglove would be *if Thomas did it*. That isn’t the same as how likely it is that Thomas did it. ' +
+      'Careful, John. I rated how likely a stripped foxglove would be *if Thomas is the murderer*. That isn’t the same as how likely it is that Thomas is the murderer. ' +
         'The first is a rating; the second is the board, which also depends on where I started and on how well the foxgloves fit Clara’s story. ' +
         'Mixing the two up is called the prosecutor’s fallacy, and it has sent real people to prison.',
       'Everything is pointing at Edmund. That is exactly when I should be most careful. I haven’t looked for anything that would count against him.',
@@ -364,8 +364,8 @@ const CLUE_SOURCES: ClueSource[] = [
     short: 'a chemist’s slip like this in Clara’s coat',
     likelihoods: [0.7, 0.3],
     hints: [
-      'If Clara did it, she needed something to put a man to sleep and keep him there, and sleeping drops would do that. She might have kept the slip, because people forget what is in a pocket. It is quite likely, though she could as easily have thrown it away.',
-      'If Thomas did it, Clara was simply out for a walk. She knows I sleep badly, and she has nagged me about it since the spring, so a kindness is possible. But I never asked her to fetch my drops, and she has never taken any herself. Sleeping drops on this very evening would be a coincidence. Unlikely, though not impossible.',
+      'If Clara is the murderer, she needed something to put a man to sleep and keep him there, and sleeping drops would do that. She might have kept the slip, because people forget what is in a pocket. It is quite likely, though she could as easily have thrown it away.',
+      'If Thomas is the murderer, Clara was simply out for a walk. She knows I sleep badly, and she has nagged me about it since the spring, so a kindness is possible. But I never asked her to fetch my drops, and she has never taken any herself. Sleeping drops on this very evening would be a coincidence. Unlikely, though not impossible.',
     ],
     trap: 'Evidence against your favourite',
     lesson:
@@ -402,7 +402,7 @@ const CLUE_SOURCES: ClueSource[] = [
     likelihoods: [0.1, 0.5],
     hints: [
       'If Clara put something in my tea, she had to stand at my desk some time between half past nine and ten. The log has her on the line to Edinburgh for that whole half hour. Her guilt and this log hardly fit together. Either the exchange got twenty-nine minutes wrong, or she left the receiver on the table and slipped away. Both could happen. Neither is likely.',
-      'If Thomas did it, Clara’s call is just Clara phoning someone from the hallway. A call this long, at this hour, isn’t guaranteed, but his guilt changes nothing about whether she made it. It neither helps nor hurts his story much.',
+      'If Thomas is the murderer, Clara’s call is just Clara phoning someone from the hallway. A call this long, at this hour, isn’t guaranteed, but his guilt changes nothing about whether she made it. It neither helps nor hurts his story much.',
     ],
     trap: 'Exculpatory evidence',
     lesson:
@@ -434,8 +434,8 @@ const CLUE_SOURCES: ClueSource[] = [
     short: 'a pruning knife under my chair',
     likelihoods: [0.5, 0.7],
     hints: [
-      'If Clara did it, the knife is still easy to explain. Thomas stood at this desk this afternoon while we went over the repairs to the glass, and things fall out of pockets. It is as likely as not.',
-      'If Thomas did it, he stood in this room tonight as well as this afternoon, so he had two chances to lose it. His story explains it a little better, not overwhelmingly.',
+      'If Clara is the murderer, the knife is still easy to explain. Thomas stood at this desk this afternoon while we went over the repairs to the glass, and things fall out of pockets. It is as likely as not.',
+      'If Thomas is the murderer, he stood in this room tonight as well as this afternoon, so he had two chances to lose it. His story explains it a little better, not overwhelmingly.',
     ],
     trap: 'A clue that fits both stories',
     lesson:
@@ -463,7 +463,7 @@ PRIOR_SHEET.nextThought = CLUE_SOURCES[0].leadIn;
 /** What the ghost says at the accusation. {likely} and {other} follow the player's own board. */
 export const ACCUSE_LINES = [
   'Back beside my body. It is time to name the culprit.',
-  'Your board shows these beliefs. Who did it?',
+  'Your board shows these beliefs. Who is the murderer?',
   'Look at the bars. Neither is empty. In most of the worlds that look like this one, it is {likely}. In a few, it is {other}.',
   'A bar is a belief, not a verdict. The living say it is better that ten guilty men go free than that one innocent man suffer. When the bars are close, I have to ask how bad it would be to accuse the wrong person, and not only who looks likelier.',
   'Choose carefully. A ghost only gets one accusation.',
