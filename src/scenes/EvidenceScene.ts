@@ -872,12 +872,14 @@ export class EvidenceScene extends Phaser.Scene {
    *   3. stretch: the shaded pieces fill a new square; their widths are the new shares
    */
   private updatePage(head: string, clue: (typeof CLUES)[number]) {
-    const ph = this.phase;
+    // page steps: 0 the priors, 1 shrink, 2 stretch (the square's phases 0, 1 and 3)
+    const ph = Math.min(this.phase, 2);
+    const SQ = [0, 1, 3];
     this.title(head);
     const lik = this.lik;
     const after = update(this.prior, lik);
     const same = lik.every((l) => Math.abs(l - lik[0]) < 1e-9);
-    if (ph >= 3) this.commitClue();
+    if (ph >= 2) this.commitClue();
     const n = SUSPECTS.length;
 
     const [stepName, caption] = UPDATE_STEPS[ph].map((t) => t.replace('{n}', numberWord(n)));
@@ -888,13 +890,13 @@ export class EvidenceScene extends Phaser.Scene {
     // the square, built at the previous step and slid into this one
     const S = 330;
     const sq = this.put(
-      new BayesSquare(this, 150, CONTENT_Y + 128, S, this.prior, lik, SUSPECTS.map((s) => s.color), SUSPECTS.map((s) => s.name), Math.max(ph - 1, 0)),
+      new BayesSquare(this, 150, CONTENT_Y + 128, S, this.prior, lik, SUSPECTS.map((s) => s.color), SUSPECTS.map((s) => s.name), SQ[Math.max(ph - 1, 0)]),
     );
-    if (ph > 0) this.time.delayedCall(250, () => sq.setPhase(ph));
+    // after the shrink, the kept pieces stretch straight back out to fill the square
+    if (ph > 0) this.time.delayedCall(250, () => sq.setPhase(SQ[ph]));
 
     // beside the square: one short paragraph telling what it shows, in the ghost's words
     const joint = this.prior.map((p, i) => p * lik[i]);
-    const left = joint.reduce((a, b) => a + b, 0);
     const name = (i: number) => SUSPECTS[i].name;
     const list = (f: (i: number) => string) => {
       const parts = SUSPECTS.map((_, i) => f(i));
@@ -913,29 +915,26 @@ export class EvidenceScene extends Phaser.Scene {
       story =
         `Now ${clue.noun}. ` +
         SUSPECTS.map((_, i) => `In ${name(i)}’s story it would turn up ${share(lik[i])} of the time, so ${name(i)}’s bar keeps ${share(lik[i])} of its height.`).join(' ');
-    } else if (ph === 2) {
-      story =
-        `Side by side, what is left is ${list((i) => `${share(joint[i])} of the square for ${name(i)}`)}: ${share(left)} in all. ` +
-        `Everything else has been ruled out by ${clue.noun}.`;
     } else {
       const how = (i: number) => {
         const d = after[i] - this.prior[i];
         return Math.abs(d) < 0.005 ? 'stayed the same' : d > 0 ? (d > 0.15 ? 'grew a lot' : 'grew') : d < -0.15 ? 'shrank a lot' : 'shrank';
       };
       story =
-        `Stretched back to fill the square, ${list((i) => `${name(i)} now holds ${share(after[i])}`)}. ` +
+        `Only the shaded parts are still possible: ${list((i) => `${share(joint[i])} of the square for ${name(i)} (${share(this.prior[i])} × ${share(lik[i])})`)}. ` +
+        `Stretched back to fill the whole square, ${list((i) => `${name(i)} now holds ${share(after[i])}`)}. ` +
         (same ? UNCHANGED : SUSPECTS.map((_, i) => `${name(i)}’s share ${how(i)}.`).join(' '));
     }
     const x = 630;
     const para = this.para(x, 0, story, 22, INK, 610);
     para.setY(CONTENT_Y + 128 + S / 2 - para.height / 2); // level with the middle of the square
-    if (ph === 3) {
+    if (ph === 2) {
       para.setAlpha(0);
       this.time.delayedCall(1200, () => this.tweens.add({ targets: para, alpha: 1, duration: 400 }));
     }
 
     // the player steps through at their own pace
-    if (ph < 3) {
+    if (ph < 2) {
       this.setNext(`Show step ${ph + 1} ›`, true, () => {
         this.phase = ph + 1;
         Sound.blip();
