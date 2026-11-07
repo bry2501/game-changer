@@ -341,7 +341,7 @@ CLUES.forEach((c, k) => {
   w();
   w('### Page: The math');
   w();
-  w(`*(The same update as Bayes’ rule, one hypothesis per suspect: ${SUSPECTS.map((s, i) => `H${i + 1} “${s.name} is the murderer”`).join(', ')}, and E finding ${c.short}. P(H1 | E) = P(H1) · P(E | H1) ÷ [P(H1) · P(E | H1) + P(H2) · P(E | H2)]. One formula that transforms in place as the player steps through: the rule in symbols with a key; then each symbol becomes the person or the clue (P(Clara) · P(letter given Clara) over the same for both suspects); then each becomes the player’s number, worked to the answer, with the second suspect’s line beneath.)*`);
+  w(`*(The same update as Bayes’ rule, one hypothesis per suspect: ${SUSPECTS.map((s, i) => `H${i + 1} “${s.name} is the murderer”`).join(', ')}, and E finding ${c.short}. P(H1 | E) = P(H1) · P(E | H1) ÷ [P(H1) · P(E | H1) + P(H2) · P(E | H2)]. One formula that transforms in place as the player steps through: the rule in symbols with a key; each symbol becomes the person or the clue (P(Clara) · P(letter given Clara) over the same for both suspects); each becomes the player’s number; then the arithmetic is done inside the formula: multiply, add, divide, ending on Clara’s new share (Mr. Thomas has the rest).)*`);
   {
     const lik = c.likelihoods;
     const j = belief.map((p, i) => p * lik[i]);
@@ -350,7 +350,7 @@ CLUES.forEach((c, k) => {
     w(`- **P(H1), P(H2)**, your board so far: ${SUSPECTS.map((s, i) => `${s.name} ${pct(belief[i])}`).join(', ')} *(numbers here follow the designed ratings)*`);
     w(`- **P(E | H1), P(E | H2)**, your ratings: ${SUSPECTS.map((s, i) => `${s.name} ${pct(lik[i])}`).join(', ')}`);
     w(`- **The denominator**, the clue at all: ${j.map((_, i) => `${pct(belief[i])} × ${pct(lik[i])}`).join(' + ')} = ${j.map(pct).join(' + ')} = ${pct(pE)}`);
-    w(`- **P(H1 | E), P(H2 | E)**, the new board: ${SUSPECTS.map((s, i) => `${s.name} ${pct(j[i] / pE)}`).join(', ')}`);
+    w(`- **Solved in place**: multiply, then add the bottom, then divide; the new board: ${SUSPECTS.map((s, i) => `${s.name} ${pct(j[i] / pE)}`).join(', ')}`);
   }
   w();
   w(`### Page: Recap: ${c.trap}`);

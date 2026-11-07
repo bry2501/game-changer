@@ -87,7 +87,7 @@ export class EvidenceScene extends Phaser.Scene {
   private ratingKey?: (n: number) => void;
   /** While set, put() adds to this container instead of the page (for scrolling content). */
   private putInto?: Phaser.GameObjects.Container;
-  /** Which stage of the math page is showing: symbols, words, numbers (0–2). */
+  /** Which stage of the math page is showing: symbols, names, numbers, multiply, add, divide (0–5). */
   private mathStage = 0;
   /** The math stage just left, so the next one can transform out of it. */
   private mathFrom?: number;
@@ -160,7 +160,7 @@ export class EvidenceScene extends Phaser.Scene {
       // arriving from behind shows a page's last thought; arriving fresh shows its first
       this.noteIdx = delta < 0 ? Number.MAX_SAFE_INTEGER : 0;
       this.noteScroll = undefined;
-      this.mathStage = delta < 0 ? 2 : 0;
+      this.mathStage = delta < 0 ? 5 : 0;
       this.weighStage = delta < 0 ? SUSPECTS.length : 0;
       this.chimed = false;
     }
@@ -966,17 +966,18 @@ export class EvidenceScene extends Phaser.Scene {
   }
 
   /**
-   * The same update as Bayes' rule, in one formula that rewrites itself in three stages:
+   * The same update as Bayes' rule, in one formula that rewrites itself stage by stage:
    *   0. symbols: one hypothesis per suspect (H₁, H₂) and the evidence E
    *   1. names: each symbol becomes the person or the clue it stands for
-   *   2. numbers: each term becomes the player's own number, worked to the answer
+   *   2. numbers: each term becomes the player's own number
+   *   3. multiply, 4. add, 5. divide: the arithmetic done inside the formula itself
    * Stepping forward transforms the formula in place: every term slides to its new place
    * while the old wording dissolves into the new, and the fraction bar stretches to fit.
    */
   private mathPage(head: string, clue: (typeof CLUES)[number]) {
     this.title(head);
     this.commitClue();
-    const stage = Math.min(this.mathStage, 2);
+    const stage = Math.min(this.mathStage, 5);
     const from = this.mathFrom;
     this.mathFrom = undefined;
     const EC = '#9fc4ff'; // the evidence
@@ -1013,70 +1014,65 @@ export class EvidenceScene extends Phaser.Scene {
       return { lhs: [...P(who(0), given(st), ev), [' = ', WC]] as Part[], prior, rate, dot };
     };
 
-    // ---- lay a stage out: each term is a slot with its words and its place
-    type Slot = { parts: Part[]; x: number; y: number; w: number };
+    // ---- each stage as keyed slots: the left side, then a numerator over a denominator
+    // (or, once divided, a single answer). A slot can name the earlier slots it is made from,
+    // so "60% × 70%" can collapse into "42%" and "42% + 20%" into "62%".
+    type Item = [string, Part[], string[]?];
+    type Shape = { lhs: Part[]; num?: Item[]; den?: Item[]; solo?: Item };
+    const plus = (i: number): Item => [`dplus${i}`, [[' + ', WC]]];
+    const shape = (st: number): Shape => {
+      const c = content(Math.min(st, 2));
+      const lhs = c.lhs;
+      const term = (i: number, pre: string): Item[] => [
+        [`${pre}p${i}`, c.prior(i)],
+        [`${pre}dot${i}`, [c.dot]],
+        [`${pre}r${i}`, c.rate(i)],
+      ];
+      const product = (i: number, pre: string): Item => [`${pre}j${i}`, [[share(joint[i]), col(i)]], [`${pre}p${i}`, `${pre}dot${i}`, `${pre}r${i}`]];
+      if (st <= 2) return { lhs, num: term(0, 'n'), den: SUSPECTS.flatMap((_, i) => [...(i ? [plus(i)] : []), ...term(i, 'd')]) };
+      // multiply: each product becomes its result
+      if (st === 3) return { lhs, num: [product(0, 'n')], den: SUSPECTS.flatMap((_, i) => [...(i ? [plus(i)] : []), product(i, 'd')]) };
+      // add: the bottom becomes one number
+      const sum: Item = ['dsum', [[share(pE), WC]], SUSPECTS.flatMap((_, i) => [...(i ? [`dplus${i}`] : []), `dj${i}`])];
+      if (st === 4) return { lhs, num: [['nj0', [[share(joint[0]), col(0)]]]], den: [sum] };
+      // divide: the fraction becomes the answer
+      return { lhs, solo: ['res', [[share(after[0]), col(0)]], ['nj0', 'dsum']] };
+    };
+
+    type Slot = { parts: Part[]; x: number; y: number; w: number; src?: string[] };
     const FY = CONTENT_Y + 170;
     const layout = (st: number) => {
-      const c = content(st);
-      let size = 28;
+      const sh = shape(st);
       const build = (sz: number) => {
         const slots = new Map<string, Slot>();
         const gap = sz * 0.7; // numerator above the bar, denominator below
-        const term = (i: number, pre: string): [string, Part[]][] => [
-          [`${pre}p${i}`, c.prior(i)],
-          [`${pre}dot${i}`, [c.dot]],
-          [`${pre}r${i}`, c.rate(i)],
-        ];
-        const num = term(0, 'n');
-        const den = SUSPECTS.flatMap((_, i) => [...(i ? [[`dplus${i}`, [[' + ', WC]]] as [string, Part[]]] : []), ...term(i, 'd')]);
-        const width = (items: [string, Part[]][]) => items.reduce((a, [, p]) => a + measure(p, sz), 0);
-        const lw = measure(c.lhs, sz);
-        const fw = Math.max(width(num), width(den)) + 16;
-        // the answer, written after the fraction once the numbers are in
-        const tail: [string, Part[]][] =
-          st === 2
-            ? [
-                ['eq2', [[' = ', WC]]],
-                ['tailfrac', []],
-                ['eq3', [[' = ', WC]]],
-                ['res', [[share(after[0]), col(0)]]],
-              ]
-            : [];
-        const tn: Part[] = [[share(joint[0]), WC]];
-        const td: Part[] = [[share(pE), WC]];
-        const tfw = st === 2 ? Math.max(measure(tn, sz), measure(td, sz)) + 12 : 0;
-        const tw = tail.reduce((a, [k, p]) => a + (k === 'tailfrac' ? tfw : measure(p, sz)), 0);
-        const total = lw + fw + tw;
-        let x = W / 2 - total / 2;
-        slots.set('lhs', { parts: c.lhs, x, y: FY, w: lw });
-        x += lw;
-        const place = (items: [string, Part[]][], y: number, x0: number) => {
+        const width = (items: Item[]) => items.reduce((a, [, p]) => a + measure(p, sz), 0);
+        const lw = measure(sh.lhs, sz);
+        const fw = sh.solo ? 0 : Math.max(width(sh.num!), width(sh.den!)) + 16;
+        const sw = sh.solo ? measure(sh.solo[1], sz) : 0;
+        const total = lw + fw + sw;
+        const x = W / 2 - total / 2;
+        slots.set('lhs', { parts: sh.lhs, x, y: FY, w: lw });
+        const place = (items: Item[], y: number, x0: number) => {
           let cx = x0;
-          for (const [k, p] of items) {
+          for (const [k, p, src] of items) {
             const w = measure(p, sz);
-            slots.set(k, { parts: p, x: cx, y, w });
+            slots.set(k, { parts: p, x: cx, y, w, src });
             cx += w;
           }
         };
-        place(num, FY - gap, x + (fw - width(num)) / 2);
-        place(den, FY + gap, x + (fw - width(den)) / 2);
-        const bar = { x, w: fw };
-        x += fw;
-        let tfrac: { x: number; w: number } | undefined;
-        for (const [k, p] of tail) {
-          if (k === 'tailfrac') {
-            tfrac = { x, w: tfw };
-            slots.set('tn', { parts: tn, x: x + (tfw - measure(tn, sz)) / 2, y: FY - gap, w: measure(tn, sz) });
-            slots.set('td', { parts: td, x: x + (tfw - measure(td, sz)) / 2, y: FY + gap, w: measure(td, sz) });
-            x += tfw;
-          } else {
-            const w = measure(p, sz);
-            slots.set(k, { parts: p, x, y: FY, w });
-            x += w;
-          }
+        if (sh.solo) {
+          const [k, p, src] = sh.solo;
+          slots.set(k, { parts: p, x: x + lw, y: FY, w: sw, src });
+        } else {
+          place(sh.num!, FY - gap, x + lw + (fw - width(sh.num!)) / 2);
+          place(sh.den!, FY + gap, x + lw + (fw - width(sh.den!)) / 2);
         }
-        return { slots, bar, tfrac, total, size: sz };
+        // a divided answer has no bar: it collapses to nothing where the fraction was
+        const bar = sh.solo ? { x: x + lw + sw / 2, w: 0 } : { x: x + lw, w: fw };
+        return { slots, bar, total, size: sz };
       };
+      let size = 28;
       let L = build(size);
       if (L.total > 1120) L = build((size = Math.floor((size * 1120) / L.total)));
       return L;
@@ -1092,43 +1088,58 @@ export class EvidenceScene extends Phaser.Scene {
       });
       return c;
     };
-    const barAt = (b: { x: number; w: number }) => this.put(this.add.rectangle(b.x, FY, 1, 2, 0xdcdcdc).setOrigin(0, 0.5).setScale(b.w, 1));
+    const barAt = (b: { x: number; w: number }) =>
+      this.put(this.add.rectangle(b.x, FY, 1, 2, 0xdcdcdc).setOrigin(0, 0.5).setScale(Math.max(b.w, 0.001), 1).setVisible(b.w > 0));
 
     const L = layout(stage);
     const animate = from !== undefined && from === stage - 1;
     const old = animate ? layout(from) : undefined;
     const MS = 750;
+    const used = new Set<string>();
     for (const [k, sl] of L.slots) {
-      const o = old?.slots.get(k);
       const n = draw(sl, L.size);
-      if (!o) {
+      const sources = (sl.src ?? [k]).map((key) => [key, old?.slots.get(key)] as const).filter(([, o]) => o) as [string, Slot][];
+      if (!sources.length) {
         if (animate) {
           n.setAlpha(0);
           this.tweens.add({ targets: n, alpha: 1, duration: 400, delay: MS - 100 });
         }
         continue;
       }
-      // the old wording slides toward the new place and dissolves; the new wording takes over
-      const was = draw(o, old!.size);
+      // the old pieces slide onto the new place and dissolve; the new wording takes over there
       const cxNew = sl.x + sl.w / 2;
-      const cxOld = o.x + o.w / 2;
-      n.setPosition(cxOld - sl.w / 2, o.y).setAlpha(0);
-      this.tweens.add({ targets: was, x: cxNew - o.w / 2, y: sl.y, alpha: 0, duration: MS, ease: 'Sine.easeInOut' });
+      const cxOld = sources.reduce((a, [, o]) => a + o.x + o.w / 2, 0) / sources.length;
+      const yOld = sources.reduce((a, [, o]) => a + o.y, 0) / sources.length;
+      for (const [key, o] of sources) {
+        used.add(key);
+        const was = draw(o, old!.size);
+        this.tweens.add({ targets: was, x: cxNew - o.w / 2, y: sl.y, alpha: 0, duration: MS, ease: 'Sine.easeInOut' });
+      }
+      n.setPosition(cxOld - sl.w / 2, yOld).setAlpha(0);
       this.tweens.add({ targets: n, x: sl.x, y: sl.y, duration: MS, ease: 'Sine.easeInOut' });
       this.tweens.add({ targets: n, alpha: 1, duration: MS * 0.6, delay: MS * 0.35 });
     }
-    const bar = barAt(old ? old.bar : L.bar);
-    if (old) this.tweens.add({ targets: bar, x: L.bar.x, scaleX: L.bar.w, duration: MS, ease: 'Sine.easeInOut' });
-    if (L.tfrac) {
-      const tb = barAt(L.tfrac);
-      if (animate) {
-        tb.setAlpha(0);
-        this.tweens.add({ targets: tb, alpha: 1, duration: 400, delay: MS - 100 });
+    // anything from the last stage that nothing grew out of simply fades where it was
+    if (old)
+      for (const [k, o] of old.slots) {
+        if (used.has(k)) continue;
+        const was = draw(o, old.size);
+        this.tweens.add({ targets: was, alpha: 0, duration: MS * 0.6 });
       }
-    }
+    // the fraction bar stretches to its new width, or shrinks away once the division is done
+    const bar = barAt(old ? old.bar : L.bar);
+    if (old)
+      this.tweens.add({
+        targets: bar,
+        x: L.bar.x,
+        scaleX: Math.max(L.bar.w, 0.001),
+        alpha: L.bar.w > 0 ? 1 : 0,
+        duration: MS,
+        ease: 'Sine.easeInOut',
+      });
 
-    // ---- the stage's name above, and its key below
-    const names = ['The rule', 'With the names', 'With your numbers'];
+    // ---- the stage's name above, and its key below the first two stages
+    const names = ['The rule', 'With the names', 'With your numbers', 'Multiply', 'Add', 'Divide'];
     this.put(txt(this, W / 2, CONTENT_Y + 40, names[stage], 18, DIM, { fontStyle: 'italic' }).setOrigin(0.5));
     const below: Phaser.GameObjects.GameObject[] = [];
     const keyY = FY + 92;
@@ -1140,33 +1151,6 @@ export class EvidenceScene extends Phaser.Scene {
     } else if (stage === 1) {
       const note = `P(${short(0)}): your board before this clue (${this.fromShort})      P(${noun} given ${short(0)}): your rating for ${short(0)}`;
       below.push(this.put(txt(this, W / 2, keyY, note, 16, '#9a9a9a', { fontStyle: 'italic' }).setOrigin(0.5)));
-    } else {
-      // the other suspect's answer, worked the same way, with stacked fractions
-      SUSPECTS.forEach((_, i) => {
-        if (i === 0) return;
-        const sz = 22;
-        const items: (Part[] | { n: Part[]; d: Part[] })[] = [
-          [...P([short(i), col(i)], given(1), [noun, EC]), [' = ', WC]],
-          { n: [[share(this.prior[i]), col(i)], [' × ', WC], [share(lik[i]), col(i)]], d: [[share(pE), WC]] },
-          [[' = ', WC]],
-          { n: [[share(joint[i]), WC]], d: [[share(pE), WC]] },
-          [[' = ', WC], [share(after[i]), col(i)]],
-        ];
-        const wOf = (it: (typeof items)[number]) => (Array.isArray(it) ? measure(it, sz) : Math.max(measure(it.n, sz), measure(it.d, sz)) + 12);
-        const total = items.reduce((a, it) => a + wOf(it), 0);
-        const y = keyY + 40 + (i - 1) * 70;
-        let x = W / 2 - total / 2;
-        for (const it of items) {
-          const w = wOf(it);
-          if (Array.isArray(it)) below.push(draw({ parts: it, x, y, w }, sz));
-          else {
-            below.push(draw({ parts: it.n, x: x + (w - measure(it.n, sz)) / 2, y: y - sz * 0.7, w }, sz));
-            below.push(draw({ parts: it.d, x: x + (w - measure(it.d, sz)) / 2, y: y + sz * 0.7, w }, sz));
-            below.push(this.put(this.add.rectangle(x, y, w, 2, 0xdcdcdc).setOrigin(0, 0.5)));
-          }
-          x += w;
-        }
-      });
     }
     if (animate)
       below.forEach((o) => {
@@ -1174,8 +1158,9 @@ export class EvidenceScene extends Phaser.Scene {
         this.tweens.add({ targets: o, alpha: 1, duration: 450, delay: MS });
       });
 
-    if (stage < 2) {
-      this.setNext(stage === 0 ? 'With the names ›' : 'With your numbers ›', true, () => {
+    const LAST = names.length - 1;
+    if (stage < LAST) {
+      this.setNext(`${names[stage + 1]} ›`, true, () => {
         this.mathFrom = stage;
         this.mathStage = stage + 1;
         Sound.blip();

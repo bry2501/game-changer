@@ -266,12 +266,12 @@ After choosing: “You rated it N: …, a P% chance.”
 
 ### Page: The math
 
-*(The same update as Bayes’ rule, one hypothesis per suspect: H1 “Clara is the murderer”, H2 “Mr. Thomas is the murderer”, and E finding an angry letter like this. P(H1 | E) = P(H1) · P(E | H1) ÷ [P(H1) · P(E | H1) + P(H2) · P(E | H2)]. One formula that transforms in place as the player steps through: the rule in symbols with a key; then each symbol becomes the person or the clue (P(Clara) · P(letter given Clara) over the same for both suspects); then each becomes the player’s number, worked to the answer, with the second suspect’s line beneath.)*
+*(The same update as Bayes’ rule, one hypothesis per suspect: H1 “Clara is the murderer”, H2 “Mr. Thomas is the murderer”, and E finding an angry letter like this. P(H1 | E) = P(H1) · P(E | H1) ÷ [P(H1) · P(E | H1) + P(H2) · P(E | H2)]. One formula that transforms in place as the player steps through: the rule in symbols with a key; each symbol becomes the person or the clue (P(Clara) · P(letter given Clara) over the same for both suspects); each becomes the player’s number; then the arithmetic is done inside the formula: multiply, add, divide, ending on Clara’s new share (Mr. Thomas has the rest).)*
 
 - **P(H1), P(H2)**, your board so far: Clara 60%, Mr. Thomas 40% *(numbers here follow the designed ratings)*
 - **P(E | H1), P(E | H2)**, your ratings: Clara 70%, Mr. Thomas 50%
 - **The denominator**, the clue at all: 60% × 70% + 40% × 50% = 42% + 20% = 62%
-- **P(H1 | E), P(H2 | E)**, the new board: Clara 68%, Mr. Thomas 32%
+- **Solved in place**: multiply, then add the bottom, then divide; the new board: Clara 68%, Mr. Thomas 32%
 
 ### Page: Recap: Vivid but weak evidence
 
@@ -356,12 +356,12 @@ After choosing: “You rated it N: …, a P% chance.”
 
 ### Page: The math
 
-*(The same update as Bayes’ rule, one hypothesis per suspect: H1 “Clara is the murderer”, H2 “Mr. Thomas is the murderer”, and E finding a draft will like this in my desk. P(H1 | E) = P(H1) · P(E | H1) ÷ [P(H1) · P(E | H1) + P(H2) · P(E | H2)]. One formula that transforms in place as the player steps through: the rule in symbols with a key; then each symbol becomes the person or the clue (P(Clara) · P(letter given Clara) over the same for both suspects); then each becomes the player’s number, worked to the answer, with the second suspect’s line beneath.)*
+*(The same update as Bayes’ rule, one hypothesis per suspect: H1 “Clara is the murderer”, H2 “Mr. Thomas is the murderer”, and E finding a draft will like this in my desk. P(H1 | E) = P(H1) · P(E | H1) ÷ [P(H1) · P(E | H1) + P(H2) · P(E | H2)]. One formula that transforms in place as the player steps through: the rule in symbols with a key; each symbol becomes the person or the clue (P(Clara) · P(letter given Clara) over the same for both suspects); each becomes the player’s number; then the arithmetic is done inside the formula: multiply, add, divide, ending on Clara’s new share (Mr. Thomas has the rest).)*
 
 - **P(H1), P(H2)**, your board so far: Clara 68%, Mr. Thomas 32% *(numbers here follow the designed ratings)*
 - **P(E | H1), P(E | H2)**, your ratings: Clara 90%, Mr. Thomas 90%
 - **The denominator**, the clue at all: 68% × 90% + 32% × 90% = 61% + 29% = 90%
-- **P(H1 | E), P(H2 | E)**, the new board: Clara 68%, Mr. Thomas 32%
+- **Solved in place**: multiply, then add the bottom, then divide; the new board: Clara 68%, Mr. Thomas 32%
 
 ### Page: Recap: Old news doesn’t count twice
 
@@ -445,12 +445,12 @@ After choosing: “You rated it N: …, a P% chance.”
 
 ### Page: The math
 
-*(The same update as Bayes’ rule, one hypothesis per suspect: H1 “Clara is the murderer”, H2 “Mr. Thomas is the murderer”, and E finding a muddy print hidden behind the fern. P(H1 | E) = P(H1) · P(E | H1) ÷ [P(H1) · P(E | H1) + P(H2) · P(E | H2)]. One formula that transforms in place as the player steps through: the rule in symbols with a key; then each symbol becomes the person or the clue (P(Clara) · P(letter given Clara) over the same for both suspects); then each becomes the player’s number, worked to the answer, with the second suspect’s line beneath.)*
+*(The same update as Bayes’ rule, one hypothesis per suspect: H1 “Clara is the murderer”, H2 “Mr. Thomas is the murderer”, and E finding a muddy print hidden behind the fern. P(H1 | E) = P(H1) · P(E | H1) ÷ [P(H1) · P(E | H1) + P(H2) · P(E | H2)]. One formula that transforms in place as the player steps through: the rule in symbols with a key; each symbol becomes the person or the clue (P(Clara) · P(letter given Clara) over the same for both suspects); each becomes the player’s number; then the arithmetic is done inside the formula: multiply, add, divide, ending on Clara’s new share (Mr. Thomas has the rest).)*
 
 - **P(H1), P(H2)**, your board so far: Clara 68%, Mr. Thomas 32% *(numbers here follow the designed ratings)*
 - **P(E | H1), P(E | H2)**, your ratings: Clara 10%, Mr. Thomas 50%
 - **The denominator**, the clue at all: 68% × 10% + 32% × 50% = 7% + 16% = 23%
-- **P(H1 | E), P(H2 | E)**, the new board: Clara 30%, Mr. Thomas 70%
+- **Solved in place**: multiply, then add the bottom, then divide; the new board: Clara 30%, Mr. Thomas 70%
 
 ### Page: Recap: One lopsided clue can swing the board
 
@@ -532,12 +532,12 @@ After choosing: “You rated it N: …, a P% chance.”
 
 ### Page: The math
 
-*(The same update as Bayes’ rule, one hypothesis per suspect: H1 “Clara is the murderer”, H2 “Mr. Thomas is the murderer”, and E finding a foxglove stripped like this. P(H1 | E) = P(H1) · P(E | H1) ÷ [P(H1) · P(E | H1) + P(H2) · P(E | H2)]. One formula that transforms in place as the player steps through: the rule in symbols with a key; then each symbol becomes the person or the clue (P(Clara) · P(letter given Clara) over the same for both suspects); then each becomes the player’s number, worked to the answer, with the second suspect’s line beneath.)*
+*(The same update as Bayes’ rule, one hypothesis per suspect: H1 “Clara is the murderer”, H2 “Mr. Thomas is the murderer”, and E finding a foxglove stripped like this. P(H1 | E) = P(H1) · P(E | H1) ÷ [P(H1) · P(E | H1) + P(H2) · P(E | H2)]. One formula that transforms in place as the player steps through: the rule in symbols with a key; each symbol becomes the person or the clue (P(Clara) · P(letter given Clara) over the same for both suspects); each becomes the player’s number; then the arithmetic is done inside the formula: multiply, add, divide, ending on Clara’s new share (Mr. Thomas has the rest).)*
 
 - **P(H1), P(H2)**, your board so far: Clara 30%, Mr. Thomas 70% *(numbers here follow the designed ratings)*
 - **P(E | H1), P(E | H2)**, your ratings: Clara 30%, Mr. Thomas 90%
 - **The denominator**, the clue at all: 30% × 30% + 70% × 90% = 9% + 63% = 72%
-- **P(H1 | E), P(H2 | E)**, the new board: Clara 12%, Mr. Thomas 88%
+- **Solved in place**: multiply, then add the bottom, then divide; the new board: Clara 12%, Mr. Thomas 88%
 
 ### Page: Recap: Means evidence (diagnostic, not decisive)
 
@@ -624,12 +624,12 @@ After choosing: “You rated it N: …, a P% chance.”
 
 ### Page: The math
 
-*(The same update as Bayes’ rule, one hypothesis per suspect: H1 “Clara is the murderer”, H2 “Mr. Thomas is the murderer”, and E finding a chemist’s slip like this in Clara’s coat. P(H1 | E) = P(H1) · P(E | H1) ÷ [P(H1) · P(E | H1) + P(H2) · P(E | H2)]. One formula that transforms in place as the player steps through: the rule in symbols with a key; then each symbol becomes the person or the clue (P(Clara) · P(letter given Clara) over the same for both suspects); then each becomes the player’s number, worked to the answer, with the second suspect’s line beneath.)*
+*(The same update as Bayes’ rule, one hypothesis per suspect: H1 “Clara is the murderer”, H2 “Mr. Thomas is the murderer”, and E finding a chemist’s slip like this in Clara’s coat. P(H1 | E) = P(H1) · P(E | H1) ÷ [P(H1) · P(E | H1) + P(H2) · P(E | H2)]. One formula that transforms in place as the player steps through: the rule in symbols with a key; each symbol becomes the person or the clue (P(Clara) · P(letter given Clara) over the same for both suspects); each becomes the player’s number; then the arithmetic is done inside the formula: multiply, add, divide, ending on Clara’s new share (Mr. Thomas has the rest).)*
 
 - **P(H1), P(H2)**, your board so far: Clara 12%, Mr. Thomas 88% *(numbers here follow the designed ratings)*
 - **P(E | H1), P(E | H2)**, your ratings: Clara 70%, Mr. Thomas 30%
 - **The denominator**, the clue at all: 12% × 70% + 88% × 30% = 9% + 26% = 35%
-- **P(H1 | E), P(H2 | E)**, the new board: Clara 25%, Mr. Thomas 75%
+- **Solved in place**: multiply, then add the bottom, then divide; the new board: Clara 25%, Mr. Thomas 75%
 
 ### Page: Recap: Evidence against your favourite
 
@@ -711,12 +711,12 @@ After choosing: “You rated it N: …, a P% chance.”
 
 ### Page: The math
 
-*(The same update as Bayes’ rule, one hypothesis per suspect: H1 “Clara is the murderer”, H2 “Mr. Thomas is the murderer”, and E finding this telephone log. P(H1 | E) = P(H1) · P(E | H1) ÷ [P(H1) · P(E | H1) + P(H2) · P(E | H2)]. One formula that transforms in place as the player steps through: the rule in symbols with a key; then each symbol becomes the person or the clue (P(Clara) · P(letter given Clara) over the same for both suspects); then each becomes the player’s number, worked to the answer, with the second suspect’s line beneath.)*
+*(The same update as Bayes’ rule, one hypothesis per suspect: H1 “Clara is the murderer”, H2 “Mr. Thomas is the murderer”, and E finding this telephone log. P(H1 | E) = P(H1) · P(E | H1) ÷ [P(H1) · P(E | H1) + P(H2) · P(E | H2)]. One formula that transforms in place as the player steps through: the rule in symbols with a key; each symbol becomes the person or the clue (P(Clara) · P(letter given Clara) over the same for both suspects); each becomes the player’s number; then the arithmetic is done inside the formula: multiply, add, divide, ending on Clara’s new share (Mr. Thomas has the rest).)*
 
 - **P(H1), P(H2)**, your board so far: Clara 25%, Mr. Thomas 75% *(numbers here follow the designed ratings)*
 - **P(E | H1), P(E | H2)**, your ratings: Clara 10%, Mr. Thomas 50%
 - **The denominator**, the clue at all: 25% × 10% + 75% × 50% = 2% + 38% = 40%
-- **P(H1 | E), P(H2 | E)**, the new board: Clara 6%, Mr. Thomas 94%
+- **Solved in place**: multiply, then add the bottom, then divide; the new board: Clara 6%, Mr. Thomas 94%
 
 ### Page: Recap: Exculpatory evidence
 
@@ -797,12 +797,12 @@ After choosing: “You rated it N: …, a P% chance.”
 
 ### Page: The math
 
-*(The same update as Bayes’ rule, one hypothesis per suspect: H1 “Clara is the murderer”, H2 “Mr. Thomas is the murderer”, and E finding a pruning knife under my chair. P(H1 | E) = P(H1) · P(E | H1) ÷ [P(H1) · P(E | H1) + P(H2) · P(E | H2)]. One formula that transforms in place as the player steps through: the rule in symbols with a key; then each symbol becomes the person or the clue (P(Clara) · P(letter given Clara) over the same for both suspects); then each becomes the player’s number, worked to the answer, with the second suspect’s line beneath.)*
+*(The same update as Bayes’ rule, one hypothesis per suspect: H1 “Clara is the murderer”, H2 “Mr. Thomas is the murderer”, and E finding a pruning knife under my chair. P(H1 | E) = P(H1) · P(E | H1) ÷ [P(H1) · P(E | H1) + P(H2) · P(E | H2)]. One formula that transforms in place as the player steps through: the rule in symbols with a key; each symbol becomes the person or the clue (P(Clara) · P(letter given Clara) over the same for both suspects); each becomes the player’s number; then the arithmetic is done inside the formula: multiply, add, divide, ending on Clara’s new share (Mr. Thomas has the rest).)*
 
 - **P(H1), P(H2)**, your board so far: Clara 6%, Mr. Thomas 94% *(numbers here follow the designed ratings)*
 - **P(E | H1), P(E | H2)**, your ratings: Clara 50%, Mr. Thomas 70%
 - **The denominator**, the clue at all: 6% × 50% + 94% × 70% = 3% + 66% = 69%
-- **P(H1 | E), P(H2 | E)**, the new board: Clara 4%, Mr. Thomas 96%
+- **Solved in place**: multiply, then add the bottom, then divide; the new board: Clara 4%, Mr. Thomas 96%
 
 ### Page: Recap: A clue that fits both stories
 
