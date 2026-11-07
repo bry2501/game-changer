@@ -10,6 +10,7 @@ import {
   drawPortrait,
   drawDoor,
   drawFireplace,
+  drawFoliage,
   drawWainscot,
   drawWindow,
 } from '../ui/art';
@@ -829,7 +830,7 @@ export class WorldScene extends Phaser.Scene {
     moon.fillStyle(0xc9d2e4, 0.7);
     moon.fillCircle(805, 158, 8);
     moon.fillCircle(836, 186, 6);
-    // far trees, then near branches hung with moss, sliding past at different speeds
+    // far trees, then nearer ones, leafy silhouettes sliding past at different speeds
     const tree = (g: Phaser.GameObjects.Graphics, x: number, s: number, color: number) => {
       g.fillStyle(color, 1);
       g.fillRect(x - 10 * s, 120 * s, 20 * s, H);
@@ -837,14 +838,14 @@ export class WorldScene extends Phaser.Scene {
       g.lineBetween(x, 200 * s, x + 140 * s, 110 * s);
       g.lineBetween(x, 260 * s, x - 120 * s, 170 * s);
       g.lineBetween(x, 150 * s, x + 40 * s, 30 * s);
-      g.fillStyle(color, 1);
-      [[0, 90, 120], [120, 100, 90], [-100, 150, 90], [50, 30, 70]].forEach(([dx, y, r]) => g.fillEllipse(x + dx * s, y * s, r * 2 * s, r * 1.1 * s));
-      g.fillStyle(0x3c4a48, 0.6);
-      for (let i = 0; i < 14; i++) {
-        const mx = x + (((i * 47) % 260) - 130) * s;
-        const my = (110 + ((i * 29) % 90)) * s;
-        g.fillTriangle(mx - 4 * s, my, mx + 4 * s, my, mx + ((i % 3) - 1) * 4, my + (40 + ((i * 13) % 50)) * s);
-      }
+      // a few thin twigs poking out of the crown
+      g.lineStyle(3 * s, color, 1);
+      g.lineBetween(x + 120 * s, 100 * s, x + 200 * s, 60 * s);
+      g.lineBetween(x - 100 * s, 150 * s, x - 175 * s, 120 * s);
+      g.lineBetween(x + 50 * s, 30 * s, x + 70 * s, -15 * s);
+      [[0, 90, 120], [120, 100, 90], [-100, 150, 90], [50, 30, 70]].forEach(([dx, y, r], k) =>
+        drawFoliage(g, x + dx * s, y * s, r * s, r * 0.55 * s, color, Math.round(x) + k, s),
+      );
     };
     const far = this.add.graphics().setScrollFactor(0.25, 0).setDepth(10.54);
     for (let x = 200; x < WORLD_W * 0.25 + W + 400; x += 620) tree(far, x + ((x * 7) % 180), 1, 0x0a0f14);

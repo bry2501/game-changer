@@ -68,7 +68,6 @@ export function drawGrandfatherClock(scene: Phaser.Scene, x: number, layer?: Pha
   return g;
 }
 
-/** A moonlit window: a pale frame, cool panes, the moon, and moss-hung trees outside. */
 /** A window frame. With `sky` false the panes are left empty, for a shared sky drawn behind. */
 export function drawWindow(g: Phaser.GameObjects.Graphics, x: number, y: number, w: number, h: number, sky = true) {
   if (sky) paintPanes(g, x, y, w, h);
@@ -91,14 +90,45 @@ function paintPanes(g: Phaser.GameObjects.Graphics, x: number, y: number, w: num
   g.fillCircle(x + w * 0.7, y + h * 0.26, Math.min(w, h) * 0.13); // moon
   g.fillStyle(0xdfe8ff, 0.12);
   g.fillCircle(x + w * 0.7, y + h * 0.26, Math.min(w, h) * 0.22);
-  // a tree outside, hung with moss
+  // a tree outside, its crown a leafy silhouette
   g.fillStyle(0x132a30, 1);
   g.fillRect(x + w * 0.18, y + h * 0.35, 6, h * 0.65);
-  g.fillEllipse(x + w * 0.22, y + h * 0.36, w * 0.5, h * 0.22);
-  g.lineStyle(2, 0x2c5a50, 0.8);
-  for (let i = 0; i < 6; i++) {
-    const mx = x + w * 0.06 + i * w * 0.06;
-    g.lineBetween(mx, y + h * 0.4, mx + 2, y + h * (0.5 + (i % 3) * 0.07));
+  drawFoliage(g, x + w * 0.22, y + h * 0.36, w * 0.25, h * 0.11, 0x132a30, 7, 0.5);
+}
+
+/**
+ * A leafy tree crown in one dark colour: a solid core with clumps of small overlapping
+ * circles around its edge, so the outline is scalloped like leaf clusters, plus a few stray
+ * leaves outside it. Seeded, so the same crown is drawn every time.
+ */
+export function drawFoliage(
+  g: Phaser.GameObjects.Graphics,
+  cx: number,
+  cy: number,
+  rx: number,
+  ry: number,
+  color: number,
+  seed: number,
+  scale = 1,
+) {
+  let a = seed * 9973 + 17;
+  const rnd = () => {
+    a = (a * 16807) % 2147483647;
+    return a / 2147483647;
+  };
+  g.fillStyle(color, 1);
+  g.fillEllipse(cx, cy, rx * 1.5, ry * 1.5);
+  const clumps = Math.round(34 + (rx + ry) / 6);
+  for (let i = 0; i < clumps; i++) {
+    const ang = rnd() * Math.PI * 2;
+    const band = 0.6 + rnd() * 0.42; // near the edge of the crown
+    const r = (6 + rnd() * 8) * scale;
+    g.fillCircle(cx + Math.cos(ang) * rx * band, cy + Math.sin(ang) * ry * band, r);
+  }
+  for (let i = 0; i < 10; i++) {
+    const ang = rnd() * Math.PI * 2;
+    const r = (1.5 + rnd() * 2.5) * scale;
+    g.fillCircle(cx + Math.cos(ang) * (rx + 8 * scale), cy + Math.sin(ang) * (ry + 6 * scale), r);
   }
 }
 

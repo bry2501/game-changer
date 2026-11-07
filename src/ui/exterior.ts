@@ -1,9 +1,10 @@
 import Phaser from 'phaser';
 import { PAL, paintRect } from './paint';
+import { drawFoliage } from './art';
 
 /**
  * The house from outside, painted for the title screen: a two-storey columned mansion
- * with a balcony, a maroon roof with dormers, crooked shutters and moss-hung trees.
+ * with a balcony, a maroon roof with dormers, crooked shutters and leafy oaks.
  */
 export function drawMansion(scene: Phaser.Scene, W: number, H: number) {
   const g = scene.add.graphics();
@@ -136,7 +137,7 @@ export function drawMansion(scene: Phaser.Scene, W: number, H: number) {
   g.fillTriangle(cx - 140, ground + 28, cx + 140, ground + 28, cx + 300, H);
   g.fillTriangle(cx - 140, ground + 28, cx - 300, H, cx + 300, H);
 
-  // moss-hung oaks at either side
+  // leafy oaks at either side
   const tree = (x: number, flip: number) => {
     g.fillStyle(0x0d1a22, 1);
     g.fillRect(x - 22, 220, 44, H - 220);
@@ -144,21 +145,12 @@ export function drawMansion(scene: Phaser.Scene, W: number, H: number) {
     g.lineBetween(x, 300, x + 180 * flip, 200);
     g.lineBetween(x, 360, x + 260 * flip, 330);
     g.lineBetween(x, 260, x - 60 * flip, 120);
-    g.fillStyle(0x132a2c, 1);
     [
       [0, 150, 150],
       [120, 190, 120],
       [-60, 110, 110],
       [210, 280, 110],
-    ].forEach(([dx, y, r]) => g.fillEllipse(x + dx * flip, y, r * 2, r * 1.2));
-    // Spanish moss: drooping grey-green strands
-    for (let i = 0; i < 22; i++) {
-      const sx = x + ((i * 23) % 300 - 80) * flip;
-      const sy = 170 + ((i * 41) % 160);
-      const len = 50 + ((i * 17) % 70);
-      g.fillStyle(0x5f7d74, 0.55);
-      g.fillTriangle(sx - 7, sy, sx + 7, sy, sx + ((i % 3) - 1) * 6, sy + len);
-    }
+    ].forEach(([dx, y, r], k) => drawFoliage(g, x + dx * flip, y, r, r * 0.6, 0x132a2c, x + k * 31, 1.4));
   };
   tree(70, 1);
   tree(W - 70, -1);
