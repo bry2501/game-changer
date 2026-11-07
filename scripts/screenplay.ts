@@ -268,7 +268,7 @@ dir('On the side table in the study. The player searches it; the evidence screen
 w();
 w('**Evidence card: the household log, tonight (6 – 10 pm)**');
 w();
-evidence({ kind: 'table', columns: ['Name', 'Signed in', 'Signed out', 'Inside, 6–10 pm'], rows: LOG_ROWS });
+evidence({ kind: 'table', columns: ['Name', 'Signed in', 'Signed out'], rows: LOG_ROWS });
 w(`> **GHOST** *(thought)*: ${PRIOR_SHEET.text}`);
 w('>');
 w(`> **GHOST** *(thought)*: ${PRIOR_SHEET.context}`);

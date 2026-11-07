@@ -82,7 +82,7 @@ describe('the case', () => {
     for (const s of SUSPECTS) {
       const inside = Math.min(toHours(s.logOut), 22) - Math.max(toHours(s.logIn), 18);
       expect(inside).toBeCloseTo(s.hoursInside, 5);
-      expect(LOG_ROWS.some((r) => r[0] === s.name && r[3] === `${s.hoursInside} h`)).toBe(true);
+      expect(LOG_ROWS.some((r) => r[0] === s.name && r[1] === s.logIn && r[2] === s.logOut)).toBe(true);
     }
   });
 });

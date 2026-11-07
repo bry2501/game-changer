@@ -375,7 +375,7 @@ export class EvidenceScene extends Phaser.Scene {
           const bottom = this.evidenceCard(
             CONTENT_Y + 6,
             'the household log, tonight (6 – 10 pm)',
-            { kind: 'table', columns: ['Name', 'Signed in', 'Signed out', 'Inside, 6–10 pm'], rows: LOG_ROWS, widths: [1.7, 2.7, 3.1, 1.7] },
+            { kind: 'table', columns: ['Name', 'Signed in', 'Signed out'], rows: LOG_ROWS, widths: [1.4, 1, 1] },
             'on the side table in the study.',
           );
           this.ghostNotes(bottom + 22, [{ text: PRIOR_SHEET.text }, { text: PRIOR_SHEET.context }]);

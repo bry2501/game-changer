@@ -87,7 +87,7 @@ export const SUSPECTS: Suspect[] = [
       'Now she studies law in the city and argues like a barrister, which is a polite way of saying she argues like me. ' +
       'She is the only one who noticed that I have stopped sleeping properly, and she has nagged me about it since the spring. ' +
       'This week I told her I meant to leave the house to the Clockmakers’ Guild instead of to her. We both said things we regret.',
-    logIn: '7:00 pm', logOut: '10:00 pm (still in)', pronoun: 'she',
+    logIn: '7:00 pm', logOut: '10:00 pm', pronoun: 'she',
   },
   {
     id: 'gardener', name: 'Mr. Thomas', role: 'the gardener', color: 0xffd27a, hoursInside: 2,
@@ -96,16 +96,16 @@ export const SUSPECTS: Suspect[] = [
       'Thomas has been my gardener for twenty years. He keeps the garden and the grounds, and lives in the cottage at the end of them. ' +
       'Last week I told him the Guild would likely sell the grounds once I sign my will on Monday, and that the cottage would go with them.',
     tonight: 'He came at four to go over the repairs to the glass and left his bicycle, as he always does, by the garden gate. He stayed to supper and signed out at eight.',
-    logIn: '4:00 pm (before the window)', logOut: '8:00 pm', pronoun: 'he',
+    logIn: '4:00 pm', logOut: '8:00 pm', pronoun: 'he',
   },
 ];
 
-/** The whole household log: the suspects, and the two who were out tonight. [name, in, out, inside] */
+/** The whole household log: the suspects, and the two who were not in tonight. [name, signed in, signed out] */
 export const LOG_ROWS: string[][] = [
-  ['Poe', '—', 'not in tonight (evening off)', '—'],
-  ['Clara', '7:00 pm', '10:00 pm (still in)', '3 h'],
-  ['Mr. Thomas', '4:00 pm (before the window)', '8:00 pm', '2 h'],
-  ['Edgar', '—', 'out 6:00 pm (went home)', '—'],
+  ['Poe', '—', '—'],
+  ['Clara', '7:00 pm', '10:00 pm'],
+  ['Mr. Thomas', '4:00 pm', '8:00 pm'],
+  ['Edgar', '—', '—'],
 ];
 
 export const CULPRIT_INDEX = 1;

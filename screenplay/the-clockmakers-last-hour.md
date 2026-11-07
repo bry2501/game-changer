@@ -175,12 +175,12 @@ Two floors joined by the hallway stairs. Anything searchable shimmers identicall
 
 **Evidence card: the household log, tonight (6 – 10 pm)**
 
-| Name | Signed in | Signed out | Inside, 6–10 pm |
-|---|---|---|---|
-| Poe | — | not in tonight (evening off) | — |
-| Clara | 7:00 pm | 10:00 pm (still in) | 3 h |
-| Mr. Thomas | 4:00 pm (before the window) | 8:00 pm | 2 h |
-| Edgar | — | out 6:00 pm (went home) | — |
+| Name | Signed in | Signed out |
+|---|---|---|
+| Poe | — | — |
+| Clara | 7:00 pm | 10:00 pm |
+| Mr. Thomas | 4:00 pm | 8:00 pm |
+| Edgar | — | — |
 
 > **GHOST** *(thought)*: This was my own rule, and I remember the day I made it: everyone signs the household log when they come and go, the vicar included. A house should know who is in it. It shows who was inside tonight between 6 pm and 10 pm, and for how long. Poe had asked for the evening off to visit his sister; I remember saying yes. That is why I made my own tea. Edgar went home at six, as he always does. That leaves two people who were in this house with my tea: Clara and Mr. Thomas. The question is, which of the two?
 >
