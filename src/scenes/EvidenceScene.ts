@@ -880,7 +880,7 @@ export class EvidenceScene extends Phaser.Scene {
     const short = (i: number) => SUSPECTS[i].name.replace(/^Mr\. /, '');
 
     type Part = [string, string];
-    type Item = Part | { n: Part[]; d: Part[] };
+    type Item = Part | { n: Part[]; d: Part[]; d2?: Part[] };
     const H = (i: number): Part => [`H${SUB[i]}`, col(i)];
     const E: Part = ['E', EC];
     const P = (...inner: Part[]): Part[] => [['P(', WC], ...inner, [')', WC]];
@@ -908,10 +908,13 @@ export class EvidenceScene extends Phaser.Scene {
         const fs = Math.round(size * 0.9);
         const nw = run(0, -9999, it.n, fs);
         const dw = run(0, -9999, it.d, fs);
-        objs.splice(objs.length - it.n.length - it.d.length).forEach((o) => o.destroy());
-        const w = Math.max(nw, dw) + 12;
+        const d2w = it.d2 ? run(0, -9999, it.d2, fs) : 0;
+        objs.splice(objs.length - it.n.length - it.d.length - (it.d2?.length ?? 0)).forEach((o) => o.destroy());
+        const w = Math.max(nw, dw, d2w) + 12;
         run(cx + (w - nw) / 2, y - fs * 0.72, it.n, fs);
         run(cx + (w - dw) / 2, y + fs * 0.78, it.d, fs);
+        // a long denominator continues on a second line
+        if (it.d2) run(cx + (w - d2w) / 2, y + fs * 2.1, it.d2, fs);
         objs.push(this.add.rectangle(cx, y, w, 2, 0xdcdcdc).setOrigin(0, 0.5));
         cx += w + 4;
       });
@@ -951,11 +954,13 @@ export class EvidenceScene extends Phaser.Scene {
       const from = this.page.list.length;
       y += 150;
       label(y, 'In words');
-      const shareW = (i: number): Part => [`${short(i)}’s share`, col(i)];
-      const rateW = (i: number): Part => [`${short(i)}’s rating`, col(i)];
-      draw(xr - eqW, y, [[' = ', WC], { n: [shareW(0), [' × ', WC], rateW(0)], d: sumOver((i) => [shareW(i), [' × ', WC], rateW(i)]) }], size);
+      const sus = (i: number): Part => [`suspicion of ${short(i)}`, col(i)];
+      const fit = (i: number): Part => [`chance of ${clue.noun} if ${short(i)} is the murderer`, col(i)];
+      const termW = (i: number): Part[] => [sus(i), [' × ', WC], fit(i)];
+      const rest = SUSPECTS.slice(1).flatMap((_, k) => [[' + ', WC] as Part, ...termW(k + 1)]);
+      draw(xr - eqW, y, [[' = ', WC], { n: termW(0), d: termW(0), d2: rest }], 22);
       this.put(
-        txt(this, x0, y + 58, 'share: the chance before this clue (your board)     rating: the chance of this clue if that person is the murderer', 15, '#9a9a9a', {
+        txt(this, x0, y + 92, 'suspicion: how much you suspected them before this clue (your board)     chance: your rating', 15, '#9a9a9a', {
           fontStyle: 'italic',
         }).setOrigin(0, 0.5),
       );
@@ -965,7 +970,7 @@ export class EvidenceScene extends Phaser.Scene {
     // stage 2: your numbers, worked to the answer for both suspects
     if (stage >= 2) {
       const from = this.page.list.length;
-      y += 140;
+      y += 160;
       label(y, 'Your numbers');
       const pr = (i: number): Part => [share(this.prior[i]), col(i)];
       const rt = (i: number): Part => [share(lik[i]), col(i)];

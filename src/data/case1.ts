@@ -54,6 +54,8 @@ export interface Clue {
   context: string[];
   /** Short name used in questions: "How likely would I be to find ___?" */
   short: string;
+  /** The clue in a few words, for the math page: "the letter". */
+  noun: string;
   /** The intended ratings as likelihoods, P(this clue | suspect i is the murderer): a model answer, never shown. */
   likelihoods: number[];
   /** The ghost's thought about each suspect's story (shown on the rating page). */
@@ -218,6 +220,7 @@ const CLUE_SOURCES: ClueSource[] = [
       'It shows strong feelings, maybe even a motive. But someone really was poisoned tonight, so the question is not whether anger leads to murder. It is whether this letter fits one story better than the other.',
     ],
     short: 'an angry letter like this',
+    noun: 'the letter',
     likelihoods: [0.7, 0.5],
     hints: [
       'If Clara is the murderer, the quarrel over my will would be her reason, and a furious letter is exactly the footprint that kind of anger leaves. But Clara writes furious letters all the time, and has never hurt a soul. So her guilt makes this letter more expected, though not by a huge margin.',
@@ -253,6 +256,7 @@ const CLUE_SOURCES: ClueSource[] = [
       'But is this news? I knew all of this before I opened the drawer.',
     ],
     short: 'a draft will like this in my desk',
+    noun: 'the draft will',
     likelihoods: [0.9, 0.9],
     hints: [
       'If Clara is the murderer, I still told her about the will on Tuesday, and I still drafted it. A draft in my own desk is very likely.',
@@ -289,6 +293,7 @@ const CLUE_SOURCES: ClueSource[] = [
       'The window above it is unlatched. I latch that window myself every autumn. Someone came in through the garden tonight. Who would be likely to leave a print like this?',
     ],
     short: 'a muddy print hidden behind the fern',
+    noun: 'the boot print',
     likelihoods: [0.1, 0.5],
     hints: [
       'If Clara is the murderer, why would she come in through the conservatory? She has been inside since seven, and the front door has always been open to her. And this print is large and fresh. A print like this is very hard to explain in her story.',
@@ -323,6 +328,7 @@ const CLUE_SOURCES: ClueSource[] = [
       'Foxglove leaves, steeped in tea, would taste bitter. They could also stop a man’s heart. Or it may be nothing: Thomas is always trimming something. That is the question.',
     ],
     short: 'a foxglove stripped like this',
+    noun: 'the stripped foxglove',
     likelihoods: [0.3, 0.9],
     hints: [
       'If Clara is the murderer, the foxgloves have nothing to do with her. She has never so much as watered them. Then a stripped pot would only be Thomas’s ordinary pruning. Unlikely, though not impossible.',
@@ -362,6 +368,7 @@ const CLUE_SOURCES: ClueSource[] = [
       'I’ve been so busy being clever about Thomas. Now I have a clue I didn’t want.',
     ],
     short: 'a chemist’s slip like this in Clara’s coat',
+    noun: 'the chemist’s slip',
     likelihoods: [0.7, 0.3],
     hints: [
       'If Clara is the murderer, she needed something to put a man to sleep and keep him there, and sleeping drops would do that. She might have kept the slip, because people forget what is in a pocket. It is quite likely, though she could as easily have thrown it away.',
@@ -399,6 +406,7 @@ const CLUE_SOURCES: ClueSource[] = [
       'And here, at 7:48, a call for Thomas. Two minutes. Twelve minutes later he signed out. I can’t tell what that means. It fits either story equally well, so it stays off the scale. A clue I can’t weigh is one I mustn’t pretend to weigh.',
     ],
     short: 'this telephone log',
+    noun: 'the telephone log',
     likelihoods: [0.1, 0.5],
     hints: [
       'If Clara put something in my tea, she had to stand at my desk some time between half past nine and ten. The log has her on the line to Edinburgh for that whole half hour. Her guilt and this log hardly fit together. Either the exchange got twenty-nine minutes wrong, or she left the receiver on the table and slipped away. Both could happen. Neither is likely.',
@@ -432,6 +440,7 @@ const CLUE_SOURCES: ClueSource[] = [
       'But he also stood at this very desk this afternoon, hours before anything happened.',
     ],
     short: 'a pruning knife under my chair',
+    noun: 'the pruning knife',
     likelihoods: [0.5, 0.7],
     hints: [
       'If Clara is the murderer, the knife is still easy to explain. Thomas stood at this desk this afternoon while we went over the repairs to the glass, and things fall out of pockets. It is as likely as not.',
