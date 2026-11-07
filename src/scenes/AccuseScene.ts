@@ -189,7 +189,7 @@ export class AccuseScene extends Phaser.Scene {
     const colors = SUSPECTS.map((s) => s.color);
     const names = SUSPECTS.map((s) => s.name);
     txt(this, 210, 92, 'Every world, shared by suspicion; shaded where the clue turns up', 15, DIM, { align: 'center', wordWrap: { width: 380 } }).setOrigin(0.5, 0);
-    new BayesSquare(this, 60, 140, 300, before, lik, colors, names, 1);
+    new BayesSquare(this, 60, 140, 300, before, lik, colors, names, 1, { sides: false });
     txt(this, 210, 488, 'Keep the shaded worlds, stretched to fill:', 15, DIM).setOrigin(0.5, 0);
     new BayesSquare(this, 160, 516, 100, after, SUSPECTS.map(() => 1), colors, ['', ''], 0);
 

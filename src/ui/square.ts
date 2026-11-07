@@ -26,8 +26,9 @@ export class BayesSquare extends Phaser.GameObjects.Container {
   private post: number[];
   /** The numbers written inside the columns, redrawn for each phase. */
   private numbers: Phaser.GameObjects.Text[] = [];
-  /** Side braces (shrink and together steps): the kept piece and the part taken away. */
+  /** Side braces (shrink and together steps) around each kept piece, labelled "evidence". */
   private sides: Phaser.GameObjects.GameObject[] = [];
+  private showSides: boolean;
   /** A dashed outline around what is left, which stretches with it into the new square. */
   private selection!: Phaser.GameObjects.Graphics;
   private selectionTween?: Phaser.Tweens.Tween;
@@ -43,11 +44,12 @@ export class BayesSquare extends Phaser.GameObjects.Container {
     private colors: number[],
     labels: string[],
     phase = 0,
-    opts: { labelSize?: number } = {},
+    opts: { labelSize?: number; sides?: boolean } = {},
   ) {
     super(scene, x, y);
     scene.add.existing(this);
     this.size = size;
+    this.showSides = opts.sides ?? true;
     this.numberSize = Phaser.Math.Clamp(Math.round(size / 15), 13, 22);
     const joint = prior.map((p, i) => p * lik[i]);
     const total = joint.reduce((a, b) => a + b, 0) || 1;
@@ -152,7 +154,7 @@ export class BayesSquare extends Phaser.GameObjects.Container {
   private writeSides(ph: number, animate: boolean) {
     this.sides.forEach((o) => o.destroy());
     this.sides = [];
-    if (ph !== 1 && ph !== 2) return;
+    if ((ph !== 1 && ph !== 2) || !this.showSides) return;
     const S = this.size;
     const n = this.prior.length;
     const depth = Phaser.Math.Clamp(Math.round(S / 30), 6, 11);
@@ -163,21 +165,18 @@ export class BayesSquare extends Phaser.GameObjects.Container {
       const dir = k === 0 ? -1 : 1;
       const base = dir < 0 ? -6 : S + 6;
       const labelX = base + dir * (depth + 6);
-      const cut = S - L * S;
-      const parts: [number, number, number, string, number][] = [
-        [cut + 2, S - 2, this.colors[i], share(L), 1],
-        [2, cut - 2, 0x8a8a8a, share(1 - L), 0.9],
-      ];
-      parts.forEach(([y0, y1, color, label, alpha]) => {
-        if (y1 - y0 < 14) return;
-        const b = new Brace(this.scene, y0, y1, base, dir as 1 | -1, color, depth, true);
-        const t = txt(this.scene, labelX, (y0 + y1) / 2, label, fs, hex(color), { fontStyle: 'bold' }).setOrigin(dir < 0 ? 1 : 0, 0.5);
-        this.add([b, t]);
-        this.sides.push(b, t);
-        [b, t].forEach((o) => {
-          o.setAlpha(animate && ph === 1 ? 0 : alpha);
-          if (animate && ph === 1) this.scene.tweens.add({ targets: o, alpha, duration: 400, delay: 900 + i * 300 });
-        });
+      const y0 = S - L * S + 2;
+      const y1 = S - 2;
+      if (y1 - y0 < 14) return;
+      // the bracket marks the evidence: the part of this story in which the clue turns up
+      const b = new Brace(this.scene, y0, y1, base, dir as 1 | -1, this.colors[i], depth, true);
+      const label = txt(this.scene, labelX, (y0 + y1) / 2, 'evidence', fs, '#9fc4ff', { fontStyle: 'italic' }).setOrigin(dir < 0 ? 1 : 0, 0.5);
+      this.add([b, label]);
+      this.sides.push(b, label);
+      [b, label].forEach((o) => {
+        if (!(animate && ph === 1)) return;
+        o.setAlpha(0);
+        this.scene.tweens.add({ targets: o, alpha: 1, duration: 400, delay: 900 + i * 300 });
       });
     });
   }

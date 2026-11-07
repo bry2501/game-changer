@@ -803,8 +803,8 @@ export class EvidenceScene extends Phaser.Scene {
     );
     if (ph > 0) this.time.delayedCall(250, () => sq.setPhase(ph));
 
-    // what each part means, beside the square
-    const x = 560;
+    // what each part means, beside the square (clear of the P(E | H) label on its right side)
+    const x = 600;
     let y = CONTENT_Y + 132;
     const k = this.para(x, y, key, 18, DIM, 640);
     y += k.height + 22;
