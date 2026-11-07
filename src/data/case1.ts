@@ -125,7 +125,7 @@ export const AWAKEN_LINES: string[] = [
 
 /** Beat: drifting to the grandfather clock and reaching for it. */
 export const CLOCK_LINES: string[] = ['A grandfather clock?', 'Did I... build this?'];
-export const CLOCK_AFTER: string[] = ['I went straight through it...', 'As if the clock were the real thing, and I were not.'];
+export const CLOCK_AFTER: string[] = ['I went right through it...', 'As if it were real, and I were not.'];
 
 /** Beat: the window that shows no reflection. */
 export const WINDOW_LINES: string[] = [
@@ -136,7 +136,7 @@ export const WINDOW_LINES: string[] = [
 ];
 
 /** Shown once the player can move again. */
-export const DRIFT_HINT: string[] = ['I see something lying on the rug. Very still.', 'But I cannot tell what it is from here.'];
+export const DRIFT_HINT: string[] = ['I see something lying on the rug. Very still.', 'I cannot tell what it is from here.'];
 
 /** Discovering the body: paced with silences. */
 export const BODY_LINES: string[] = [
@@ -146,10 +146,10 @@ export const BODY_LINES: string[] = [
   '...',
   '...it’s me!',
   'That is my body. I am standing over my own body.',
-  'My name... my name was John Bayes.',
-  'I was a watchmaker.',
-  'But I see no bullet wounds. No knife. No broken bones.',
-  'Wait, I remember having my evening tea...',
+  'My name... was John Bayes.',
+  'What happened to me?',
+  'I see no bullet wounds. No knife. No broken bones.',
+  'I remember drinking my evening tea...',
   'It tasted bitter tonight. I remember drinking it anyway.',
   'Someone must have put something in my tea.',
 ];
