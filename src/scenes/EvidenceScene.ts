@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { Button, DIM, fadeThen, fitCamera, hex, INK, overlayBackground, share, stackedBar, txt, W, GHOST_RES, ZOOM } from '../ui/widgets';
+import { Button, DIM, fadeThen, fitCamera, hex, INK, overlayBackground, share, stackedBar, txt, W, GHOST_RES, ZOOM, mathText } from '../ui/widgets';
 import { CLUES, Evidence, LOG_ROWS, PRIOR_SHEET, SUSPECTS } from '../data/case1';
 import { GameState, StepRecord, truePrior } from '../state/GameState';
 import { update } from '../bayes/engine';
@@ -7,6 +7,7 @@ import { drawSuspect } from './MemoryScene';
 import { CONCEPTS, numberWord } from '../data/lessons';
 import { BayesSquare } from '../ui/square';
 import { Brace } from '../ui/brace';
+import type { MathItem } from '../ui/widgets';
 import { KEEP_WORDS as KEEP, RATING_VALUES, RATING_WORDS, UNCHANGED, UPDATE_STEPS } from '../data/ui';
 import { Sound } from '../audio/Sound';
 
@@ -568,7 +569,13 @@ export class EvidenceScene extends Phaser.Scene {
       const name = this.put(txt(this, cx, barY - 32, s.name, 20, hex(s.color)).setOrigin(0.5, 1).setAlpha(0));
       after.push(name);
       brace.setSpan(x + 3, x + w - 3, true, 700, 2900);
-      after.push(this.put(txt(this, cx, barY + 26, `${s.hoursInside} ÷ ${total} hours = ${share(s.hoursInside / total)}`, 17, DIM).setOrigin(0.5, 0).setAlpha(0)));
+      after.push(
+        this.put(
+          mathText(this, cx, barY + 50, [{ n: `${s.hoursInside} hours`, d: `${total} hours` }, ` = ${share(s.hoursInside / total)}`], 18, '#a8a8a8', {
+            originX: 0.5,
+          }).setAlpha(0),
+        ),
+      );
       after.push(
         this.put(txt(this, cx, barY, share(s.hoursInside / total), 18, '#111111', { fontStyle: 'bold' })
           .setOrigin(0.5)
@@ -579,9 +586,10 @@ export class EvidenceScene extends Phaser.Scene {
     // the rule that turns hours into shares
     after.push(
       this.put(
-        txt(this, W / 2, barY + 70, `Starting share = hours inside ÷ all hours inside (${total})`, 19, '#c9c9c9', { fontStyle: 'italic' })
-          .setOrigin(0.5, 0)
-          .setAlpha(0),
+        mathText(this, W / 2, barY + 118, ['Starting share = ', { n: 'hours inside', d: 'all hours inside' }], 19, '#c9c9c9', {
+          italic: true,
+          originX: 0.5,
+        }).setAlpha(0),
       ),
     );
     this.tweens.add({ targets: after, alpha: 1, duration: 500, delay: 2900 });
@@ -648,13 +656,14 @@ export class EvidenceScene extends Phaser.Scene {
         760,
       );
       // the same share, as the sum that gives it
+      const sumY = shareText.y + shareText.height + 44;
       const sum = this.put(
-        txt(this, 470, shareText.y + shareText.height + 14, `${s.hoursInside} ÷ ${PRIOR_SHEET.total} = ${share(s.hoursInside / PRIOR_SHEET.total)}`, 30, hex(s.color), {
-          fontStyle: 'bold',
+        mathText(this, 470, sumY, [{ n: `${s.hoursInside}`, d: `${PRIOR_SHEET.total}` }, ` = ${share(s.hoursInside / PRIOR_SHEET.total)}`], 30, hex(s.color), {
+          bold: true,
         }),
       );
       if (i === 0)
-        this.para(470, sum.y + sum.height + 16, 'More time inside means more chances to reach my tea, so a bigger starting share of suspicion.', 21, '#dcdcdc', 760);
+        this.para(470, sumY + sum.height / 2 + 16, 'More time inside means more chances to reach my tea, so a bigger starting share of suspicion.', 21, '#dcdcdc', 760);
       return;
     }
     if (count > 0)
@@ -788,9 +797,11 @@ export class EvidenceScene extends Phaser.Scene {
       if (ph === 3) {
         const d = after[i] - this.prior[i];
         trend = same || Math.abs(d) < 0.005 ? '= unchanged' : d > 0 ? (d > 0.15 ? '▲ grew a lot' : '▲ grew') : d < -0.15 ? '▼ shrank a lot' : '▼ shrank';
-        what = `${share(joint[i])} ÷ ${share(left)} = ${share(after[i])}`;
       }
-      const t = this.put(txt(this, x + 160, y + 2, what, 20, INK));
+      const t =
+        ph === 3
+          ? this.put(mathText(this, x + 160, y + 14, [{ n: share(joint[i]), d: share(left) }, ` = ${share(after[i])}`], 20, INK))
+          : this.put(txt(this, x + 160, y + 2, what, 20, INK));
       if (ph === 3) {
         const tr = this.put(
           txt(this, x + 160 + t.width + 18, y + 2, trend, 20, trend.startsWith('▲') ? '#f0f0f0' : trend.startsWith('▼') ? '#d84a52' : INK),
@@ -798,7 +809,7 @@ export class EvidenceScene extends Phaser.Scene {
         [t, tr].forEach((o) => o.setAlpha(0));
         this.time.delayedCall(1200, () => this.tweens.add({ targets: [t, tr], alpha: 1, duration: 400 }));
       }
-      y += 42;
+      y += ph === 3 ? 58 : 42;
     });
     // the sum, and the rule behind the step
     const rule =
@@ -808,9 +819,14 @@ export class EvidenceScene extends Phaser.Scene {
           ? 'Each piece is as tall as the rating: the chance of this clue in that story.'
           : ph === 2
             ? `Left of the square: ${joint.map(share).join(' + ')} = ${share(left)}`
-            : 'New share = share × rating ÷ what was left';
-    const ruleText = this.put(txt(this, x, y + 4, rule, 18, '#c9c9c9', { fontStyle: 'italic' }));
-    y += ruleText.height + 14;
+            : '';
+    if (ph === 3) {
+      const r3 = this.put(mathText(this, x, y + 18, ['New share = ', { n: 'share × rating', d: 'what was left' }], 18, '#c9c9c9', { italic: true }));
+      y += r3.height + 14;
+    } else {
+      const ruleText = this.put(txt(this, x, y + 4, rule, 18, '#c9c9c9', { fontStyle: 'italic' }));
+      y += ruleText.height + 14;
+    }
     if (ph === 3) {
       const words = same
         ? UNCHANGED
@@ -833,96 +849,109 @@ export class EvidenceScene extends Phaser.Scene {
   }
 
   /**
-   * The same update as a formula, every symbol tied to this story: H is one person's story,
-   * E is this clue. Each term is shown with the player's own numbers, and solved.
+   * The same update as Bayes' rule, written out for this case: one hypothesis per suspect
+   * (H₁ "Clara did it", H₂ "Mr. Thomas did it"), and the evidence E. The denominator is
+   * spelled out as the sum over both stories. Each term is filled in with the player's numbers.
    */
   private mathPage(head: string, clue: (typeof CLUES)[number]) {
     this.title(head);
     this.commitClue();
-    const HC = '#9fc4ff'; // hypothesis: whose story
-    const EC = '#f0d27a'; // evidence: the clue, gold like its glint
+    const EC = '#9fc4ff'; // the evidence
     const WC = '#f2f2f2';
+    const SUB = ['₁', '₂', '₃', '₄'];
     const lik = this.lik;
     const joint = this.prior.map((p, i) => p * lik[i]);
     const pE = joint.reduce((a, b) => a + b, 0);
     const after = joint.map((j) => j / pE);
+    type Part = [string, string];
+    const H = (i: number): Part => [`H${SUB[i]}`, hex(SUSPECTS[i].color)];
+    const E: Part = ['E', EC];
+    const P = (...inner: Part[]): Part[] => [['P(', WC], ...inner, [')', WC]];
+    const given: Part = [' | ', WC];
+    const term = (i: number): Part[] => [...P(H(i)), [' · ', WC], ...P(E, given, H(i))];
 
-    // a run of differently coloured pieces on one line; returns its width
-    const rich = (x: number, y: number, parts: [string, string][], size: number, originX = 0) => {
-      const texts = parts.map(([t, c]) => txt(this, 0, y, t, size, c, { fontStyle: 'italic' }).setOrigin(0, 0.5));
-      const width = texts.reduce((a, t) => a + t.width, 0);
-      let cx = x - width * originX;
-      texts.forEach((t) => {
-        t.setX(cx);
-        cx += t.width;
-        this.put(t);
-      });
-      return width;
-    };
-    const P = (...inner: [string, string][]): [string, string][] => [['P(', WC], ...inner, [')', WC]];
-    const H: [string, string] = ['H', HC];
-    const E: [string, string] = ['E', EC];
-    const bar: [string, string] = [' | ', WC];
-
-    // the formula, as a fraction
-    const fy = CONTENT_Y + 30;
-    const measure = (parts: [string, string][], size: number) =>
+    const measure = (parts: Part[], size: number) =>
       parts.reduce((a, [t]) => {
         const m = txt(this, 0, 0, t, size, WC, { fontStyle: 'italic' });
         const w = m.width;
         m.destroy();
         return a + w;
       }, 0);
-    const lhs: [string, string][] = [...P(H, bar, E), [' = ', WC]];
-    const numParts: [string, string][] = [...P(H), [' · ', WC], ...P(E, bar, H)];
-    const lw = measure(lhs, 32);
-    const nw = measure(numParts, 32);
-    const left = W / 2 - (lw + nw) / 2;
-    rich(left, fy + 22, lhs, 32);
-    rich(left + lw, fy, numParts, 32);
-    this.put(this.add.rectangle(left + lw, fy + 22, nw, 2, 0xdcdcdc).setOrigin(0, 0.5));
-    rich(left + lw + nw / 2, fy + 44, P(E), 32, 0.5);
+    // a run of differently coloured pieces on one line, vertically centred on y
+    const rich = (x: number, y: number, parts: Part[], size: number, originX = 0) => {
+      const width = measure(parts, size);
+      let cx = x - width * originX;
+      parts.forEach(([t, c]) => {
+        const o = this.put(txt(this, cx, y, t, size, c, { fontStyle: 'italic' }).setOrigin(0, 0.5));
+        cx += o.width;
+      });
+      return width;
+    };
 
-    // what H and E mean here
-    const names = SUSPECTS.map((s) => `“${s.name} did it”`).join(' or ');
-    rich(W / 2, CONTENT_Y + 116, [['H', HC], [`  one person’s story: ${names}`, '#cfcfcf']], 19, 0.5);
-    rich(W / 2, CONTENT_Y + 144, [['E', EC], [`  the evidence: finding ${clue.short}`, '#cfcfcf']], 19, 0.5);
+    // Bayes' rule for the first suspect, the denominator summed over every story
+    const fs = 28;
+    const fy = CONTENT_Y + 52;
+    const lhs: Part[] = [...P(H(0), given, E), [' = ', WC]];
+    const num = term(0);
+    const den: Part[] = SUSPECTS.flatMap((_, i) => (i ? [[' + ', WC] as Part, ...term(i)] : term(i)));
+    const lw = measure(lhs, fs);
+    const fw = Math.max(measure(num, fs), measure(den, fs));
+    const left = W / 2 - (lw + fw) / 2;
+    rich(left, fy, lhs, fs);
+    rich(left + lw + fw / 2, fy - 22, num, fs, 0.5);
+    this.put(this.add.rectangle(left + lw, fy, fw, 2, 0xdcdcdc).setOrigin(0, 0.5));
+    rich(left + lw + fw / 2, fy + 22, den, fs, 0.5);
 
-    // each term: the symbol, what it means, and its value
-    const rows: { sym: [string, string][]; what: string; vals: string[] }[] = [
+    // what each symbol stands for here
+    const legend: Part[] = [];
+    SUSPECTS.forEach((s, i) => legend.push(H(i), [`  ${s.name} did it      `, '#cfcfcf']));
+    legend.push(E, [`  finding ${clue.short}`, '#cfcfcf']);
+    rich(W / 2, CONTENT_Y + 114, legend, 18, 0.5);
+
+    // each step of the sum: what it means on the left, the symbols and numbers on the right
+    const eq = (x: number, y: number, parts: Part[], value: string | MathItem[], bold = false) => {
+      const w = rich(x, y, parts, 24);
+      const items: MathItem[] = typeof value === 'string' ? [`  =  ${value}`] : ['  =  ', ...value];
+      this.put(mathText(this, x + w, y, items, 22, INK, { bold }));
+    };
+    const rows: { what: string; lines: (y: number) => number }[] = [
       {
-        sym: P(H),
-        what: 'The chance this person did it, before this clue: your board so far.',
-        vals: SUSPECTS.map((s, i) => `${s.name}  ${share(this.prior[i])}`),
+        what: 'Before this clue: the chance each person did it. Your board so far.',
+        lines: (y) => {
+          SUSPECTS.forEach((_, i) => eq(500, y + i * 34, P(H(i)), share(this.prior[i])));
+          return SUSPECTS.length * 34;
+        },
       },
       {
-        sym: P(E, bar, H),
-        what: 'The chance of this clue if this person did it: your rating.',
-        vals: SUSPECTS.map((s, i) => `${s.name}  ${share(lik[i])}`),
+        what: 'The chance of this clue if that person did it. Your ratings.',
+        lines: (y) => {
+          SUSPECTS.forEach((_, i) => eq(500, y + i * 34, P(E, given, H(i)), share(lik[i])));
+          return SUSPECTS.length * 34;
+        },
       },
       {
-        sym: P(E),
-        what: 'The chance of this clue at all: each story’s chance times its rating, added up.',
-        vals: [`${SUSPECTS.map((_, i) => `${share(this.prior[i])} × ${share(lik[i])}`).join(' + ')} = ${share(pE)}`],
+        what: 'The bottom of the fraction: the chance of this clue at all, adding up every story.',
+        lines: (y) => {
+          const sum = SUSPECTS.map((_, i) => `${share(this.prior[i])} × ${share(lik[i])}`).join(' + ');
+          this.put(txt(this, 500, y, `${sum}  =  ${joint.map(share).join(' + ')}  =  ${share(pE)}`, 22, INK).setOrigin(0, 0.5));
+          return 34;
+        },
       },
       {
-        sym: P(H, bar, E),
-        what: 'The chance this person did it, now that I have this clue: the new board.',
-        vals: SUSPECTS.map((s, i) => `${s.name}  ${share(this.prior[i])} × ${share(lik[i])} ÷ ${share(pE)} = ${share(after[i])}`),
+        what: 'After this clue: each story’s piece divided by the total. The new board.',
+        lines: (y) => {
+          SUSPECTS.forEach((_, i) =>
+            eq(500, y + 8 + i * 54, P(H(i), given, E), [{ n: share(joint[i]), d: share(pE) }, `  =  ${share(after[i])}`], true),
+          );
+          return SUSPECTS.length * 54;
+        },
       },
     ];
-    let y = CONTENT_Y + 196;
-    rows.forEach((r, k) => {
-      rich(110, y + 14, r.sym, 30);
-      this.put(txt(this, 262, y + 14, '=', 30, WC).setOrigin(0, 0.5));
-      const what = this.para(300, y, r.what, 18, '#bdbdbd', 380);
-      let vy = y;
-      r.vals.forEach((v, i) => {
-        const color = r.vals.length > 1 ? hex(SUSPECTS[i].color) : INK;
-        const t = this.put(txt(this, 720, vy, v, 20, color, { fontStyle: k === 3 ? 'bold' : 'normal' }));
-        vy += t.height + 6;
-      });
-      y = Math.max(y + what.height, vy) + 26;
+    let y = CONTENT_Y + 160;
+    rows.forEach((r) => {
+      const what = this.para(110, y - 10, r.what, 17, '#bdbdbd', 350);
+      const h = r.lines(y + 6);
+      y += Math.max(what.height + 6, h) + 18;
     });
   }
 

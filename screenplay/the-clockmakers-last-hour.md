@@ -265,12 +265,12 @@ After choosing: “You rated it N: …, a P% chance.”
 
 ### Page: The math
 
-*(The same update as Bayes’ rule, P(H | E) = P(H) · P(E | H) ÷ P(E), with H one person’s story and E finding an angry letter like this. Each term is explained and filled in with the player’s numbers.)*
+*(The same update as Bayes’ rule, one hypothesis per suspect: H1 “Clara did it”, H2 “Mr. Thomas did it”, and E finding an angry letter like this. P(H1 | E) = P(H1) · P(E | H1) ÷ [P(H1) · P(E | H1) + P(H2) · P(E | H2)]. Each term is explained and filled in with the player’s numbers.)*
 
-- **P(H)**, your board so far: Clara 60%, Mr. Thomas 40% *(numbers here follow the designed ratings)*
-- **P(E | H)**, your rating: Clara 70%, Mr. Thomas 50%
-- **P(E)**, the clue at all: 60% × 70% + 40% × 50% = 62%
-- **P(H | E)**, the new board: Clara 68%, Mr. Thomas 32%
+- **P(H1), P(H2)**, your board so far: Clara 60%, Mr. Thomas 40% *(numbers here follow the designed ratings)*
+- **P(E | H1), P(E | H2)**, your ratings: Clara 70%, Mr. Thomas 50%
+- **The denominator**, the clue at all: 60% × 70% + 40% × 50% = 42% + 20% = 62%
+- **P(H1 | E), P(H2 | E)**, the new board: Clara 68%, Mr. Thomas 32%
 
 ### Page: Recap: Vivid but weak evidence
 
@@ -353,12 +353,12 @@ After choosing: “You rated it N: …, a P% chance.”
 
 ### Page: The math
 
-*(The same update as Bayes’ rule, P(H | E) = P(H) · P(E | H) ÷ P(E), with H one person’s story and E finding a draft will like this in my desk. Each term is explained and filled in with the player’s numbers.)*
+*(The same update as Bayes’ rule, one hypothesis per suspect: H1 “Clara did it”, H2 “Mr. Thomas did it”, and E finding a draft will like this in my desk. P(H1 | E) = P(H1) · P(E | H1) ÷ [P(H1) · P(E | H1) + P(H2) · P(E | H2)]. Each term is explained and filled in with the player’s numbers.)*
 
-- **P(H)**, your board so far: Clara 68%, Mr. Thomas 32% *(numbers here follow the designed ratings)*
-- **P(E | H)**, your rating: Clara 90%, Mr. Thomas 90%
-- **P(E)**, the clue at all: 68% × 90% + 32% × 90% = 90%
-- **P(H | E)**, the new board: Clara 68%, Mr. Thomas 32%
+- **P(H1), P(H2)**, your board so far: Clara 68%, Mr. Thomas 32% *(numbers here follow the designed ratings)*
+- **P(E | H1), P(E | H2)**, your ratings: Clara 90%, Mr. Thomas 90%
+- **The denominator**, the clue at all: 68% × 90% + 32% × 90% = 61% + 29% = 90%
+- **P(H1 | E), P(H2 | E)**, the new board: Clara 68%, Mr. Thomas 32%
 
 ### Page: Recap: Old news doesn’t count twice
 
@@ -440,12 +440,12 @@ After choosing: “You rated it N: …, a P% chance.”
 
 ### Page: The math
 
-*(The same update as Bayes’ rule, P(H | E) = P(H) · P(E | H) ÷ P(E), with H one person’s story and E finding a muddy print hidden behind the fern. Each term is explained and filled in with the player’s numbers.)*
+*(The same update as Bayes’ rule, one hypothesis per suspect: H1 “Clara did it”, H2 “Mr. Thomas did it”, and E finding a muddy print hidden behind the fern. P(H1 | E) = P(H1) · P(E | H1) ÷ [P(H1) · P(E | H1) + P(H2) · P(E | H2)]. Each term is explained and filled in with the player’s numbers.)*
 
-- **P(H)**, your board so far: Clara 68%, Mr. Thomas 32% *(numbers here follow the designed ratings)*
-- **P(E | H)**, your rating: Clara 10%, Mr. Thomas 50%
-- **P(E)**, the clue at all: 68% × 10% + 32% × 50% = 23%
-- **P(H | E)**, the new board: Clara 30%, Mr. Thomas 70%
+- **P(H1), P(H2)**, your board so far: Clara 68%, Mr. Thomas 32% *(numbers here follow the designed ratings)*
+- **P(E | H1), P(E | H2)**, your ratings: Clara 10%, Mr. Thomas 50%
+- **The denominator**, the clue at all: 68% × 10% + 32% × 50% = 7% + 16% = 23%
+- **P(H1 | E), P(H2 | E)**, the new board: Clara 30%, Mr. Thomas 70%
 
 ### Page: Recap: One lopsided clue can swing the board
 
@@ -525,12 +525,12 @@ After choosing: “You rated it N: …, a P% chance.”
 
 ### Page: The math
 
-*(The same update as Bayes’ rule, P(H | E) = P(H) · P(E | H) ÷ P(E), with H one person’s story and E finding a foxglove stripped like this. Each term is explained and filled in with the player’s numbers.)*
+*(The same update as Bayes’ rule, one hypothesis per suspect: H1 “Clara did it”, H2 “Mr. Thomas did it”, and E finding a foxglove stripped like this. P(H1 | E) = P(H1) · P(E | H1) ÷ [P(H1) · P(E | H1) + P(H2) · P(E | H2)]. Each term is explained and filled in with the player’s numbers.)*
 
-- **P(H)**, your board so far: Clara 30%, Mr. Thomas 70% *(numbers here follow the designed ratings)*
-- **P(E | H)**, your rating: Clara 30%, Mr. Thomas 90%
-- **P(E)**, the clue at all: 30% × 30% + 70% × 90% = 72%
-- **P(H | E)**, the new board: Clara 12%, Mr. Thomas 88%
+- **P(H1), P(H2)**, your board so far: Clara 30%, Mr. Thomas 70% *(numbers here follow the designed ratings)*
+- **P(E | H1), P(E | H2)**, your ratings: Clara 30%, Mr. Thomas 90%
+- **The denominator**, the clue at all: 30% × 30% + 70% × 90% = 9% + 63% = 72%
+- **P(H1 | E), P(H2 | E)**, the new board: Clara 12%, Mr. Thomas 88%
 
 ### Page: Recap: Means evidence (diagnostic, not decisive)
 
@@ -615,12 +615,12 @@ After choosing: “You rated it N: …, a P% chance.”
 
 ### Page: The math
 
-*(The same update as Bayes’ rule, P(H | E) = P(H) · P(E | H) ÷ P(E), with H one person’s story and E finding a chemist’s slip like this in Clara’s coat. Each term is explained and filled in with the player’s numbers.)*
+*(The same update as Bayes’ rule, one hypothesis per suspect: H1 “Clara did it”, H2 “Mr. Thomas did it”, and E finding a chemist’s slip like this in Clara’s coat. P(H1 | E) = P(H1) · P(E | H1) ÷ [P(H1) · P(E | H1) + P(H2) · P(E | H2)]. Each term is explained and filled in with the player’s numbers.)*
 
-- **P(H)**, your board so far: Clara 12%, Mr. Thomas 88% *(numbers here follow the designed ratings)*
-- **P(E | H)**, your rating: Clara 70%, Mr. Thomas 30%
-- **P(E)**, the clue at all: 12% × 70% + 88% × 30% = 35%
-- **P(H | E)**, the new board: Clara 25%, Mr. Thomas 75%
+- **P(H1), P(H2)**, your board so far: Clara 12%, Mr. Thomas 88% *(numbers here follow the designed ratings)*
+- **P(E | H1), P(E | H2)**, your ratings: Clara 70%, Mr. Thomas 30%
+- **The denominator**, the clue at all: 12% × 70% + 88% × 30% = 9% + 26% = 35%
+- **P(H1 | E), P(H2 | E)**, the new board: Clara 25%, Mr. Thomas 75%
 
 ### Page: Recap: Evidence against your favourite
 
@@ -700,12 +700,12 @@ After choosing: “You rated it N: …, a P% chance.”
 
 ### Page: The math
 
-*(The same update as Bayes’ rule, P(H | E) = P(H) · P(E | H) ÷ P(E), with H one person’s story and E finding this telephone log. Each term is explained and filled in with the player’s numbers.)*
+*(The same update as Bayes’ rule, one hypothesis per suspect: H1 “Clara did it”, H2 “Mr. Thomas did it”, and E finding this telephone log. P(H1 | E) = P(H1) · P(E | H1) ÷ [P(H1) · P(E | H1) + P(H2) · P(E | H2)]. Each term is explained and filled in with the player’s numbers.)*
 
-- **P(H)**, your board so far: Clara 25%, Mr. Thomas 75% *(numbers here follow the designed ratings)*
-- **P(E | H)**, your rating: Clara 10%, Mr. Thomas 50%
-- **P(E)**, the clue at all: 25% × 10% + 75% × 50% = 40%
-- **P(H | E)**, the new board: Clara 6%, Mr. Thomas 94%
+- **P(H1), P(H2)**, your board so far: Clara 25%, Mr. Thomas 75% *(numbers here follow the designed ratings)*
+- **P(E | H1), P(E | H2)**, your ratings: Clara 10%, Mr. Thomas 50%
+- **The denominator**, the clue at all: 25% × 10% + 75% × 50% = 2% + 38% = 40%
+- **P(H1 | E), P(H2 | E)**, the new board: Clara 6%, Mr. Thomas 94%
 
 ### Page: Recap: Exculpatory evidence
 
@@ -784,12 +784,12 @@ After choosing: “You rated it N: …, a P% chance.”
 
 ### Page: The math
 
-*(The same update as Bayes’ rule, P(H | E) = P(H) · P(E | H) ÷ P(E), with H one person’s story and E finding a pruning knife under my chair. Each term is explained and filled in with the player’s numbers.)*
+*(The same update as Bayes’ rule, one hypothesis per suspect: H1 “Clara did it”, H2 “Mr. Thomas did it”, and E finding a pruning knife under my chair. P(H1 | E) = P(H1) · P(E | H1) ÷ [P(H1) · P(E | H1) + P(H2) · P(E | H2)]. Each term is explained and filled in with the player’s numbers.)*
 
-- **P(H)**, your board so far: Clara 6%, Mr. Thomas 94% *(numbers here follow the designed ratings)*
-- **P(E | H)**, your rating: Clara 50%, Mr. Thomas 70%
-- **P(E)**, the clue at all: 6% × 50% + 94% × 70% = 69%
-- **P(H | E)**, the new board: Clara 4%, Mr. Thomas 96%
+- **P(H1), P(H2)**, your board so far: Clara 6%, Mr. Thomas 94% *(numbers here follow the designed ratings)*
+- **P(E | H1), P(E | H2)**, your ratings: Clara 50%, Mr. Thomas 70%
+- **The denominator**, the clue at all: 6% × 50% + 94% × 70% = 3% + 66% = 69%
+- **P(H1 | E), P(H2 | E)**, the new board: Clara 4%, Mr. Thomas 96%
 
 ### Page: Recap: A clue that fits both stories
 

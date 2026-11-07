@@ -339,16 +339,16 @@ CLUES.forEach((c, k) => {
   w();
   w('### Page: The math');
   w();
-  w(`*(The same update as Bayes’ rule, P(H | E) = P(H) · P(E | H) ÷ P(E), with H one person’s story and E finding ${c.short}. Each term is explained and filled in with the player’s numbers.)*`);
+  w(`*(The same update as Bayes’ rule, one hypothesis per suspect: ${SUSPECTS.map((s, i) => `H${i + 1} “${s.name} did it”`).join(', ')}, and E finding ${c.short}. P(H1 | E) = P(H1) · P(E | H1) ÷ [P(H1) · P(E | H1) + P(H2) · P(E | H2)]. Each term is explained and filled in with the player’s numbers.)*`);
   {
     const lik = c.likelihoods;
     const j = belief.map((p, i) => p * lik[i]);
     const pE = j.reduce((a, b) => a + b, 0);
     w();
-    w(`- **P(H)**, your board so far: ${SUSPECTS.map((s, i) => `${s.name} ${pct(belief[i])}`).join(', ')} *(numbers here follow the designed ratings)*`);
-    w(`- **P(E | H)**, your rating: ${SUSPECTS.map((s, i) => `${s.name} ${pct(lik[i])}`).join(', ')}`);
-    w(`- **P(E)**, the clue at all: ${j.map((_, i) => `${pct(belief[i])} × ${pct(lik[i])}`).join(' + ')} = ${pct(pE)}`);
-    w(`- **P(H | E)**, the new board: ${SUSPECTS.map((s, i) => `${s.name} ${pct(j[i] / pE)}`).join(', ')}`);
+    w(`- **P(H1), P(H2)**, your board so far: ${SUSPECTS.map((s, i) => `${s.name} ${pct(belief[i])}`).join(', ')} *(numbers here follow the designed ratings)*`);
+    w(`- **P(E | H1), P(E | H2)**, your ratings: ${SUSPECTS.map((s, i) => `${s.name} ${pct(lik[i])}`).join(', ')}`);
+    w(`- **The denominator**, the clue at all: ${j.map((_, i) => `${pct(belief[i])} × ${pct(lik[i])}`).join(' + ')} = ${j.map(pct).join(' + ')} = ${pct(pE)}`);
+    w(`- **P(H1 | E), P(H2 | E)**, the new board: ${SUSPECTS.map((s, i) => `${s.name} ${pct(j[i] / pE)}`).join(', ')}`);
   }
   w();
   w(`### Page: Recap: ${c.trap}`);

@@ -334,3 +334,47 @@ export function fadeThen(scene: Phaser.Scene, ms: number, next: () => void) {
   cam.fade(ms, 0, 0, 0, true);
   window.setTimeout(run, ms + 600);
 }
+
+/** One piece of a written sum: plain text, or a fraction drawn with a horizontal bar. */
+export type MathItem = string | { n: string; d: string };
+
+/**
+ * A line of arithmetic with stacked fractions, e.g. ["Clara ", { n: '42%', d: '54%' }, " = 78%"].
+ * The container's y is the line's middle; `originX` 0.5 centres it on x. Its `width` and
+ * `height` are set, so callers can lay things out around it.
+ */
+export function mathText(
+  scene: Phaser.Scene,
+  x: number,
+  y: number,
+  items: MathItem[],
+  size: number,
+  color = '#f2f2f2',
+  opts: { bold?: boolean; italic?: boolean; originX?: number } = {},
+): Phaser.GameObjects.Container {
+  const c = scene.add.container(0, y);
+  const style = { fontStyle: [opts.bold ? 'bold' : '', opts.italic ? 'italic' : ''].join(' ').trim() || 'normal' };
+  const fsz = Math.round(size * 0.82);
+  let cx = 0;
+  let h = size * 1.3;
+  for (const it of items) {
+    if (typeof it === 'string') {
+      const t = txt(scene, cx, 0, it, size, color, style).setOrigin(0, 0.5);
+      c.add(t);
+      cx += t.width;
+    } else {
+      const n = txt(scene, 0, -2, it.n, fsz, color, style).setOrigin(0.5, 1);
+      const d = txt(scene, 0, 3, it.d, fsz, color, style).setOrigin(0.5, 0);
+      const w = Math.max(n.width, d.width) + 8;
+      n.setX(cx + w / 2);
+      d.setX(cx + w / 2);
+      const bar = scene.add.rectangle(cx, 0, w, Math.max(1.5, size / 14), Phaser.Display.Color.HexStringToColor(color).color).setOrigin(0, 0.5);
+      c.add([n, bar, d]);
+      cx += w + 2;
+      h = Math.max(h, n.height + d.height + 6);
+    }
+  }
+  c.setX(x - cx * (opts.originX ?? 0));
+  c.setSize(cx, h);
+  return c;
+}
