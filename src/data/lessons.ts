@@ -12,10 +12,10 @@ export const CONCEPTS: Concept[] = [
   {
     title: 'Think in stories',
     body:
-      'Don’t ask “who does this evidence point to?” Instead, go one person at a time and imagine they are the murderer. ' +
-      'Then ask: assuming they are the murderer, how likely is it that I would find this evidence? ' +
-      'Imagine a hundred different possible worlds in which that person is the murderer: on how many of them would this clue turn up? ' +
-      'Each suspect is a story, and a clue fits some stories better than others.',
+      'Each suspect is a story, and a clue fits some stories better than others. ' +
+      'The key is not to ask “who does this evidence point to?” ' +
+      'Instead ask: in the story where this person is the murderer, how likely is it that I would find this evidence? ' +
+      'To help conceptualize the likelihood, imagine ten different nights in which that person is the murderer: on how many of them would this clue turn up? ',
   },
   {
     title: 'Don’t count the same thing twice',
