@@ -7,7 +7,7 @@ export const UNCHANGED = 'Neither story fits this clue better, so nothing moves.
 /** The update, as a square of possible worlds. {n} is the number of suspects, in words. */
 export const UPDATE_STEPS: [string, string, string][] = [
   [
-    'Before',
+    'The Priors',
     'Each person’s column is as wide as their share of suspicion.',
     'Width of a column: that person’s share of suspicion.',
   ],
