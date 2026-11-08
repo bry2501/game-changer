@@ -326,7 +326,17 @@ w(`> - The log is also what closes the hypothesis set. The stretch step in every
 w('> - Neither share is ever 0% or 100%, and no rating maps to 0 or 1, so no belief can become immune to later evidence.');
 w('> - The hours-inside rule counts time before the tea existed. That is acceptable only because the ghost does not yet know when the tea was tampered with. A stricter alternative would count only the half hour the cup stood on the desk.');
 w();
-thoughts([...PRIOR_SHEET.reaction, PRIOR_SHEET.nextThought]);
+const C = PRIOR_SHEET.choose;
+w(`**${C.title}**: ${C.intro} *(two cards, each with its starting bar; Continue unlocks once one is picked)*`);
+w();
+C.options.forEach((o, k) => w(`${k + 1}. **${o.name}** (${k ? SUSPECTS.map((s, i) => `${s.name} ${pct(prior[i])}`).join(', ') : SUSPECTS.map((s) => `${s.name} ${pct(1 / SUSPECTS.length)}`).join(', ')}): ${o.text}`));
+w();
+w('> **Designer’s note (not shown in game):** the chosen prior is the player’s board from here on. The rest of this screenplay follows the hours.');
+w();
+dir('If the player chose the hours:');
+thoughts([PRIOR_SHEET.remember, ...PRIOR_SHEET.reaction, PRIOR_SHEET.nextThought]);
+dir('If the player chose the clean slate:');
+thoughts([PRIOR_SHEET.remember, ...PRIOR_SHEET.reactionEven, PRIOR_SHEET.nextThought]);
 w('---');
 w();
 

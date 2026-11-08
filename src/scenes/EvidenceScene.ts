@@ -65,6 +65,8 @@ export class EvidenceScene extends Phaser.Scene {
 
   // working state for this examination
   private prior: number[] = [];
+  /** On the Choose page: 0 the clean slate, 1 the hours. */
+  private priorPick?: number;
   /** The player's likelihood for each suspect (undefined until rated). */
   private picks: (number | undefined)[] = [];
   /** How many hours (between 6 and 10 pm) the player has lit for each suspect, on the log pages. */
@@ -102,6 +104,7 @@ export class EvidenceScene extends Phaser.Scene {
     this.index = 0;
     this.closing = false;
     this.committed = false;
+    this.priorPick = undefined;
     this.crumbs = [];
     this.picks = [];
     this.hourPicks = [];
@@ -700,10 +703,67 @@ export class EvidenceScene extends Phaser.Scene {
         // set a little lower so the page sits in the middle of the screen
         this.para(W / 2, CONTENT_Y + 75, PRIOR_SHEET.lesson, 23, '#dcdcdc', 1000, 0.5);
         this.blocksToBar(CONTENT_Y + 175, 'Before any clue:');
-        this.commitPrior(truth);
       },
     });
+    steps.push({ crumb: 'Choose', build: () => this.choosePriorPage(truth) });
     return steps;
+  }
+
+  /**
+   * The player picks which prior to carry forward: the clean slate (even shares) or the
+   * hours from the log. Continue stays off until one is chosen; it is committed on Continue.
+   */
+  private choosePriorPage(hours: number[]) {
+    const C = PRIOR_SHEET.choose;
+    const even = SUSPECTS.map(() => 1 / SUSPECTS.length);
+    const options = [even, hours];
+    this.title(C.title);
+    this.para(W / 2, CONTENT_Y + 10, C.intro, 22, '#dcdcdc', 900, 0.5);
+    const CW = 460;
+    const CH = 220;
+    const cy = CONTENT_Y + 110;
+    const pick = (k: number) => {
+      if (this.priorPick === k) return;
+      this.priorPick = k;
+      Sound.blip();
+      this.show(true);
+    };
+    options.forEach((p, k) => {
+      const cx = W / 2 + (k - 0.5) * (CW + 40);
+      const chosen = this.priorPick === k;
+      // the card is a big button; its contents sit on top
+      const b = this.put(new Button(this, cx, cy + CH / 2, '', () => pick(k), { width: CW, height: CH, stroke: chosen ? 0xf2f2f2 : 0x777777 }));
+      if (chosen) this.put(this.add.rectangle(cx, cy + CH / 2, CW + 8, CH + 8).setStrokeStyle(3, 0xf2f2f2, 1));
+      b.setAlpha(this.priorPick === undefined || chosen ? 1 : 0.55);
+      const dim = this.priorPick === undefined || chosen ? 1 : 0.55;
+      this.put(txt(this, cx, cy + 20, `${k + 1}.  ${C.options[k].name}`, 26, chosen ? GOLD : INK, { fontStyle: 'bold' }).setOrigin(0.5, 0).setAlpha(dim));
+      // the bar this choice starts from
+      const bw = CW - 80;
+      const bx = cx - bw / 2;
+      const by = cy + 112;
+      let x = bx;
+      p.forEach((v, i) => {
+        const w = bw * v;
+        this.put(this.add.rectangle(x, by, w, 34, SUSPECTS[i].color, 0.95).setOrigin(0, 0.5).setAlpha(dim));
+        this.put(txt(this, x + w / 2, by, share(v), 18, '#111111', { fontStyle: 'bold' }).setOrigin(0.5).setAlpha(dim));
+        this.put(txt(this, x + w / 2, by - 26, SUSPECTS[i].name, 17, hex(SUSPECTS[i].color)).setOrigin(0.5, 1).setAlpha(dim));
+        x += w;
+      });
+      this.put(this.add.rectangle(bx, by, bw, 34).setOrigin(0, 0.5).setStrokeStyle(1, 0x666666).setAlpha(dim));
+      this.put(
+        txt(this, cx, by + 36, C.options[k].text, 19, '#cfcfcf', { wordWrap: { width: CW - 60 }, align: 'center', lineSpacing: 4 })
+          .setOrigin(0.5, 0)
+          .setAlpha(dim),
+      );
+    });
+    this.put(txt(this, W / 2, cy + CH + 30, C.hint, 16, DIM, { fontStyle: 'italic' }).setOrigin(0.5));
+    this.ratingKey = (n: number) => n >= 1 && n <= options.length && pick(n - 1);
+    const k = this.priorPick;
+    this.setNext('Continue ›', k !== undefined, () => {
+      if (k === undefined) return;
+      this.commitPrior(options[k]);
+      this.go(1);
+    });
   }
 
   /**

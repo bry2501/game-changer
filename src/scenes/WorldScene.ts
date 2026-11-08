@@ -468,8 +468,15 @@ export class WorldScene extends Phaser.Scene {
     this.refreshHud();
     if (from === 'evidence') {
       const f = GameState.data.found;
-      const src = f === 0 ? PRIOR_SHEET : CLUES[f - 1];
-      this.think([...src.reaction, src.nextThought]);
+      if (f === 0) {
+        // the prior the player chose: even shares mean the clean slate
+        const p = GameState.data.prior;
+        const even = p.every((x) => Math.abs(x - p[0]) < 1e-9);
+        this.think([PRIOR_SHEET.remember, ...(even ? PRIOR_SHEET.reactionEven : PRIOR_SHEET.reaction), PRIOR_SHEET.nextThought]);
+      } else {
+        const src = CLUES[f - 1];
+        this.think([...src.reaction, src.nextThought]);
+      }
     }
   }
 

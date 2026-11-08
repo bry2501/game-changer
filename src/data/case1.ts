@@ -211,8 +211,26 @@ export const PRIOR_SHEET = {
   /** The Start page: where suspicion begins. */
   lesson:
     'Each person’s time in the house becomes their prior suspicion: whoever spent the most time has the highest probability. That’s my starting point.',
+  /** The Choose page: the player picks the starting point they will carry forward. */
+  choose: {
+    title: 'Choose my prior',
+    intro: 'Which starting point should I carry forward? Either one is a fair start. The clues will move whichever I pick.',
+    options: [
+      { name: 'A clean slate', text: 'Ignore the log. With nothing to go on, both are equally likely.' },
+      { name: 'The hours', text: 'Trust the log. The longer someone was here, the more chances they had. Leans towards Clara.' },
+    ],
+    hint: 'Press 1 or 2, or click a card.',
+  },
+  /** First thought after the log, whichever prior was chosen. */
+  remember: 'I have to remember the prior moving forward.',
+  /** After choosing the hours. */
   reaction: [
     'Clara was here the longest, so she starts as the likeliest culprit.',
+    'Every new piece of evidence I find will shift this suspicion.',
+  ],
+  /** After choosing the clean slate. */
+  reactionEven: [
+    'I start them level: neither one is likelier than the other.',
     'Every new piece of evidence I find will shift this suspicion.',
   ],
   nextThought: '',

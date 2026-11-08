@@ -202,7 +202,22 @@ Once right: *Mr. Thomas was inside for 2 hours.* (Next unlocks.)
 > - Neither share is ever 0% or 100%, and no rating maps to 0 or 1, so no belief can become immune to later evidence.
 > - The hours-inside rule counts time before the tea existed. That is acceptable only because the ghost does not yet know when the tea was tampered with. A stricter alternative would count only the half hour the cup stood on the desk.
 
+**Choose my prior**: Which starting point should I carry forward? Either one is a fair start. The clues will move whichever I pick. *(two cards, each with its starting bar; Continue unlocks once one is picked)*
+
+1. **A clean slate** (Clara 50%, Mr. Thomas 50%): Ignore the log. With nothing to go on, both are equally likely.
+2. **The hours** (Clara 60%, Mr. Thomas 40%): Trust the log. The longer someone was here, the more chances they had. Leans towards Clara.
+
+> **Designer’s note (not shown in game):** the chosen prior is the player’s board from here on. The rest of this screenplay follows the hours.
+
+*If the player chose the hours:*
+> **GHOST** *(thought)*: I have to remember the prior moving forward.
 > **GHOST** *(thought)*: Clara was here the longest, so she starts as the likeliest culprit.
+> **GHOST** *(thought)*: Every new piece of evidence I find will shift this suspicion.
+> **GHOST** *(thought)*: Clara’s room is upstairs. I know my niece. If she wrote something, it will be in her writing desk.
+
+*If the player chose the clean slate:*
+> **GHOST** *(thought)*: I have to remember the prior moving forward.
+> **GHOST** *(thought)*: I start them level: neither one is likelier than the other.
 > **GHOST** *(thought)*: Every new piece of evidence I find will shift this suspicion.
 > **GHOST** *(thought)*: Clara’s room is upstairs. I know my niece. If she wrote something, it will be in her writing desk.
 
