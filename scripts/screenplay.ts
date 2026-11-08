@@ -99,6 +99,12 @@ const rating = (v: number) => RATING_VALUES.findIndex((r) => Math.abs(r - v) < 1
 /** Clara's final share if one clue's ratings were swapped for others. */
 const finalWith = (k: number, l: number[]) => chain(prior, liks.map((x, j) => (j === k ? l : x)))[CLUES.length][0];
 
+const DRAWING_NAMES = {
+  boot: 'the boot print on the tiles, under the window',
+  foxglove: 'four foxgloves in pots on the bench, the last one stripped',
+  knife: 'the closed pruning knife in the fringe of the rug',
+};
+
 function evidence(doc: Evidence) {
   if (doc.kind === 'letter') {
     w('```');
@@ -134,6 +140,10 @@ function evidence(doc: Evidence) {
     w(`Name: ${doc.customer || '_'.repeat(width - 6)}`);
     if (doc.foot) w(centre(doc.foot));
     w('```');
+  } else if (doc.kind === 'sketch') {
+    w(`*A pencil sketch: ${DRAWING_NAMES[doc.drawing]}. Pencilled notes point at it:*`);
+    w();
+    for (const note of doc.notes) w(`- *${note}*`);
   } else if (doc.kind === 'facts') {
     w('| | |');
     w('|---|---|');

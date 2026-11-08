@@ -35,11 +35,15 @@ export interface Suspect {
  * - facts: plain observations of a physical object
  * - will: a will, drawn as the document (title, numbered clauses, an empty signature line, a pencilled margin note)
  * - receipt: a shop receipt, drawn as the slip itself (leave customer '' for a blank name line)
+ * - sketch: a pencil drawing of an object, with pencilled notes pointing at it. The notes go, in order,
+ *   to: boot (the latch, the heel, the mud, the toe); foxglove (the stripped stem, the cut stubs, the
+ *   other pots); knife (the handle, the initials, the blade). Extra notes are written underneath.
  */
 export type Evidence =
   | { kind: 'letter'; date: string; lines: string[]; sign: string }
   | { kind: 'table'; columns: string[]; rows: string[][]; foot?: string; widths?: number[] }
   | { kind: 'facts'; rows: [string, string][] }
+  | { kind: 'sketch'; drawing: 'boot' | 'foxglove' | 'knife'; notes: string[] }
   | { kind: 'will'; title: string; of: string; opening: string; clauses: string[]; signing: string; margin?: string }
   | {
       kind: 'receipt';
@@ -290,14 +294,9 @@ const CLUE_SOURCES: ClueSource[] = [
     searchCue: 'The fronds part and settle again',
     found: 'I found a boot print on the conservatory floor, hidden behind the big fern, right under the window.',
     evidence: {
-      kind: 'facts',
-      rows: [
-        ['Mark', 'One boot print, in wet garden mud'],
-        ['Size', 'Large, with a worn heel'],
-        ['Pointing', 'Into the house'],
-        ['Window above', 'Unlatched'],
-        ['Mud', 'Still soft'],
-      ],
+      kind: 'sketch',
+      drawing: 'boot',
+      notes: ['window above: unlatched', 'large boot, worn heel', 'garden mud, still soft', 'toe points into the house'],
     },
     context: [
       'One boot print. Wet garden mud, the heel worn down on one side.',
@@ -326,13 +325,9 @@ const CLUE_SOURCES: ClueSource[] = [
     searchCue: 'A row of foxglove plants stands in pots along the bench, their long leaves soft in the moonlight',
     found: 'I found the foxglove plants on the potting bench. One pot in the row has been stripped of its lower leaves.',
     evidence: {
-      kind: 'facts',
-      rows: [
-        ['Plant', 'Foxglove plant (digitalis), in pots on the potting bench'],
-        ['Damage', 'One pot stripped of its lower leaves'],
-        ['Cuts', 'Clean, close to the stem'],
-        ['Other pots', 'Untouched'],
-      ],
+      kind: 'sketch',
+      drawing: 'foxglove',
+      notes: ['one pot stripped of its lower leaves', 'cut clean, close to the stem', 'the other pots untouched'],
     },
     context: [
       'Foxglove plant. Beautiful, and deadly. I never liked having them in the house.',
@@ -438,12 +433,9 @@ const CLUE_SOURCES: ClueSource[] = [
     searchCue: 'Something small catches the moonlight in the fringe of the rug',
     found: 'I found a pruning knife under my desk chair, caught in the fringe of the rug.',
     evidence: {
-      kind: 'facts',
-      rows: [
-        ['Object', 'A folding pruning knife, bone handle'],
-        ['Marking', '“E.T.” scratched into the handle'],
-        ['Blade', 'Closed'],
-      ],
+      kind: 'sketch',
+      drawing: 'knife',
+      notes: ['folding pruning knife, bone handle', '“E.T.” scratched into the handle', 'blade closed'],
     },
     context: [
       'A pruning knife. Bone handle, with E.T. scratched into it. Thomas has carried one like it in his pocket for twenty years. He had it today, when he came to see me about the glass; I remember him cutting twine with it.',

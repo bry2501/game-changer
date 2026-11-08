@@ -397,13 +397,12 @@ What has to be true for this draft to be in the drawer? I must have written it b
 
 **Evidence card: A Muddy Boot Print**
 
-| | |
-|---|---|
-| **Mark** | One boot print, in wet garden mud |
-| **Size** | Large, with a worn heel |
-| **Pointing** | Into the house |
-| **Window above** | Unlatched |
-| **Mud** | Still soft |
+*A pencil sketch: the boot print on the tiles, under the window. Pencilled notes point at it:*
+
+- *window above: unlatched*
+- *large boot, worn heel*
+- *garden mud, still soft*
+- *toe points into the house*
 
 > **GHOST** *(thought)*: One boot print. Wet garden mud, the heel worn down on one side.
 > **GHOST** *(thought)*: It points into the house, so whoever left it was coming in. Edgar mops this floor every evening before he goes home at six, so this print is from tonight. And the mud is still soft.
@@ -484,12 +483,11 @@ The print doesn’t prove Thomas did it. But it does mean Clara’s story needs 
 
 **Evidence card: The Foxglove Plants**
 
-| | |
-|---|---|
-| **Plant** | Foxglove plant (digitalis), in pots on the potting bench |
-| **Damage** | One pot stripped of its lower leaves |
-| **Cuts** | Clean, close to the stem |
-| **Other pots** | Untouched |
+*A pencil sketch: four foxgloves in pots on the bench, the last one stripped. Pencilled notes point at it:*
+
+- *one pot stripped of its lower leaves*
+- *cut clean, close to the stem*
+- *the other pots untouched*
 
 > **GHOST** *(thought)*: Foxglove plant. Beautiful, and deadly. I never liked having them in the house.
 > **GHOST** *(thought)*: One pot has been stripped of its lower leaves, cut clean, close to the stem. The other pots are untouched.
@@ -752,11 +750,11 @@ Evidence can clear people too. If Clara was on the telephone the whole time the 
 
 **Evidence card: A Pruning Knife**
 
-| | |
-|---|---|
-| **Object** | A folding pruning knife, bone handle |
-| **Marking** | “E.T.” scratched into the handle |
-| **Blade** | Closed |
+*A pencil sketch: the closed pruning knife in the fringe of the rug. Pencilled notes point at it:*
+
+- *folding pruning knife, bone handle*
+- *“E.T.” scratched into the handle*
+- *blade closed*
 
 > **GHOST** *(thought)*: A pruning knife. Bone handle, with E.T. scratched into it. Thomas has carried one like it in his pocket for twenty years. He had it today, when he came to see me about the glass; I remember him cutting twine with it.
 > **GHOST** *(thought)*: But he also stood at this very desk this afternoon, hours before anything happened.

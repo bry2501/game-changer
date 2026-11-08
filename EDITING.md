@@ -34,7 +34,7 @@ To add a new thought to a list, copy a whole line (quotes and comma included) an
 
 **Find and replace:** check each match before replacing. A word inside an `id: '…'` is a name the game looks things up by, not text the player sees; replacing it there hides the clue.
 
-**Evidence cards** are written as the documents themselves. The will (`kind: 'will'`) has a title, numbered `clauses` and a pencilled `margin` note, and its signature line is drawn empty. The pharmacy receipt (`kind: 'receipt'`) has the shop, the time, the `items` with prices and the total; leave `customer: ''` and the Name line prints blank.
+**Evidence cards** are written as the documents themselves. The will (`kind: 'will'`) has a title, numbered `clauses` and a pencilled `margin` note, and its signature line is drawn empty. The pharmacy receipt (`kind: 'receipt'`) has the shop, the time, the `items` with prices and the total; leave `customer: ''` and the Name line prints blank. The boot print, the foxgloves and the knife are pencil sketches (`kind: 'sketch'`); their `notes` are the pencilled labels, and each one points at a fixed part of the drawing in the order they are written, so reword them freely but keep the order.
 
 ## Seeing the result
 

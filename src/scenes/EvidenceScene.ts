@@ -9,6 +9,7 @@ import { BayesSquare } from '../ui/square';
 import { Brace } from '../ui/brace';
 import { RATING_VALUES, RATING_WORDS, UNCHANGED, UPDATE_STEPS } from '../data/ui';
 import { Sound } from '../audio/Sound';
+import { drawSketch, SKETCH_W } from '../ui/sketches';
 
 type Kind = 'prior' | 'clue';
 
@@ -284,6 +285,30 @@ export class EvidenceScene extends Phaser.Scene {
       return this.willCard(card, bg, x0, y, w, pad, doc);
     } else if (doc.kind === 'receipt') {
       return this.receiptCard(card, bg, y, doc);
+    } else if (doc.kind === 'sketch') {
+      // the drawing on the left; pencilled notes on the right, each with a line to what it means
+      const sx = x0 + pad + 10;
+      const { anchors, h: sketchH } = drawSketch(this, card, doc.drawing, sx, cy + 4);
+      const noteX = sx + SKETCH_W + 60;
+      const noteW = x0 + w - pad - noteX;
+      const lines = this.add.graphics();
+      card.add(lines);
+      const placed = doc.notes.map((n, k) => ({ n, a: anchors[k] })).sort((p, q) => (p.a?.y ?? 1e9) - (q.a?.y ?? 1e9));
+      let ny = cy + 4;
+      for (const { n, a } of placed) {
+        const t = txt(this, noteX, 0, n, 21, '#4a4a48', { fontStyle: 'italic', wordWrap: { width: noteW } });
+        t.setY(Math.max(ny, a ? a.y - t.height / 2 : ny));
+        card.add(t);
+        if (a) {
+          const ly = t.y + Math.min(t.height / 2, 14);
+          lines.lineStyle(1, 0x5a5a58, 0.8);
+          lines.lineBetween(noteX - 10, ly, a.x + 6, a.y);
+          lines.fillStyle(0x5a5a58, 1);
+          lines.fillCircle(a.x + 6, a.y, 2.5);
+        }
+        ny = t.y + t.height + 12;
+      }
+      cy = Math.max(cy + sketchH + 14, ny);
     } else if (doc.kind === 'facts') {
       // the key column fits its longest label
       const keys = doc.rows.map(([k]) => txt(this, x0 + pad, cy, k, 20, '#3a3a3a', { fontStyle: 'bold' }));
@@ -298,19 +323,28 @@ export class EvidenceScene extends Phaser.Scene {
       const total = weights.reduce((a, b) => a + b, 0);
       const colX: number[] = [];
       weights.reduce((acc, wt, k) => ((colX[k] = x0 + pad + ((w - pad * 2) * acc) / total), acc + wt), 0);
-      doc.columns.forEach((c, k) => card.add(txt(this, colX[k], cy, c, 17, '#3a3a3a', { fontStyle: 'bold' })));
-      cy += 26;
-      bg.lineStyle(1, 0xb8b8b0, 1);
-      bg.lineBetween(x0 + pad, cy - 4, x0 + w - pad, cy - 4);
+      // a ruled ledger: column rules, a double rule under the heads, a line under each entry
+      const rules = this.add.graphics();
+      card.add(rules);
+      const top = cy - 4;
+      doc.columns.forEach((c, k) => card.add(txt(this, colX[k] + 10, cy, c.toUpperCase(), 15, '#3a3a3a', { fontStyle: 'bold' }).setLetterSpacing(1)));
+      cy += 28;
+      rules.lineStyle(1, 0x8a8a82, 1);
+      rules.lineBetween(x0 + pad, cy - 8, x0 + w - pad, cy - 8);
+      rules.lineBetween(x0 + pad, cy - 4, x0 + w - pad, cy - 4);
       for (const r of doc.rows) {
         let h = 0;
         r.forEach((cell, k) => {
-          const t = txt(this, colX[k], cy, cell, 20, ink);
+          const t = txt(this, colX[k] + 10, cy + 2, cell, 21, ink, { fontStyle: 'italic' });
           card.add(t);
           h = Math.max(h, t.height);
         });
-        cy += h + 4;
+        cy += h + 10;
+        rules.lineStyle(1, 0xc4c4bc, 1);
+        rules.lineBetween(x0 + pad, cy - 2, x0 + w - pad, cy - 2);
       }
+      rules.lineStyle(1, 0xc4c4bc, 1);
+      colX.slice(1).forEach((x) => rules.lineBetween(x, top, x, cy - 2));
       if (doc.foot) add(txt(this, x0 + pad, cy + 4, doc.foot, 18, '#333333', { fontStyle: 'italic', wordWrap: { width: w - pad * 2 } }), 6);
     }
     const h = cy - y + pad - 12;
