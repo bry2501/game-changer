@@ -1,13 +1,29 @@
 import Phaser from 'phaser';
 import { PAL, paintRect } from './paint';
 import { drawFoliage } from './art';
+import { ZOOM } from './widgets';
 
 /**
  * The house from outside, painted for the title screen: a two-storey columned mansion
  * with a balcony, a maroon roof with dormers, crooked shutters and leafy oaks.
  */
-export function drawMansion(scene: Phaser.Scene, W: number, H: number) {
-  const g = scene.add.graphics();
+export function drawMansion(scene: Phaser.Scene, W: number, H: number): Phaser.GameObjects.Image {
+  // The painting is thousands of shapes, far too many to redraw every frame, so it is
+  // painted once into a full-resolution texture and shown as a single image.
+  const key = 'title-mansion';
+  if (!scene.textures.exists(key)) {
+    const g = scene.make.graphics({}, false);
+    paintMansion(g, W, H);
+    const rt = scene.make.renderTexture({ width: Math.ceil(W * ZOOM), height: Math.ceil(H * ZOOM) }, false);
+    g.setScale(ZOOM);
+    rt.draw(g);
+    rt.saveTexture(key);
+    g.destroy();
+  }
+  return scene.add.image(0, 0, key).setOrigin(0).setScale(1 / ZOOM);
+}
+
+function paintMansion(g: Phaser.GameObjects.Graphics, W: number, H: number) {
   // night sky, deep blue into teal at the horizon
   const bands = 24;
   for (let i = 0; i < bands; i++) {
@@ -154,5 +170,4 @@ export function drawMansion(scene: Phaser.Scene, W: number, H: number) {
   };
   tree(70, 1);
   tree(W - 70, -1);
-  return g;
 }

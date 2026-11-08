@@ -67,6 +67,7 @@ export class EvidenceScene extends Phaser.Scene {
   private prior: number[] = [];
   /** On the Choose page: 0 the clean slate, 1 the hours. */
   private priorPick?: number;
+  private masks: Phaser.GameObjects.Graphics[] = [];
   /** The player's likelihood for each suspect (undefined until rated). */
   private picks: (number | undefined)[] = [];
   /** How many hours (between 6 and 10 pm) the player has lit for each suspect, on the log pages. */
@@ -198,6 +199,9 @@ export class EvidenceScene extends Phaser.Scene {
     this.tweens.killTweensOf(this.page.list);
     this.page.list.forEach((o) => o instanceof Phaser.GameObjects.Container && this.tweens.killTweensOf(o.list));
     this.page.removeAll(true);
+    // mask shapes live off the display list, so the page's removeAll doesn't free them
+    this.masks.forEach((m) => m.destroy());
+    this.masks = [];
     this.noteScroller = undefined;
     this.ratingKey = undefined;
     this.page.setAlpha(soft ? 1 : 0);
@@ -243,6 +247,13 @@ export class EvidenceScene extends Phaser.Scene {
   }
 
   // ================================================================== page helpers
+
+  /** A mask shape for this page, freed when the page is redrawn. */
+  private maskShape() {
+    const m = this.make.graphics({}, false);
+    this.masks.push(m);
+    return m;
+  }
 
   private put<T extends Phaser.GameObjects.GameObject>(o: T): T {
     (this.putInto ?? this.page).add(o);
@@ -561,7 +572,7 @@ export class EvidenceScene extends Phaser.Scene {
     const contentH = bottom - viewTop;
     const minOff = Math.min(0, viewH - contentH);
     if (minOff < 0) {
-      const maskShape = this.make.graphics({}, false);
+      const maskShape = this.maskShape();
       maskShape.fillStyle(0xffffff).fillRect(0, viewTop - 6, W, viewH + 12);
       stack.setMask(maskShape.createGeometryMask());
       // soft edges where thoughts slide out of view, and a small arrow beside the stack
@@ -1048,7 +1059,7 @@ export class EvidenceScene extends Phaser.Scene {
     // scrolling: the page is clipped to the space between the crumbs and the buttons
     const viewH = viewBottom - viewTop;
     const minOff = Math.min(0, viewH - (bottom - viewTop));
-    const maskShape = this.make.graphics({}, false);
+    const maskShape = this.maskShape();
     maskShape.fillStyle(0xffffff).fillRect(0, viewTop, W, viewH);
     box.setMask(maskShape.createGeometryMask());
     const band = 26;

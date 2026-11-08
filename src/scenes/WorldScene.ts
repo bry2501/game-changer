@@ -231,7 +231,10 @@ export class WorldScene extends Phaser.Scene {
       }
     });
 
-    this.events.on('resume', (_s: unknown, data?: { from?: string }) => this.onResume(data?.from));
+    // scene events outlive a restart (new game, rewind), so take this off again on shutdown
+    const onResume = (_s: unknown, data?: { from?: string }) => this.onResume(data?.from);
+    this.events.on('resume', onResume);
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.events.off('resume', onResume));
     this.refreshHud();
     Sound.setTicking(true);
 
@@ -873,7 +876,9 @@ export class WorldScene extends Phaser.Scene {
     // row is painted once into a texture that repeats along the house, and shown as images.
     const far = this.treeRow('sky-far', 4, 620, (g, k, x) => tree(g, x + ((k * 4340) % 180), 1, 0x0a0f14), 0.25, 10.54, 200);
     const near = this.treeRow('sky-near', 2, 1150, (g, _k, x) => tree(g, x, 1.6, 0x030506), 0.55, 10.56, 1150);
-    for (const o of [sky, moon, ...far, ...near]) o.setMask(geo);
+    // one Layer, masked once: masking each piece separately redrew the window cutout for
+    // every piece, every frame. A Layer keeps each child's own depth and scroll factor.
+    this.add.layer([sky, moon, ...far, ...near]).setDepth(10.5).setMask(geo);
   }
 
   /**
