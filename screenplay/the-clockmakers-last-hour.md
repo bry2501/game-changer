@@ -229,8 +229,6 @@ Once right: *Mr. Thomas was inside for 2 hours.* (Next unlocks.)
 
 ### Page: The clue
 
-*A letter at the back of Clara’s writing-desk drawer, folded small, then smaller. It is a draft, crossed out and rewritten, the nib pressed so hard on the last line that it nearly tore the paper.*
-
 **Evidence card: An Unfinished Letter**
 
 ```
@@ -312,8 +310,6 @@ An angry letter feels like a confession. But people write angry letters all the 
 *The Study: the player searches the desk drawer. Beneath the pencils and the coiled mainsprings lies a page folded in three; a chime; the evidence screen opens.*
 
 ### Page: The clue
-
-*I found my will under the pencils in my drawer, folded in three. The handwriting is mine.*
 
 **Evidence card: The Will**
 
@@ -408,8 +404,6 @@ What has to be true for this draft to be in the drawer? I must have written it b
 
 ### Page: The clue
 
-*I found a boot print on the conservatory floor, hidden behind the big fern, right under the window.*
-
 **Evidence card: A Muddy Boot Print**
 
 *A pencil sketch: the boot print on the tiles, under the window. Pencilled notes point at it:*
@@ -493,8 +487,6 @@ The print doesn’t prove Thomas did it. But it does mean Clara’s story needs 
 *The Conservatory: the player searches the potting bench. A row of foxglove plants stands in pots along the bench, their long leaves soft in the moonlight; a chime; the evidence screen opens.*
 
 ### Page: The clue
-
-*I found the foxglove plants on the potting bench. One pot in the row has been stripped of its lower leaves.*
 
 **Evidence card: The Foxglove Plants**
 
@@ -581,8 +573,6 @@ This clue fits one person far better than anyone else. That is what strong evide
 *The Hallway: the player searches the coat stand. Clara’s grey walking coat hangs among the others; the receipt in its pocket stirs as the ghost’s hand passes through; a chime; the evidence screen opens.*
 
 ### Page: The clue
-
-*I found a small slip of paper, folded once, in the pocket of Clara’s grey walking coat on the hall stand.*
 
 **Evidence card: The Pharmacy Receipt**
 
@@ -674,8 +664,6 @@ Evidence doesn’t care whom you suspect. It fits one story better, and you have
 
 ### Page: The clue
 
-*I found the switchboard operator’s log in the drawer of the hallway telephone table. The exchange writes down every call placed from this house: the time, the number, and how long the line stayed open.*
-
 **Evidence card: The Telephone Log**
 
 | Time | Caller | Called | Length |
@@ -760,8 +748,6 @@ Evidence can clear people too. If Clara was on the telephone the whole time the 
 *The Study: the player searches the desk chair. Something small catches the moonlight in the fringe of the rug; a chime; the evidence screen opens.*
 
 ### Page: The clue
-
-*I found a pruning knife under my desk chair, caught in the fringe of the rug.*
 
 **Evidence card: A Pruning Knife**
 

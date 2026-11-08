@@ -9,7 +9,7 @@ All the text is in four files in `src/data/`:
 
 | File | What's in it |
 |---|---|
-| `case1.ts` | The story: the ghost's thoughts in the opening scenes, the memories of Clara and Mr. Thomas, the Choose-my-prior page and the thoughts after it, every clue (the "I found…" line, the evidence card, the ghost's thoughts, the rating hints, the recap), and both endings. |
+| `case1.ts` | The story: the ghost's thoughts in the opening scenes, the memories of Clara and Mr. Thomas, the Choose-my-prior page and the thoughts after it, every clue (the evidence card, the ghost's thoughts, the rating hints, the recap), and both endings. |
 | `house.ts` | The room names and room thoughts, and what the ghost says when searching each piece of furniture. |
 | `lessons.ts` | The lesson pages (Lesson 1: Think in stories, and so on). |
 | `ui.ts` | Fixed captions: the update steps (The Priors, shrink, stretch) and the rating words. |

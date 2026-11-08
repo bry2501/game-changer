@@ -59,8 +59,6 @@ export type Evidence =
 export interface Clue {
   id: string;
   title: string;
-  /** Where it was found (shown as a caption outside the evidence card). */
-  found: string;
   /** The evidence itself, as found. */
   evidence: Evidence;
   /** A memory the clue shakes loose, shown (in amber) before the ghost's reading. */
@@ -246,7 +244,6 @@ const CLUE_SOURCES: ClueSource[] = [
     title: 'An Unfinished Letter',
     leadIn: 'Clara’s room is upstairs. I know my niece. If she wrote something, it will be in her writing desk.',
     searchCue: 'The drawer sticks, then slides out with a small wooden cry',
-    found: 'A letter at the back of Clara’s writing-desk drawer, folded small, then smaller. It is a draft, crossed out and rewritten, the nib pressed so hard on the last line that it nearly tore the paper.',
     evidence: { kind: 'letter', date: 'Tuesday', lines: ['Uncle —', 'If you change your will, I will NEVER forgive you!'], sign: 'C.' },
     context: [
       'Three days ago: the day we quarrelled about my will. But the letter was never finished and sent to me.',
@@ -270,7 +267,6 @@ const CLUE_SOURCES: ClueSource[] = [
     title: 'The Will',
     leadIn: 'Clara’s letter was about my will. Let me see what I actually wrote. The draft should be in my desk downstairs.',
     searchCue: 'Beneath the pencils and the coiled mainsprings lies a page folded in three',
-    found: 'I found my will under the pencils in my drawer, folded in three. The handwriting is mine.',
     evidence: {
       kind: 'will',
       title: 'Last Will and Testament',
@@ -310,7 +306,6 @@ const CLUE_SOURCES: ClueSource[] = [
     title: 'A Muddy Boot Print',
     leadIn: 'There’s cold air moving through the house. It smells of wet earth, and it’s coming from the conservatory.',
     searchCue: 'The fronds part and settle again',
-    found: 'I found a boot print on the conservatory floor, hidden behind the big fern, right under the window.',
     evidence: {
       kind: 'sketch',
       drawing: 'boot',
@@ -341,7 +336,6 @@ const CLUE_SOURCES: ClueSource[] = [
     title: 'The Foxglove Plants',
     leadIn: 'My tea tasted bitter. Foxglove plants are bitter too, and they can kill. Thomas keeps them in pots on the potting bench.',
     searchCue: 'A row of foxglove plants stands in pots along the bench, their long leaves soft in the moonlight',
-    found: 'I found the foxglove plants on the potting bench. One pot in the row has been stripped of its lower leaves.',
     evidence: {
       kind: 'sketch',
       drawing: 'foxglove',
@@ -375,7 +369,6 @@ const CLUE_SOURCES: ClueSource[] = [
     title: 'The Pharmacy Receipt',
     leadIn: 'Clara walked at seven, in her grey coat. It should be on the hall stand.',
     searchCue: 'Clara’s grey walking coat hangs among the others; the receipt in its pocket stirs as the ghost’s hand passes through',
-    found: 'I found a small slip of paper, folded once, in the pocket of Clara’s grey walking coat on the hall stand.',
     evidence: {
       kind: 'receipt',
       shop: 'HARTLEY & SON',
@@ -411,7 +404,6 @@ const CLUE_SOURCES: ClueSource[] = [
     title: 'The Telephone Log',
     leadIn: 'It all comes down to half past nine. The exchange writes down every call made from this house. That log is in the telephone table drawer, in the hallway.',
     searchCue: 'The drawer slides out',
-    found: 'I found the switchboard operator’s log in the drawer of the hallway telephone table. The exchange writes down every call placed from this house: the time, the number, and how long the line stayed open.',
     evidence: {
       kind: 'table',
       columns: ['Time', 'Caller', 'Called', 'Length'],
@@ -449,7 +441,6 @@ const CLUE_SOURCES: ClueSource[] = [
     title: 'A Pruning Knife',
     leadIn: 'Back to the study. My desk chair has been pushed back from the desk. Was something underneath it?',
     searchCue: 'Something small catches the moonlight in the fringe of the rug',
-    found: 'I found a pruning knife under my desk chair, caught in the fringe of the rug.',
     evidence: {
       kind: 'sketch',
       drawing: 'knife',

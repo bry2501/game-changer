@@ -684,7 +684,6 @@ export class EvidenceScene extends Phaser.Scene {
             CONTENT_Y + 6,
             'the household log, tonight (6 – 10 pm)',
             { kind: 'table', columns: ['Name', 'Signed in', 'Signed out'], rows: LOG_ROWS, widths: [1.4, 1, 1] },
-            'I found the household log on the side table in the study, where it always lies.',
           );
           this.ghostNotes(bottom + 22, [{ text: PRIOR_SHEET.text }, { text: PRIOR_SHEET.context }]);
         },
@@ -955,7 +954,7 @@ export class EvidenceScene extends Phaser.Scene {
         crumb: 'The clue',
         build: () => {
           this.title(head);
-          const bottom = this.evidenceCard(CONTENT_Y + 4, clue.title, clue.evidence, clue.found);
+          const bottom = this.evidenceCard(CONTENT_Y + 4, clue.title, clue.evidence);
           this.ghostNotes(bottom + 22, [
             ...(clue.memory ? [{ text: clue.memory, memory: true }] : []),
             ...clue.context.map((text) => ({ text })),
