@@ -280,7 +280,7 @@ After choosing: “You rated it N: …, a P% chance.”
 
 ### Page: The math
 
-*(The same update as Bayes’ rule, one hypothesis per suspect: H1 “Clara is the murderer”, H2 “Mr. Thomas is the murderer”, and E finding an angry letter like this. P(H1 | E) = P(H1) · P(E | H1) ÷ [P(H1) · P(E | H1) + P(H2) · P(E | H2)]. First the player chooses whose math to look at first (with two suspects the shares add to 100%, so one update gives the other). Then one formula transforms in place: the rule in symbols with a key; the same with names (“Clara Updated = Clara’s Prior · Boot Print given Clara / …”); the player’s numbers; then multiply, add and divide inside the formula; finally the other suspect (“Thomas Updated = 100% − Clara Updated”).)*
+*(The same update as Bayes’ rule, one hypothesis per suspect: H1 “Clara is the murderer”, H2 “Mr. Thomas is the murderer”, and E finding an angry letter like this. P(H1 | E) = P(H1) · P(E | H1) ÷ [P(H1) · P(E | H1) + P(H2) · P(E | H2)]. First the player chooses whose math to look at first (with two suspects the shares add to 100%, so one update gives the other). Then one formula transforms in place: the rule in symbols with a key; the same with names (“Clara Updated = Clara’s Prior · Boot Print given Clara / …”); the player’s numbers; then multiply, add and divide inside the formula; finally the other suspect, with just the names (“Thomas = 100% − Clara”).)*
 
 - **P(H1), P(H2)**, your board so far: Clara 60%, Mr. Thomas 40% *(numbers here follow the designed ratings)*
 - **P(E | H1), P(E | H2)**, your ratings: Clara 70%, Mr. Thomas 50%
@@ -374,7 +374,7 @@ After choosing: “You rated it N: …, a P% chance.”
 
 ### Page: The math
 
-*(The same update as Bayes’ rule, one hypothesis per suspect: H1 “Clara is the murderer”, H2 “Mr. Thomas is the murderer”, and E finding a Will like this in my desk. P(H1 | E) = P(H1) · P(E | H1) ÷ [P(H1) · P(E | H1) + P(H2) · P(E | H2)]. First the player chooses whose math to look at first (with two suspects the shares add to 100%, so one update gives the other). Then one formula transforms in place: the rule in symbols with a key; the same with names (“Clara Updated = Clara’s Prior · Boot Print given Clara / …”); the player’s numbers; then multiply, add and divide inside the formula; finally the other suspect (“Thomas Updated = 100% − Clara Updated”).)*
+*(The same update as Bayes’ rule, one hypothesis per suspect: H1 “Clara is the murderer”, H2 “Mr. Thomas is the murderer”, and E finding a Will like this in my desk. P(H1 | E) = P(H1) · P(E | H1) ÷ [P(H1) · P(E | H1) + P(H2) · P(E | H2)]. First the player chooses whose math to look at first (with two suspects the shares add to 100%, so one update gives the other). Then one formula transforms in place: the rule in symbols with a key; the same with names (“Clara Updated = Clara’s Prior · Boot Print given Clara / …”); the player’s numbers; then multiply, add and divide inside the formula; finally the other suspect, with just the names (“Thomas = 100% − Clara”).)*
 
 - **P(H1), P(H2)**, your board so far: Clara 68%, Mr. Thomas 32% *(numbers here follow the designed ratings)*
 - **P(E | H1), P(E | H2)**, your ratings: Clara 90%, Mr. Thomas 90%
@@ -460,7 +460,7 @@ After choosing: “You rated it N: …, a P% chance.”
 
 ### Page: The math
 
-*(The same update as Bayes’ rule, one hypothesis per suspect: H1 “Clara is the murderer”, H2 “Mr. Thomas is the murderer”, and E finding a muddy print hidden behind the fern. P(H1 | E) = P(H1) · P(E | H1) ÷ [P(H1) · P(E | H1) + P(H2) · P(E | H2)]. First the player chooses whose math to look at first (with two suspects the shares add to 100%, so one update gives the other). Then one formula transforms in place: the rule in symbols with a key; the same with names (“Clara Updated = Clara’s Prior · Boot Print given Clara / …”); the player’s numbers; then multiply, add and divide inside the formula; finally the other suspect (“Thomas Updated = 100% − Clara Updated”).)*
+*(The same update as Bayes’ rule, one hypothesis per suspect: H1 “Clara is the murderer”, H2 “Mr. Thomas is the murderer”, and E finding a muddy print hidden behind the fern. P(H1 | E) = P(H1) · P(E | H1) ÷ [P(H1) · P(E | H1) + P(H2) · P(E | H2)]. First the player chooses whose math to look at first (with two suspects the shares add to 100%, so one update gives the other). Then one formula transforms in place: the rule in symbols with a key; the same with names (“Clara Updated = Clara’s Prior · Boot Print given Clara / …”); the player’s numbers; then multiply, add and divide inside the formula; finally the other suspect, with just the names (“Thomas = 100% − Clara”).)*
 
 - **P(H1), P(H2)**, your board so far: Clara 68%, Mr. Thomas 32% *(numbers here follow the designed ratings)*
 - **P(E | H1), P(E | H2)**, your ratings: Clara 10%, Mr. Thomas 50%
@@ -545,7 +545,7 @@ After choosing: “You rated it N: …, a P% chance.”
 
 ### Page: The math
 
-*(The same update as Bayes’ rule, one hypothesis per suspect: H1 “Clara is the murderer”, H2 “Mr. Thomas is the murderer”, and E finding a foxglove plant stripped like this. P(H1 | E) = P(H1) · P(E | H1) ÷ [P(H1) · P(E | H1) + P(H2) · P(E | H2)]. First the player chooses whose math to look at first (with two suspects the shares add to 100%, so one update gives the other). Then one formula transforms in place: the rule in symbols with a key; the same with names (“Clara Updated = Clara’s Prior · Boot Print given Clara / …”); the player’s numbers; then multiply, add and divide inside the formula; finally the other suspect (“Thomas Updated = 100% − Clara Updated”).)*
+*(The same update as Bayes’ rule, one hypothesis per suspect: H1 “Clara is the murderer”, H2 “Mr. Thomas is the murderer”, and E finding a foxglove plant stripped like this. P(H1 | E) = P(H1) · P(E | H1) ÷ [P(H1) · P(E | H1) + P(H2) · P(E | H2)]. First the player chooses whose math to look at first (with two suspects the shares add to 100%, so one update gives the other). Then one formula transforms in place: the rule in symbols with a key; the same with names (“Clara Updated = Clara’s Prior · Boot Print given Clara / …”); the player’s numbers; then multiply, add and divide inside the formula; finally the other suspect, with just the names (“Thomas = 100% − Clara”).)*
 
 - **P(H1), P(H2)**, your board so far: Clara 30%, Mr. Thomas 70% *(numbers here follow the designed ratings)*
 - **P(E | H1), P(E | H2)**, your ratings: Clara 30%, Mr. Thomas 90%
@@ -641,7 +641,7 @@ After choosing: “You rated it N: …, a P% chance.”
 
 ### Page: The math
 
-*(The same update as Bayes’ rule, one hypothesis per suspect: H1 “Clara is the murderer”, H2 “Mr. Thomas is the murderer”, and E finding a Pharmacy Receipt like this in Clara’s coat. P(H1 | E) = P(H1) · P(E | H1) ÷ [P(H1) · P(E | H1) + P(H2) · P(E | H2)]. First the player chooses whose math to look at first (with two suspects the shares add to 100%, so one update gives the other). Then one formula transforms in place: the rule in symbols with a key; the same with names (“Clara Updated = Clara’s Prior · Boot Print given Clara / …”); the player’s numbers; then multiply, add and divide inside the formula; finally the other suspect (“Thomas Updated = 100% − Clara Updated”).)*
+*(The same update as Bayes’ rule, one hypothesis per suspect: H1 “Clara is the murderer”, H2 “Mr. Thomas is the murderer”, and E finding a Pharmacy Receipt like this in Clara’s coat. P(H1 | E) = P(H1) · P(E | H1) ÷ [P(H1) · P(E | H1) + P(H2) · P(E | H2)]. First the player chooses whose math to look at first (with two suspects the shares add to 100%, so one update gives the other). Then one formula transforms in place: the rule in symbols with a key; the same with names (“Clara Updated = Clara’s Prior · Boot Print given Clara / …”); the player’s numbers; then multiply, add and divide inside the formula; finally the other suspect, with just the names (“Thomas = 100% − Clara”).)*
 
 - **P(H1), P(H2)**, your board so far: Clara 12%, Mr. Thomas 88% *(numbers here follow the designed ratings)*
 - **P(E | H1), P(E | H2)**, your ratings: Clara 70%, Mr. Thomas 30%
@@ -726,7 +726,7 @@ After choosing: “You rated it N: …, a P% chance.”
 
 ### Page: The math
 
-*(The same update as Bayes’ rule, one hypothesis per suspect: H1 “Clara is the murderer”, H2 “Mr. Thomas is the murderer”, and E finding this telephone log. P(H1 | E) = P(H1) · P(E | H1) ÷ [P(H1) · P(E | H1) + P(H2) · P(E | H2)]. First the player chooses whose math to look at first (with two suspects the shares add to 100%, so one update gives the other). Then one formula transforms in place: the rule in symbols with a key; the same with names (“Clara Updated = Clara’s Prior · Boot Print given Clara / …”); the player’s numbers; then multiply, add and divide inside the formula; finally the other suspect (“Thomas Updated = 100% − Clara Updated”).)*
+*(The same update as Bayes’ rule, one hypothesis per suspect: H1 “Clara is the murderer”, H2 “Mr. Thomas is the murderer”, and E finding this telephone log. P(H1 | E) = P(H1) · P(E | H1) ÷ [P(H1) · P(E | H1) + P(H2) · P(E | H2)]. First the player chooses whose math to look at first (with two suspects the shares add to 100%, so one update gives the other). Then one formula transforms in place: the rule in symbols with a key; the same with names (“Clara Updated = Clara’s Prior · Boot Print given Clara / …”); the player’s numbers; then multiply, add and divide inside the formula; finally the other suspect, with just the names (“Thomas = 100% − Clara”).)*
 
 - **P(H1), P(H2)**, your board so far: Clara 25%, Mr. Thomas 75% *(numbers here follow the designed ratings)*
 - **P(E | H1), P(E | H2)**, your ratings: Clara 10%, Mr. Thomas 50%
@@ -811,7 +811,7 @@ After choosing: “You rated it N: …, a P% chance.”
 
 ### Page: The math
 
-*(The same update as Bayes’ rule, one hypothesis per suspect: H1 “Clara is the murderer”, H2 “Mr. Thomas is the murderer”, and E finding a pruning knife under my chair. P(H1 | E) = P(H1) · P(E | H1) ÷ [P(H1) · P(E | H1) + P(H2) · P(E | H2)]. First the player chooses whose math to look at first (with two suspects the shares add to 100%, so one update gives the other). Then one formula transforms in place: the rule in symbols with a key; the same with names (“Clara Updated = Clara’s Prior · Boot Print given Clara / …”); the player’s numbers; then multiply, add and divide inside the formula; finally the other suspect (“Thomas Updated = 100% − Clara Updated”).)*
+*(The same update as Bayes’ rule, one hypothesis per suspect: H1 “Clara is the murderer”, H2 “Mr. Thomas is the murderer”, and E finding a pruning knife under my chair. P(H1 | E) = P(H1) · P(E | H1) ÷ [P(H1) · P(E | H1) + P(H2) · P(E | H2)]. First the player chooses whose math to look at first (with two suspects the shares add to 100%, so one update gives the other). Then one formula transforms in place: the rule in symbols with a key; the same with names (“Clara Updated = Clara’s Prior · Boot Print given Clara / …”); the player’s numbers; then multiply, add and divide inside the formula; finally the other suspect, with just the names (“Thomas = 100% − Clara”).)*
 
 - **P(H1), P(H2)**, your board so far: Clara 6%, Mr. Thomas 94% *(numbers here follow the designed ratings)*
 - **P(E | H1), P(E | H2)**, your ratings: Clara 50%, Mr. Thomas 70%

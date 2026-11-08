@@ -1215,7 +1215,7 @@ export class EvidenceScene extends Phaser.Scene {
    *   2. names: "Clara Updated = Clara's Prior · Boot Print given Clara / …"
    *   3. numbers: each term becomes the player's own number
    *   4. multiply, 5. add, 6. divide: the arithmetic done inside the formula itself
-   *   7–9. the other suspect underneath: "Thomas Updated = 100% − Clara Updated", then the
+   *   7–9. the other suspect underneath: "Thomas = 100% − Clara", then the
    *        figure substituted in, then the subtraction done
    * Stepping forward transforms the formula in place: every term slides to its new place
    * while the old wording dissolves into the new, and the fraction bar stretches to fit.
@@ -1356,12 +1356,15 @@ export class EvidenceScene extends Phaser.Scene {
       // (Worked from the rounded figure on screen, so the subtraction always adds up.)
       const other = 1 - focus;
       const shown = parseFloat(share(after[focus])) / 100;
-      const head: Item = ['olhs', [[short(other), col(other)], [' Updated', col(other)], [' = ', WC]]];
-      const hundred: Item = ['o100', [['100%', WC]]];
+      // from here on just the names: the answer above is plainly the update
+      const named: Part[] = [[short(focus), col(focus)], [' = ', WC]];
+      const head: Item = ['olhs', [[short(other), col(other)], [' = ', WC]]];
+      // 100% is the whole square; coloured like the other numbers on its line
+      const hundred: Item = ['o100', [['100%', col(other)]]];
       const minus: Item = ['ominus', [[' − ', WC]]];
-      if (f === 6) return { lhs, solo, line2: [head, hundred, minus, ['oref', [[short(focus), col(focus)], [' Updated', col(focus)]]]] };
-      if (f === 7) return { lhs, solo, line2: [head, hundred, minus, ['oval', [[share(after[focus]), col(focus)]], ['oref']]] };
-      return { lhs, solo, line2: [head, ['ores', [[share(1 - shown), col(other)]], ['o100', 'ominus', 'oval']]] };
+      if (f === 6) return { lhs: named, solo, line2: [head, hundred, minus, ['oref', [[short(focus), col(focus)]]]] };
+      if (f === 7) return { lhs: named, solo, line2: [head, hundred, minus, ['oval', [[share(after[focus]), col(focus)]], ['oref']]] };
+      return { lhs: named, solo, line2: [head, ['ores', [[share(1 - shown), col(other)]], ['o100', 'ominus', 'oval']]] };
     };
 
     type Slot = { parts: Part[]; x: number; y: number; w: number; src?: string[] };
