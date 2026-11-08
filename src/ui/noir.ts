@@ -91,7 +91,7 @@ export class AccentCamera {
 }
 
 /** Fine film grain over everything, shifting every frame. */
-export function filmGrain(scene: Phaser.Scene, depth = 950, alpha = 0.05) {
+export function filmGrain(scene: Phaser.Scene, depth = 950, alpha = 0.075) {
   const grain = scene.add.tileSprite(0, 0, W, H, 'grain').setOrigin(0).setScrollFactor(0).setDepth(depth).setAlpha(alpha);
   const step = () => grain.setTilePosition(Math.random() * 256, Math.random() * 256);
   scene.events.on(Phaser.Scenes.Events.UPDATE, step);
