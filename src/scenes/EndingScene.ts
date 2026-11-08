@@ -23,6 +23,8 @@ export class EndingScene extends Phaser.Scene {
   private busy = false;
   private ghost!: Phaser.GameObjects.Image;
   private glow!: Phaser.GameObjects.Image;
+  /** The ghost's idle bobbing; stopped when he rises, or it would pull him back down. */
+  private bob?: Phaser.Tweens.Tween;
   private amber!: Phaser.GameObjects.Rectangle;
   private caption!: Phaser.GameObjects.Text;
   private box!: Phaser.GameObjects.Container;
@@ -49,7 +51,7 @@ export class EndingScene extends Phaser.Scene {
     this.drawStudy();
     this.glow = this.add.image(BODY_AT + 120, 360, 'glow').setScale(2.2).setBlendMode(Phaser.BlendModes.ADD).setDepth(40);
     this.ghost = this.add.image(BODY_AT + 120, 360, 'ghost').setScale(0.8 / GHOST_RES).setDepth(41);
-    this.tweens.add({ targets: [this.ghost, this.glow], y: '-=12', duration: 1600, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+    this.bob = this.tweens.add({ targets: [this.ghost, this.glow], y: '-=12', duration: 1600, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
     this.amber = this.add.rectangle(0, 0, W, H, 0x2a1d10, 0).setOrigin(0).setDepth(50);
     this.caption = txt(this, W / 2, 40, '', 22, '#d9b98a', { fontStyle: 'italic' }).setOrigin(0.5, 0).setDepth(80);
     this.box = this.add.container(0, 0).setDepth(90);
@@ -191,6 +193,7 @@ export class EndingScene extends Phaser.Scene {
       }
       case 'silence':
         Sound.setMood('silent');
+        this.bob?.stop();
         this.tweens.add({ targets: [this.ghost, this.glow], y: '-=160', alpha: 0.5, duration: 2600, ease: 'Sine.easeIn' });
         return 2600;
       case 'rewind': {
