@@ -845,17 +845,16 @@ Choose carefully. A ghost only gets one accusation.
 *The great clock begins to strike eleven. The music brightens.*
 
 > **GHOST** *(thought)*: Thomas. My gardener of twenty years.
-> **GHOST** *(thought)*: Let me tell it the way it must have gone. I wasn’t there for it. I can only say what the evidence leaves standing.
+> **GHOST** *(thought)*: I wasn’t there. This is only what the evidence leaves standing.
 
 *RECONSTRUCTION. The amber returns, but this isn’t memory: the ghost is piecing it together from what he found. Everything in this scene is imagined, and the ghost says so.*
 
-> **GHOST** *(imagining)*: The garden and the cottage were all Edmund had. On Monday morning I would have signed them away.
-> **GHOST** *(imagining)*: Before he left at eight, Edmund lifted the latch of the conservatory window, the one I latch myself every autumn. I never noticed.
-> **GHOST** *(imagining)*: He signed my log, shook my hand, and went out smiling. He didn’t go home. He stood in the dark garden he knows better than I do, with the wet beds between him and my study window, and waited for me to make my tea.
-> **GHOST** *(imagining)*: At half past nine I carried my cup to the desk and set it down. Then I left the room for a few minutes, I think. That part is still fog.
-> **GHOST** *(imagining)*: Boots in the wet earth. The window rising. A hand, and a little brown bottle of foxglove plant, steeped strong, I’d guess. Then out the way he came, and a pruning knife left in the fringe of the rug. What was really in the bottle, I’ll never know.
-> **GHOST** *(imagining)*: And Clara, in the hall, on the telephone to Edinburgh for twenty-nine minutes, with her back to all of it.
-> **GHOST** *(imagining)*: Who rang him at 7:48, I’ll never know either. It was never on the scale, and the verdict doesn’t need it. A case doesn’t have to explain every scrap.
+> **GHOST** *(imagining)*: The garden and the cottage were all Edmund had. On Monday I would have signed them away.
+> **GHOST** *(imagining)*: Before he left at eight, he lifted the latch of the conservatory window. Then he signed my log, shook my hand, and waited in the dark garden.
+> **GHOST** *(imagining)*: At half past nine I set my cup on the desk and left the room for a few minutes. That part is still fog.
+> **GHOST** *(imagining)*: Boots in the wet earth. The window rising. A little brown bottle of foxglove plant, steeped strong. Then out the way he came, and his knife left in the fringe of the rug.
+> **GHOST** *(imagining)*: And Clara, in the hall, on the telephone to Edinburgh, with her back to all of it.
+> **GHOST** *(imagining)*: Who rang him at 7:48, I’ll never know. A case doesn’t have to explain every scrap.
 
 *The amber fades. In the hall the great clock has not finished striking. Eleven. A door opens at the back of the house, and light spills down the passage from the kitchen. Footsteps. The study door.*
 
@@ -864,11 +863,11 @@ Choose carefully. A ghost only gets one accusation.
 > **CLARA**: Uncle?
 > **CLARA**: ...Uncle.
 > **GHOST** *(thought)*: Eleven o’clock. She always says goodnight.
-> **GHOST** *(thought)*: The parcel. Brown paper and string, and a card in her handwriting: *For sleeping. I’m sorry about the house. C.* A small bottle from Hartley’s, bought at six-forty. She’s been in that kitchen for an hour, working up the courage to give it to me.
-> **GHOST** *(thought)*: The clue that nearly condemned her was an olive branch. I rated it unlikely, and it was unlikely, and it still happened. Unlikely doesn’t mean never.
-> **CLARA** *(whispering)*: I don’t care about the house. I never did. I’m sorry, Uncle. I’m so sorry.
-> **GHOST** *(thought)*: It was never about the house, Clara. You’ll find the will in my drawer, with my note in the margin: *Talk to her.* I’d tear it in half if I had hands.
-> **GHOST** *(thought)*: Tomorrow they’ll find the stripped foxglove plant, the print behind the fern, and a gardener without his knife. Tonight there’s only this: a girl on the floor of my study, talking to me as if I could hear.
+> **GHOST** *(thought)*: The parcel has a card in her handwriting: *For sleeping. I’m sorry about the house. C.* The bottle from Hartley’s was a gift.
+> **GHOST** *(thought)*: The clue that nearly condemned her was an olive branch. Unlikely doesn’t mean never.
+> **CLARA** *(whispering)*: I don’t care about the house. I never did. I’m so sorry, Uncle.
+> **GHOST** *(thought)*: It was never about the house, Clara. My note is in the margin of the will: *Talk to her.*
+> **GHOST** *(thought)*: Tomorrow they’ll find the foxglove plant, the print and the knife. Tonight there’s only a girl on the floor of my study, talking to me as if I could hear.
 > **GHOST** *(thought)*: Perhaps I can.
 
 *The clocks fall silent one by one. The ghost rises and fades.*
